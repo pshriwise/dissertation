@@ -73,13 +73,17 @@
 
 \clearpage
 % NOMENCLATURE
-% \begin{conventions}
-% % \begin{description}
-% % \item{\makebox[0.75in][l]{term}
-% %        \parbox[t]{5in}{definition\\}}
-% % \end{description}
-% \input{conventions}
-% \end{conventions}
+
+\newcommand{\term}[2] {
+\item{\makebox[0.75in][l]{\textbf{#1}}
+       \parbox[t]{5in}{#2\\}}
+}
+
+\begin{nomenclature}
+\begin{description}
+\term{AABB}{Axis-Aligned Bounding Box}
+\end{description}
+\end{nomenclature}
 
 %% The UW graduate school no longer wants a UMI abstract page
 %% Should you need one for some reason, uncomment the following

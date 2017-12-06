@@ -1,7 +1,7 @@
 
 
 pdf:
-	TEXINPUTS=./wi-thesis-template/:$$TEXINPUTS pdflatex ./dissertation.tex
+	pdflatex dissertation.tex
 
 preview: pdf
 	evince dissertation.pdf 

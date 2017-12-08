@@ -1,0 +1,35 @@
+
+\chapter{Introduction}\label{ch:introduction}
+
+
+Methods for modeling radiation transport determine particle flux, or derived
+quantities, across space, angle, energy and time. The combination of the space,
+angle, energy, and time domains is known as \textit{phase space}. The behavior
+of these particles is described by the lnear Boltzman transport
+equation. Deterministic solve this transport equation by discrectizing
+the phase space of the problem, but time and memory constraints often limit the
+resolution of phase space in practical problems.
+
+The Monte Carlo approach to modeling Radiation transport simulates the
+interaction of individual particles across the phase space. This method was
+developed at Los Alamos National Laboratory (LANL) during World War II by Fermi,
+von Neumann, Ulam, Metropolis, and Richtmyer. It uses a random walk process to
+solve the transport equation. Pseudo-random numbers are used to sample
+probability distribution functions representing the virtual medium and in turn
+determine the particle interaction outcomes. This stochastic approach requires
+the simulation of many particles to reduce the statistical uncertainty of the
+solution, where the uncertainty is inversely proportional to the square root of
+the number of particles simulated. As the number of simulated particles
+approaches infinity, tallied quantities approach the value of the continuous
+solution.
+
+The pros and cons of the two approaches complement each other. While
+deterministic approaches inherently calculate a solution over the entire problem
+domain, they take on additional error by discretizing phase space. In contrast,
+Monte Carlo methods only incur error associated with input parameters such as
+cross sections or geometry specifications, but it is challenging to achieve a
+global solution with constant statistical error using this
+approach. Computationally, deterministic methods typically suffer memory and
+runtime costs that scale with the 
+
+

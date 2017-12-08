@@ -1,7 +1,7 @@
 
 
 pdf:
-	pdflatex dissertation.tex
+	pdflatex dissertation && bibtex dissertation && pdflatex dissertation && pdflatex dissertation
 
 preview: pdf
 	evince dissertation.pdf 

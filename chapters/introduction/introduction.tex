@@ -5,17 +5,18 @@
 Methods for modeling radiation transport determine particle flux, or derived
 quantities, across space, angle, energy and time. The combination of the space,
 angle, energy, and time domains is known as \textit{phase space}. The behavior
-of these particles is described by the lnear Boltzman transport
+of these particles is described by the linear Boltzmann transport
 equation\cite{Ulam_1949}. Deterministic solve this transport equation by discrectizing
 the phase space of the problem, but time and memory constraints often limit the
 resolution of phase space in practical problems.
 
 The Monte Carlo approach to modeling Radiation transport simulates the
-interaction of individual particles across the phase space\cite{Lewis_1993}. This method was
-developed at Los Alamos National Laboratory (LANL) during World War II by Fermi,
-von Neumann, Ulam, Metropolis, and Richtmyer\cite{LANL_1987}. It uses a random walk process to
-solve the transport equation. Pseudo-random numbers are used to sample
-probability distribution functions representing the virtual medium and in turn
+interaction of individual particles across the phase
+space\cite{Lewis_1993}. This method was developed at Los Alamos National
+Laboratory (LANL) during World War II by Fermi, von Neumann, Ulam, Metropolis,
+and Richtmyer\cite{LANL_1987}. It uses a random walk process to solve the
+transport equation. Pseudo-random numbers are used to sample probability
+distribution functions representing properties of the virtual medium and in turn
 determine the particle interaction outcomes. This stochastic approach requires
 the simulation of many particles to reduce the statistical uncertainty of the
 solution, where the uncertainty is inversely proportional to the square root of
@@ -30,6 +31,33 @@ Monte Carlo methods only incur error associated with input parameters such as
 cross sections or geometry specifications, but it is challenging to achieve a
 global solution with constant statistical error using this
 approach. Computationally, deterministic methods typically suffer memory and
-runtime costs that scale with the 
+runtime costs that scale with the resolution of the discretized phase
+space. Monte Carlo methods are typically limited by the runtime needed to
+achieve satisfactory uncertainty in a region of interest.
 
+
+\section{Monte Carlo Geometry}
+
+Historically, Monte Carlo codes Constructive Solid Geometry (CSG) as their
+\textit{native} geometry representation. CSG representations represent 3D
+regions of virtual space using Boolean combinations of half spaces defined by
+quadratic surfaces.To define the geometry, the surface definitions and the
+Boolean combinations used to represent 3D regions (also referred to as cells or
+volumes) are entered into a text file. This format for geometry is robust once
+defined properly, but is limited in representation compared to more modern
+geometric modeling tools such like Computer-Aided Design (CAD).
+
+CAD allows for increased accuracy in model representation and better human
+efficiency. CAD is able to represent higher-order surfaces and provides access
+to models used for analysis in other engineering domains. These shared models
+allow for a common problem domain in coupled simulation. CAD systems also provides a
+rich set of tools for model generation, topological representation, and design
+iteration. In highly complex and well-developed models, all of these tools are
+more intuitive and efficient for human use over alteration of native text-based
+formats. Many tools exist for converting native CSG models to and from CAD
+systems, and a few have the capability to perform simulations directly on CAD
+geometries.
+
+
+\section{Monte Carlo Geometry Queries}
 

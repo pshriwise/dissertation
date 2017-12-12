@@ -58,6 +58,48 @@ formats. Many tools exist for converting native CSG models to and from CAD
 systems, and a few have the capability to perform simulations directly on CAD
 geometries.
 
+The Direct Accelerated Geometry Monte Carlo (DAGMC) \cite{Tautges_2009} is one
+of several software packages which enables Monte Carlo simulations on CAD-based
+geometries. DAGMC's design allows it to serve as a particle
+tracking and geometry kernel for a variety of Monte Carlo codes. Specifically,
+it has been successfully integrated with MCNP, FLUKA, and Geant4 to
+date \cite{LANL_MCNP5_VOLIII, Bohlen_2014, GEANT4_2003}.
+
+\section{Statement of Problem}
+
+While the use of CAD geometries brings the benefits outlined above, it also adds
+complexity to particle tracking during Monte Carlo simulations. Particle
+crossings with higher-order surfaces are difficult and sometimes impossible to
+compute. To address this problem, the analytic CAD surfaces are
+discretized into a triangle mesh. This has the effect of generalizing surface crossings to
+intersections with a set of planar surfaces if one were to define the same
+surface or volume using CSG. In this way, robust surface crossings for highly
+accurate representations of higher order surfaces and complex geometries are
+achieved. However, a large number of triangles are needed to maintain an
+accurate representation of surfaces throughout the model. As a result, the
+costly search for surface crossings causes simulations on CAD-based geometries
+to take much longer than native CSG models.
+
+The intersection of a particle and trajectory with a triangulated surface is a
+well-researched problem in the area of ray tracing. In this field, geometries
+are also triangulated for visualization and rendering purposes. DAGMC currently
+employs some techniques from this field to accelerate geometric queries, but it
+remains much slower than native geometry implementations in CSG. DAGMC's
+simulations are anywhere from 2.5 to 10 times longer than those of their native
+counterparts.
+
+\section{Statement of Thesis}
+
+The purpose of this work is to improve the performance of CAD-based Monte Carlo
+radiation transport in a manner that is widely accessible to analysts. The
+result is a compilation of adaptive data structure construction, data structure
+redesign, and alternative methods to reduce simulation times in DAGMC for the
+general case by a minimum factor of \textvf{insert factor here}.
+
+%% Developments in CPU architecture have prompted the redesign of ray tracing data
+%% structures and enabled enhanced performance of these queries. This is
+%% exemplified in the Embree project developed by Intel \cite{Wald_2014} which has
+%% been applied to CAD-based Monte Carlo analysis. This project
 
 \section{Monte Carlo Geometry Queries}
 

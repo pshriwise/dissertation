@@ -7,4 +7,4 @@ preview: pdf
 	evince dissertation.pdf 
 
 clean:
-	git clean -dfx 
+	git clean -dfx .

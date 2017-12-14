@@ -1,0 +1,47 @@
+\newcommand{\geomQuery}[2] {
+  \null %emptyline
+  \textbf{\uppercase{#1}} 
+  \begin{adjustwidth}{2.5em}{0pt}
+    #2
+  \end{adjustwidth}
+}
+
+\chapter{Background}\label{ch:background}
+
+\section{Monte Carlo Geometry Queries}
+
+A Monte Carlo geometry kernel must be able to robustly support the types of
+geometry queries outlined in Table \ref{tab:monte_carlo_queries}.
+
+
+\geomQuery{Measure}{
+    Given a volume or surface in the geometry, determine properties of that entity
+  such as the volume or area.
+}
+
+\geomQuery{Point Containment}{
+    Given a volume and particle location, determine if the point is inside,
+    outside, or on the boundary of that volume.
+}
+
+\geomQuery{Next Surface}{
+  Given a volume, particle location, and particle trajectory, determine the next
+  surface of the volume that the particle intersects along with the distance to
+  that intersection.
+}
+
+\geomQuery{Next Volume}{
+  Given a volume and surface, determine the adjacent volume on the other side of
+  the surface.
+}
+
+\geomQuery{Closest Surface}{
+  Given a volume and particle location, determine the distance to to the nearest
+  surface of the volume in any direction.
+}
+
+
+\geomQuery{Surface Normal}{
+  Given a surface and particle location, determine the normal vector of the
+  surface at a point closest to the particle's location.
+}

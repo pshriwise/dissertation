@@ -13,12 +13,6 @@
 A Monte Carlo geometry kernel must be able to robustly support the types of
 geometry queries
 
-
-\geomQuery{Measure}{
-    Given a volume or surface in the geometry, determine properties of that entity
-  such as the volume or area.
-}
-
 \geomQuery{Point Containment}{
     Given a volume and particle location, determine if the point is inside,
     outside, or on the boundary of that volume.
@@ -30,11 +24,6 @@ geometry queries
   that intersection.
 }
 
-\geomQuery{Next Volume}{
-  Given a volume and surface, determine the adjacent volume on the other side of
-  the surface.
-}
-
 \geomQuery{Closest Surface}{
   Given a volume and particle location, determine the distance to to the nearest
   surface of the volume in any direction.
@@ -44,6 +33,16 @@ geometry queries
 \geomQuery{Surface Normal}{
   Given a surface and particle location, determine the normal vector of the
   surface at a point closest to the particle's location.
+}
+
+\geomQuery{Measure}{
+    Given a volume or surface in the geometry, determine properties of that entity
+  such as the volume or area.
+}
+
+\geomQuery{Next Volume}{
+  Given a volume and surface, determine the adjacent volume on the other side of
+  the surface.
 }
 
 \section{Analytic Geometry Representations}\label{sec:analytic_geometry}
@@ -149,7 +148,7 @@ in Figure \ref{fig:csg_ex}).
 \begin{figure}[h]
   \centering
   \includegraphics{csg_ex.eps}
-  \caption{An example of how CSG volumes are created using boolean combinations
+  \caption{An example of how CSG volumes are created using Boolean combinations
     of smaller objects. The union of the three orthogonal cylinders is
     subtracted from the intersection of the box and sphere on the left to form
     the final volume at the top of the figure.}

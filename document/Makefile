@@ -1,7 +1,10 @@
 
 
 pdf:
-	pdflatex dissertation && bibtex dissertation && pdflatex dissertation && pdflatex dissertation
+	pdflatex --shell-escape dissertation && \
+	bibtex dissertation && \
+	pdflatex --shell-escape dissertation && \
+	pdflatex --shell-escape dissertation
 
 preview: pdf
 	evince dissertation.pdf 

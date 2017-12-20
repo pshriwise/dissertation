@@ -155,5 +155,21 @@ in Figure \ref{fig:csg_ex}).
   \label{fig:csg_ex}
 \end{figure}
 
+It is possible to construct complex geometries using CSG, but, as mentioned in
+the introduction, the interface for this work is typically text-based and
+defining complex volumes is a tedious and time-consuming task. Detecting
+problems with the geometry definition is straightforward for the same reason
+that particles can be robustly tracked through the geometry - the analytic
+description of the surfaces. Fixing undefined regions of the geometry or
+detecting invalid volume definitions is more difficult however.
 
+The detection of intersections and particle containment queries in CSG
+geometries is in practice computationally inexpensive for relatively simple
+volume definitions, but due to the logical combinations of surfaces used to
+create volumes the number of evaluations necessary to satisfy these queries is
+linear with the number of surfaces in the definition. For sufficiently large and
+complex models, it is not uncommon for volumes with many surfaces to be
+artificially separated by planes to create two volumes with fewer surfaces in
+their definition.
 
+Visualization of CSG models can also be 

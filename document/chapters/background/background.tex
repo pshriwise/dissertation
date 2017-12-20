@@ -1,4 +1,4 @@
-\newcommand{\geomQuery}[2] {
+>\newcommand{\geomQuery}[2] {
   \null %emptyline
   \textbf{\uppercase{#1}} 
   \begin{adjustwidth}{2.5em}{0pt}
@@ -172,4 +172,36 @@ complex models, it is not uncommon for volumes with many surfaces to be
 artificially separated by planes to create two volumes with fewer surfaces in
 their definition.
 
-Visualization of CSG models can also be 
+Visualization of CSG models can also be difficult. Because native formats for
+CSG differ greatly between each Monte Carlo code, each typically comes with its
+own visualization tools. These tools are typically restricted to 2D images of
+the model representing a user-specified slice through the geometry. Other tools
+such as MCAM \cite{Liu_2005} and McCad \cite{Tsigetamirat_2008} allow for interactive visualization and repair of CSG
+models they do not provide the accuracy of CAD modeling engines.
+
+
+\subsection{CAD Geometry}
+
+CAD systems allow for highly efficient and accurate geometric
+representation. Highly complex models can be created using interactive
+visualization tools represented in 3D space with a rich tool set for volume and
+surface creation. These tools and the immediate visual verification of a user's
+work reduces human error in model generation and design iteration.
+
+In addition to reducing human error, CAD models provide a common domain for
+analysis in other engineering domains such as fluid dynamics, heat transfer,
+and structural engineering. This shared domain creates a common domain for
+coupled physics simulation.
+
+CAD also has the ability to represent free-form or higher-order surface. The use
+of representations like splines and subdivision surfaces allow for more accurate
+representation.
+
+\subsection{Monte Carlo Radiation Transport on CAD Geometry}
+
+The Direct Accelerated Geometry Monte Carlo (DAGMC) toolkit is a software
+capable of Monte Carlo radiation transport directly on CAD models
+\cite{Tautges_2009}. DAGMC was developed at the University of Wisconsin -
+Madison. It has been coupled with many Monte Carlo codes to enable analysis on
+CAD models. DAGMC relies on Cubit and its commercial version, Trelis, for CAD
+modeling. Both of these CAD packages rely on ACIS.

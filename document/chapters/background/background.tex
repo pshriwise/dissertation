@@ -1,4 +1,4 @@
->\newcommand{\geomQuery}[2] {
+\newcommand{\geomQuery}[2] {
   \null %emptyline
   \textbf{\uppercase{#1}} 
   \begin{adjustwidth}{2.5em}{0pt}
@@ -176,8 +176,9 @@ Visualization of CSG models can also be difficult. Because native formats for
 CSG differ greatly between each Monte Carlo code, each typically comes with its
 own visualization tools. These tools are typically restricted to 2D images of
 the model representing a user-specified slice through the geometry. Other tools
-such as MCAM \cite{Liu_2005} and McCad \cite{Tsigetamirat_2008} allow for interactive visualization and repair of CSG
-models they do not provide the accuracy of CAD modeling engines.
+such as MCAM \cite{Liu_2005} and McCad \cite{Tsigetamirat_2008} allow for
+interactive visualization and repair of CSG models they do not provide the
+accuracy of CAD modeling engines.
 
 
 \subsection{CAD Geometry}
@@ -203,5 +204,24 @@ The Direct Accelerated Geometry Monte Carlo (DAGMC) toolkit is a software
 capable of Monte Carlo radiation transport directly on CAD models
 \cite{Tautges_2009}. DAGMC was developed at the University of Wisconsin -
 Madison. It has been coupled with many Monte Carlo codes to enable analysis on
-CAD models. DAGMC relies on Cubit and its commercial version, Trelis, for CAD
-modeling. Both of these CAD packages rely on ACIS.
+CAD models. DAGMC relies on Cubit (and its commercial counterpart, Trelis) for CAD
+modeling. Both of these CAD packages rely on the geometric modeling kernel,
+ACIS.
+
+DAGMC provides robust particle tracking for Monte Carlo transport on
+arbitrarily complex CAD geometries. It accomplishes this by discretizing CAD
+surfaces into sets of triangles. Volumes are then defined by any triangles which
+represent bounding surfaces of a given volume. This surface mesh and the
+geometric relationships between the mesh entities are stored in the Mesh
+Oriented dAtaBase (MOAB) \cite{Tautges_2004}. These relationships are stored in
+a hierarchical structure within MOAB, relating volumes to their surfaces,
+surfaces to curves, and curves to vertices. 
+
+It is important that geometric relationships of the mesh are maintained to
+accelerate certain geometric queries on the surface mesh. For example,
+\textit{Next Volume} queries are accelerated by using these relationships to
+directly determine which volume a particle is passing into upon crossing a
+surface rather than performing a query of the particle's location for each
+volume. Other queries become more complicated due to the sheer number of
+triangles needed to properly define volumes with detailed features.
+

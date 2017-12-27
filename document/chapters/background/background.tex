@@ -180,7 +180,6 @@ such as MCAM \cite{Liu_2005} and McCad \cite{Tsigetamirat_2008} allow for
 interactive visualization and repair of CSG models they do not provide the
 accuracy of CAD modeling engines.
 
-
 \subsection{CAD Geometry}
 
 CAD systems allow for highly efficient and accurate geometric
@@ -236,3 +235,10 @@ trajectory. The nearest of these intersections can then be used to determine a
 particle's crossing or movement to the physics event location specified by the
 attached Monte Carlo code.
 
+The problem of finding in intersection of a given particle location and
+trajectory with a set of geometric primitives is known as ray tracing and is
+well-studied in the field of computer graphics and animation. In this field,
+data structures designed to accelerate the location of the nearest ray
+intersection are applied.
+
+\section{Ray Tracing Acceleration Data Structures}

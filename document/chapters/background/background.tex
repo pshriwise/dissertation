@@ -223,5 +223,16 @@ accelerate certain geometric queries on the surface mesh. For example,
 directly determine which volume a particle is passing into upon crossing a
 surface rather than performing a query of the particle's location for each
 volume. Other queries become more complicated due to the sheer number of
-triangles needed to properly define volumes with detailed features.
+triangles needed to properly define volumes with detailed features. 
+
+Next surface and closest to location geometry queries, for example, can be very
+computationally expensive for volumes composed of hundreds of thousands or even
+millions of triangles. A convenient way to think about performing geometric queries on
+triangulated surfaces or volumes is to consider an equivalent CSG representation
+constructed using a series of intersecting planes in place of triangles. The
+structure imposed by the Boolean combinations used to define such volumes
+require that each surface be checked for an intersection with the particle
+trajectory. The nearest of these intersections can then be used to determine a
+particle's crossing or movement to the physics event location specified by the
+attached Monte Carlo code.
 

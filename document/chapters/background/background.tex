@@ -242,3 +242,33 @@ data structures designed to accelerate the location of the nearest ray
 intersection are applied.
 
 \section{Ray Tracing Acceleration Data Structures}
+
+Acceleration data structures for ray tracing are designed to rapidly narrow the
+search for an intersection in virtual space given a starting position and
+direction also known as a ray. This is accomplished by partitioning the space
+and associating geometric primitives, most commonly triangles, with that
+bounding partition. A search is performed by checking for an intersection with
+the bounding partition. If the ray does not intersect with the partition, then
+the set of primitives associated with that partition can be removed from the
+search. If the ray does intersect with the partition, then the set of associated
+primitives must be checked for intersection. Because a single separation into
+two spatial partitions is often not enough to increase search efficiency, this
+partitioning process is performed recursively. The result is a tree structure in
+which at the top of the tree partitions are associated other partitions, known
+as child nodes, rather than primitives. At the bottom of the tree exists a set of
+nodes called leaves which are associated with geometric primitives. 
+
+The search for a ray intersection then becomes a traversal of the tree
+in which the children of the root node are checked for intersection. If an
+intersection is found with one or both of the nodes, then the corresponding child nodes 
+are checked for intersection as well. This process is repeated until leaf nodes
+are reached at which point primitives are checked for intersection. Knowing that
+a ray which doesn't intersect with a bounding partition cannot intersect with
+any of the primitives it contains, allows many primitives to be rapidly removed
+from the search and the number of intersection checks with primitives limited to
+a small few. This technique reduces the algorithmic complexity of the search
+from a brute force, or linear, $O(log(N_{triangles})$ to an $O(\,
+log(N_{primitives}))$ search. 
+
+Many variants of these data structures exist in the field of ray tracing, using
+a variety of bounding partition constructs....

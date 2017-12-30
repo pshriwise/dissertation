@@ -270,5 +270,70 @@ a small few. This technique reduces the algorithmic complexity of the search
 from a brute force, or linear, $O(log(N_{triangles})$ to an $O(\,
 log(N_{primitives}))$ search. 
 
-Many variants of these data structures exist in the field of ray tracing, using
-a variety of bounding partition constructs....
+\subsection{Partition Splitting Heuristics}
+
+There are two components that go into the creation of spatial
+partitions. The first is the selection of a candidate splitting plane which is
+used to separate entities into one partition or another. The second is
+the evaluation of the ``cost'' of that split should it be used. This cost is an
+estimate of how good or bad the split would be. Because there is no way to know
+exactly how expensive or inexpensive a split will be for the particular
+simulation at hand, heuristics are used to evaluate this cost and determine the
+optimal splitting plane using limited information about the local tree. This
+information is typically limited to the number of primitives and bounds of the
+parent partition and resulting child partitions.
+
+The two most common heuristics are the Entity Ratio Heuristic (ERH) and the
+Surface Area Heuristic (SAH). The ERH uses only the resulting number of
+primitives in each child node to determine the cost of a split. The philosophy
+behind this heuristic is to maintain the expected $O(log(N_{triangles})$ cost of
+a ray traversal by ensuring that primitives are split as evenly as possible from
+parent to child node. A form of this heuristic is presented in
+Eq. \ref{eq:ERH}. This heuristic is unitless and bounded by zero and
+one. This makes is possible to set both an upper and lower bound on the
+unacceptable cost and a ``good enough'' cost.
+
+\begin{figure}[H]
+\begin{equation}
+\label{eq:ERH}
+$$ C = \frac{|P_{R}-P_{L}|}{(P_{R} + P_{L})} $$
+\end{equation}
+  \begin{align*}
+    C - & \,final \, cost \, evaluation \\
+    P_{L} - & \, primitives\, contained\, by\, the\, left\, child  \\
+    P_{R} - & \, primitives\, contained\, by\, the\, right\, child \\
+  \end{align*}
+  \caption{An example of the entity ratio calcution for a binary tree.}
+  \label{fig:ERH}
+\end{figure}
+
+The SAH applies spatial information as well as division of primitives to the
+cost evaluation. The SAH uses the surface area of candidate child partitions
+relative to the current partition's surface area as an approximation for the
+probability that the child will be visited after the parent volume. The explicit
+form of the surface area heuristic was introduced in 1987 by Goldsmith and
+Salmon \cite{Goldsmith_1987} and later formalized by MacDonald and Booth in 1990
+\cite{MacDonald_1990}. Its full form is found in Equation \ref{eq:SAH}.
+
+\begin{figure}[H]
+  \begin{equation}
+    C =  C_{t} + \frac{SA_{L}}{SA_{P}} |P_{L}|C_{i} +  \frac{SA_{R}}{SA_{P}} |P_{R}|C_{i}
+    \label{eq:SAH}
+  \end{equation}
+  \begin{align*}
+    C_{t} - & \,cost\, of\, traversal\, to\, child\, nodes \\
+    C_{i} - & \, cost\, of\, primitive\, intersection\, check\, \\
+    SA_{L} - &  \,surface\, area\, of\, left\, child \\
+    P_{L} - & \, primitives\, contained\, by\, the\, left\, child  \\
+    SA_{R} - & \, surface\, area\, of\, right\, child \\
+    P_{R} - & \, primitives\, contained\, by\, the\, right\, child \\
+    SA_{P} - & \, parent\, bounding\, volume \\
+  \end{align*}
+  \caption{A form of the surface area heuristic for a binary tree.}
+  \label{fig:SAH}
+\end{figure}
+
+For the general case, ERH has not proved to be as effective as the SAH, but it
+has proven to be a useful tool in correcting the surface area heuristic for
+triangle mesh features of a specific type. This scenario will be discuss further
+in <INSERT HV CHAPTER HERE>.

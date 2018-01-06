@@ -272,7 +272,7 @@ log(N_{primitives}))$ search.
 
 \subsection{Partition Splitting Heuristics}
 
-There are two components that go into the creation of spatial
+There are two critical components that go into the creation of spatial
 partitions. The first is the selection of a candidate splitting plane which is
 used to separate entities into one partition or another. The second is
 the evaluation of the ``cost'' of that split should it be used. This cost is an
@@ -333,7 +333,285 @@ Salmon \cite{Goldsmith_1987} and later formalized by MacDonald and Booth in 1990
   \label{fig:SAH}
 \end{figure}
 
-For the general case, ERH has not proved to be as effective as the SAH, but it
+For the general case, ERH has not proved to be as effective as the SAH <REFERENCE HERE>, but it
 has proven to be a useful tool in correcting the surface area heuristic for
-triangle mesh features of a specific type. This scenario will be discuss further
+triangle mesh features of a specific type. This scenario will be discussed further
 in <INSERT HV CHAPTER HERE>.
+
+\subsection{KD-Trees}
+\label{subsec:kd-trees}
+The KD-Tree or multidimensional binary search tree was originally developed as
+an acceleration data structure for querying records in databases and has since
+found use in other applications including speech recognition, global information
+systems, and ray tracing \cite{Bentley_1975}. KD-Trees operate by using single
+values to represent divisions in a dimension of the problem space. A different
+dimension is split in each level of the tree, and the process is recursively
+repeated until a sufficiently small number of records or entities exist within
+the resulting partitions of a split, resulting in leaf nodes of the tree.
+
+This data structure is also commonly applied to virtual 3D space for ray
+intersection queries. A different dimension is split in each level of the tree
+just at is done in the context of an arbitrary database. The values used for
+separation of entities in the tree now represent a coordinate of a plane in that
+dimension; entities are then sorted to either side of that dimension to perform
+a split. First, the problem space is divided evenly in the x dimension. The two
+child partitions are then divided along the y axis and the resulting children of
+this division are subdivided along the z axis. Divisions are typically done in
+such a way that the space of the current candidate is bisected, however it is
+possible that by doing this primitive entities are divided by the plane as
+well. There are a couple of ways in which this problem is handled. The first is
+to simply reference any intersected primitives in both of the subdivisions. This
+has the effect of creating a small overlap between the partitions and means that
+some primitives may be checked for intersection more than once, but requires no
+changes to the original model. The other solution is to divide the primitive
+entities using the partition plane.  This solution requires alterations to the
+model which may be undesirable under certain conditions and violates the
+description of the KD-Tree as a pure querying structure by making modifications
+to the existing model.
+
+%% 2-D Example from Bentley1975 here %%
+\begin{figure}[H]
+
+  \includegraphics[scale=0.25]{2d_kd_eg.eps}
+  \caption{Two dimensional KD-Tree example adapted from Bently
+    et. al. \cite{Bentley_1975}. Left: Graph representation of the
+    KD-Tree. HISON's are right children. LOSON's are left childre. Boxes are
+    null. Right: Two dimensional space partitioned in the graph. Boxes represent
+    the range of their respective sub-tree.}
+  \label{fig:2D_kd_tree}
+\end{figure}
+
+KD-Trees are able to perform highly efficient due to traversal schemes developed
+based on the inherent quality of KD-Trees' non-overlapping sibling nodes. As a
+KD-Tree is being constructed, an ever-shrinking bounding box is being defined as
+one moves deeper into the tree. At the leaves of a KD-Tree, a well-resolved
+bounding box can be conceptualized using the coordinates of the last six
+splitting planes visited. The conceptual construction of this box is one way to
+move from node to node in a more efficient way than a more standard depth-first
+approach used in tree traversal. The partitions whose planes are used to
+construct this conceptual box can be linked to the current partition in order
+maintain a spatially localized search within the hierarchy. These links are
+referred to as neighbor links and, as shown by Samet et. al.\cite{Samet_1989},
+can be used to significantly reduce traversal costs in the KD-Tree. During
+traversal if a leaf is visited its neighbor links can be used to direct the
+query to either the next adjacent leaf or a nearby interior node in the tree
+thus avoiding a depth-first style traversal in which the next step upon visiting
+a leaf node is to return to the root node of the tree and continue. These
+neighbor links take advantage of the idea that if a leaf node is visited, but
+the desired intersection is not found, then it is likely that the desired
+intersection is close to the current leaf location. In this way, one can avoid
+large amounts of unnecessary shallow and middle level tree traversal steps.
+
+KD-Trees are frequently cited as being able to provide the best ray tracing
+performance to date \cite{Ernst_2007,Hurley_2002,Havran_2000}. In particular,
+KD-Trees are noted as being better equipped to handle models with highly varying
+triangle sizes/densities. In practice, KD-Trees tend to be very deep and can
+consume relatively high amounts of memory compared to other acceleration data
+structures. 
+
+\subsubsection{Bounding Volume Hierarchies}%%Status: Done%%
+\label{subsec:BVH}
+The initial concept of using the bounding volume construct as a pre-check for
+ray-intersection with CSG objects was introduced by Weghorst in 1984
+\cite{Weghorst_1984}. Weghorst explored the possibility of using bounding
+spheres and bounding boxes to contain geometric objects. This work also went so
+far as to create a hierarchy out of the object-based bounding volumes, noting the
+importance of hierarchically joining bounding volumes near to each other in space
+so as not to have parent volumes containing large amounts of empty space between them.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.3]{binary_graph.eps}
+  \includegraphics[scale=0.3, trim = 0 50 0 0 ]{bvh_2d_ex.eps}
+  \caption{Two dimensional BVH example adapted from Gottschalk 1996 \cite{Gottschalk_1996}}
+  \label{fig:2D_bvh}
+\end{figure}
+
+In Weghorst's exploration of sphere and box bounding volumes it was found that
+while spherical bounding volumes are not as computationally expensive to check
+for ray intersections than bounding boxes. The latter generally provide a
+tighter fit to the objects they contain, and this decreases the chance of wasted
+ray-volume intersection checks for rays which intersect the bounding volume but
+not the object it contains. When considering the application of bounding volumes
+to a discretized analytic surface represented by a triangle mesh, this becomes
+even more important as BVHs become deeper when constructed on large numbers of
+primitive entities and more ray-volume intersection checks are performed to
+reach leaf nodes. Even applied to analytic objects, this effect was reflected
+in the results of Weghorts's work strongly enough to show that bounding boxes
+provided better performance in accelerating the ray intersection process than
+bounding spheres.
+
+Two forms of BVHs are commonly applied in ray tracing problems: Axis-Aligned
+Bounding Boxes (AABBs) and Oriented Bounding Boxes (OBBs). AABBs are boxes whose
+orientation is restricted such that their faces are parallel to the global
+planes of the problem space. Given a set of points to contain, tightly fitting
+axis aligned boxes are straightforward to construct and overlaps between the
+children of a parent box are minimal. Their simple representation results in a
+relatively low memory footprint and straightforward, robust ray-intersection
+tests. Unlike AABBs, the faces of oriented bounding boxes are allowed take any
+orientation relative to the global axes in order to enclose their set of
+primitives as tightly as possible. Several robust methods for determining the
+orientation of a box for best fit to a set of primitives have been discovered
+\cite{Gottschalk_1996,ORourke_1985}. OBBs are better for avoiding superfluous
+ray-box intersections that might otherwise occur for an AABB. They also
+more quickly conform to the full set of enclosed primitives as the boxes are
+recursively divided. By orienting their axes with the local set of primitives
+they are bounding, candidate splitting planes, usually based on the current box
+axes, are more effective at separating primitive entities and reaching leaf
+conditions quickly. This leads to more shallow hierarchies making the worst-case
+number of intersection tests lower than for an AABB hierarchy on
+average. While a shallow hierarchy might indicate a smaller memory footprint,
+OBBs require one to store some extra information about their orientation
+relative to the global axes making this assumption difficult to consistently
+prove.
+
+One disadvantage of using OBBs is that the ray-box intersection check requires
+an extra step in transformation of the ray to the oriented axes of the box in
+question. The information needed for transformation of the ray basis must
+be constructed and applied to the ray before the box intersection can continue
+as it would for an axis aligned box. Thus, for a given ray query, an OBB hierarchy may
+have fewer intersection checks to perform than an AABB hierarchy, but the
+intersection checks are inherently more expensive than in the case of OBBs. In
+practice, AABBs are commonly used in BVH's for their simplicity of
+implementation and well-researched ray intersection algorithms. Other reasons
+for this preference will be discussed later in Section \ref{subsec:arch}.
+
+There are multiple approaches to constructing such data structures given a set
+of geometric primitives, but only ``top-down'' approaches will be discussed
+here. A top-down approach begins with the construction of a single bounding
+volume enclosing all primitives which will be part of the tree. At this point,
+child boxes of this root volume are created by selecting a splitting plane for
+the box which divides the primitives contained by the current bounding volume
+into two subsets. This process is then repeated until leaf conditions are
+met. The selection of candidate splitting planes and the selection of a final
+plane for splitting based on its estimated worth can greatly affect the
+performance of the data structure. An infinite number of planes could be
+tested to find the optimal plane for dividing the entities between the two child
+volumes, but even if one were to encounter such a splitting plane, it can be
+difficult to identify the plane as such without more knowledge about the final
+tree structure. As a result, a limited set of planes is tested for the best
+split based on a set of assumptions about the problem at hand and the heuristics
+being used to evaluate split costs. The most common method for split plane
+candidates is median plane splitting in which a bounding volume is split in half
+for each axes of the current bounding volume. The splitting planes are then
+evaluated and the split with the lowest cost is selected.
+
+One difficulty that BVH's of any type face is that of overlapping sibling
+bounding volumes. Overlapping sibling volumes can cause additional box
+intersection checks in a similar manner to loosely fitting bounding volumes. If
+a ray enters a region of overlapping sibling volumes, this causes the children
+of both boxes to be checked despite the fact that the ray will eventually only
+intersect with primitives contained by only one of the boxes. Overlaps are difficult to
+avoid, however, due to the reality that volumes are required to contain discrete
+elements for robustness, not just a section of the virtual space. Simply put, if
+the splitting plane of a bounding volume goes through one of the geometric
+primitives, there will be an overlap in the resulting child volumes. This
+inefficiency can be exacerbated by the structure of triangulated objects the
+BVHs are being formed around. Fortunately overlaps of sibling AABBs are
+typically limited to the size of perhaps one or two geometric primitives and
+there are other ways to cope with this problem.
+
+The spatial BVH variant (SBVH) was introduced by Stich et. al. in 2009
+\cite{Stich_2009} with an additional complexity to the node splitting step. As
+candidate split planes are considered, the duplication of triangles (or
+geometric primitives) to be contained in both resulting nodes. This grants much
+more freedom when considering how a node should be partitioned. Conversely, this
+extra freedom expands the search space of an optimal split plane for the node,
+making the process more complex. The relatively simple application of this
+method is performed by considering both splits in which triangle duplication is
+prohibited and splits in which it is allowed. In the scenario for which triangle
+duplication is prohibited, the set of candidate planes is equivalent to that of
+a standard BVH building algorithm. Stich applies the surface area heuristic for
+the purpose of his publication. In the case where reference duplication is
+allowed, the search for a splitting plane is much more open - as previously
+mentioned. In fact, the search becomes fundamentally aligned with the search for
+a spatial split as might be found in a KD-Tree implementation. The optimal
+splitting plane is then selected via a comparison of the SAH cost for all
+candidate split planes - spatial or traditional. Secondary heuristics are used
+to limit reference splitting in an effort properly manage the data structure's
+memory footprint. The result of the SBVH is a hierarchy which can be traversed
+just like any other BVH but with significantly reduced sibling volume
+overlaps. The general effect of the allowance for reference splitting during
+construction is more tightly fitting bounding volumes and reduced sibling volume
+overlap. Their results consistently show significant improvement over other
+methods, ranging anywhere from (20-100\%).\cite{Stich_2009}
+
+Bounding volume hierarcies are favoered in the field of ray tracing for their
+lower memory footprints and well-developed parallel building schemes. These
+features are of great import for systems with limited memory, such as GPUs, and
+applications with intent for realtime viewing or interaction. These requirements
+do not necessarily apply to the realm of Monte Carlo particle tracking which is
+commonly performed on CPUs which have more memory available relative to GPUs.
+
+%% The BVH is currently the most commonly employed acceleration data structure for ray tracing due to its reduced memory footprint in comparison to the other data structures discussed in this chapter. They are relatively simple to implement for the performance they are able to provide and have a smaller footprint relative to most other ray tracing acceleration data structures.
+
+\subsubsection{Octrees}%%Status:Done%%
+\label{subsec:octree}
+
+Octrees are a partitioning scheme in which cuboid bounding boxes known, also
+known as voxels, are used to partition the 3D problem space into the 8 quadrants
+defined by the global axes and extents of the parent voxel. These 8 voxels are
+then linked as children of the parent voxel. This process is repeated
+recursively until leaf conditions are met in which a sufficiently small number
+of primitives is contained within the current voxel.
+
+This spatial subdivision technique is commonly used to efficiently index
+data in 3-D space.\cite{Glassner_1989} Octrees are somewhat like KD-trees in
+that their divisions are spatial, their partitions contain no overlaps, and the
+placement of entities in nodes occurs in a similar manner to that of KD-trees,
+but each node is represented by a closed bounding volume as in a BVH.
+
+Octrees can consume a large amount of memory relative to the other data
+structures previously discussed in this chapter. It is often possible that
+voxels may be completely devoid of underlying entities. There are typically many
+voxels containing no primitive references but may be required to exist as part
+of the data structure. This results in many voxels being stored in memory which
+aren't useful other than to verify that the space they contain is
+empty. Additionally, geometric primitives may be referenced multiple times if
+they intersect multiple nodes thus increasing the required memory storage with
+the same consequence as seen in KD-Tree traversl with the possibility of a
+primitive being checked more than once upon traversal. The memory footprint is
+mostly of concern in applications for visualization on GPUs - though specialized methods for Octree applications on these architectures do exist.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.65]{octree_2d_ex.eps}
+  \caption{Two dimensional Octree example of a top-down ray fire traversal for a simple geometric object.}
+  \label{fig:2D_octree}
+\end{figure}
+
+One advantage of octrees is the regular nature of the partitions. The
+value of a node in hierarchies such as these (or in the BVH for that matter)
+lies in its ability to remove candidate space from the query, yet a voxel can
+only accomplish this if rays strike the voxel. The result is that one measure of
+a voxel's value can be described by the ratio of its probability of an
+intersection check to the space it will exclude from the query search or its
+volume. In a problem with a uniform ray distribution, the probablity of a ray to
+intersect a given voxel can be related to a voxel's surface area. Thus cubic
+voxels have the most favorable ratio possible based on their geometry. The
+uniformity of voxel properties provide a predictable nature of the octree which
+is advantageous when traversing the data structure as well.
+
+The predictable size and location of any given node in the tree determined from
+the root node properties also provides a fast lookup of the deepest node in the
+tree containing a point in space. This is helpful in providing a starting point
+for ray traversal which is deeper than the root node, allowing one to potentially avoid some traversal steps in the shallow levels of the tree. Additionally, octrees have non-overlapping nodes which allows
+for efficient traversal schemes similar to the neighbor linked traversal done in
+KD-trees. These traversals are conceptually similar to that of the KD-tree's but
+typically employ some form of Morton encoding to determine which node in the
+octree the ray should visit next \cite{Revelles_2000}. Other traversal
+techniques allow the octree to avoid creating and traversing nodes containing
+empty space which can significantly reduce its memory footprint in cases where
+internal nodes of the tree aren't required to define some spatial dataset as
+mentioned above \cite{Samet_1989}. These methods are often applied in GPU
+environments due to the limited memory available there. Octrees are often used
+to store spatial data fields as well and naturally provide a higher resolution of the field
+near boundaries of volume as the voxels become smaller in that
+region which can be seen in Figure \ref{fig:2D_octree}.
+
+As mentioned above, octrees are known for having prohibitively large memory
+footprints than other data structures, but they can also be used advantageously
+for a combined purpose if a problem requires the storage of one or more
+well-resolved data fields near volume boundaries as well as the capability for
+ray tracing traversals similar in nature to those of the KD-tree.
+

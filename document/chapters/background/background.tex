@@ -1,8 +1,12 @@
-\newcommand{\geomQuery}[2] {
+\newcommand{\geomQuery}[3] {
   \null %emptyline
   \textbf{\uppercase{#1}} 
   \begin{adjustwidth}{2.5em}{0pt}
-    #2
+      \begin{tabular}{p{8cm} p{2cm}}
+    #3
+    &
+    \raisebox{-\totalheight}{\includegraphics[width=0.3\textwidth]{#2}}
+  \end{tabular}
   \end{adjustwidth}
 }
 
@@ -13,34 +17,34 @@
 A Monte Carlo geometry kernel must be able to robustly support the types of
 geometry queries
 
-\geomQuery{Point Containment}{
+\geomQuery{Point Containment}{plc_query.eps}{
     Given a volume and particle location, determine if the point is inside,
     outside, or on the boundary of that volume.
 }
 
-\geomQuery{Next Surface}{
+\geomQuery{Next Surface}{sc_query.eps}{
   Given a volume, particle location, and particle trajectory, determine the next
   surface of the volume that the particle intersects along with the distance to
   that intersection.
 }
 
-\geomQuery{Closest Surface}{
+\geomQuery{Closest Surface}{dtb_query.eps}{
   Given a volume and particle location, determine the distance to to the nearest
   surface of the volume in any direction.
 }
 
 
-\geomQuery{Surface Normal}{
+\geomQuery{Surface Normal}{dtb_query.eps}{
   Given a surface and particle location, determine the normal vector of the
   surface at a point closest to the particle's location.
 }
 
-\geomQuery{Measure}{
+\geomQuery{Measure}{dtb_query.eps}{
     Given a volume or surface in the geometry, determine properties of that entity
   such as the volume or area.
 }
 
-\geomQuery{Next Volume}{
+\geomQuery{Next Volume}{dtb_query.eps}{
   Given a volume and surface, determine the adjacent volume on the other side of
   the surface.
 }

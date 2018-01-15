@@ -784,30 +784,30 @@ $R^3$ domain as:
 where an isocontour of value, $v$, of the implicit surface can be
 described as
 \begin{equation} \label{eq:implicit_surf_isocontour}
-  \Omega(\vv{x}) - v  = 0 
+  \Omega(\vec{x}) - v  = 0 
 \end{equation}
-for all points $\vv{x}$ satisfying that equation. For simplicity, the surface
+for all points $\vec{x}$ satisfying that equation. For simplicity, the surface
 isocontour value is typically defined as $0$. 
 
-By recognizing that the magnitude of $\Omega(\vv{x})$ is in fact a
+By recognizing that the magnitude of $\Omega(\vec{x})$ is in fact a
 minimum interface distance function, one can construct a signed
-distance function, $SDV(\vv{x})$, using the isocontour representation
+distance function, $SDV(\vec{x})$, using the isocontour representation
 and the magnitude of the function as seen in Eq.~\ref{eq:sdf}
 \cite{Osher_2003}.
 
 \begin{align} \label{eq:sdf}
-   SDV(\vv{x}) = |\Omega(\vv{x})|
+   SDV(\vec{x}) = |\Omega(\vec{x})|
 \end{align}
 
 Signed distance function generation from implicit surfaces is a
 particularly valuable property of implicit surfaces. A signed distance
-function, $SDV(\vv{x})$, meets the following requirements
-for any point $\vv{x}$:
+function, $SDV(\vec{x})$, meets the following requirements
+for any point $\vec{x}$:
 
 \begin{itemize}
-\item $ SDV(\vv{x}) = 0 $ for all $ \vv{x} $ on the surface boundary,
-\item $ SDV(\vv{x}) < 0 $ for all $\vv{x}$ inside the surface boundary, and
-\item $ SDV(\vv{x}) > 0 $ for all $\vv{x}$ outside the surface boundary.
+\item $ SDV(\vec{x}) = 0 $ for all $ \vec{x} $ on the surface boundary,
+\item $ SDV(\vec{x}) < 0 $ for all $\vec{x}$ inside the surface boundary, and
+\item $ SDV(\vec{x}) > 0 $ for all $\vec{x}$ outside the surface boundary.
 \end{itemize}
 
 Implicit surfaces and level-set methods can be naturally extended to

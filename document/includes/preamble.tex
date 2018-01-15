@@ -27,6 +27,19 @@
 \usepackage{appendix}%
 }{}
 
+\newcommand{\executeiffilenewer}[3]{%
+ \ifnum\pdfstrcmp{\pdffilemoddate{#1}}%
+ {\pdffilemoddate{#2}}>0%
+ {\immediate\write18{#3}}\fi%
+}
+
+\newcommand{\includesvg}[2]{%
+  \executeiffilenewer{#1.svg}{#1.pdf}%
+                     {inkscape #1.svg %
+                       --export-pdf=#1.pdf}%
+ \includegraphics[width=#2]{#1.pdf}
+}
+
 %% the spacing in memoir is weird, you'll need to use this
 \DisemulatePackage{setspace}
 \usepackage[onehalfspacing]{setspace}

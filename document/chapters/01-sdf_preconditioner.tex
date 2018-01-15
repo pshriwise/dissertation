@@ -1,5 +1,5 @@
 
-\chapter{Geometry Query Preconditioning}\label{ch:preconditioning}
+\chapter{Signed Distance Field Preconditioning}\label{ch:preconditioning}
 
 This chapter describes the adaptation of a rendering data structure, the signed
 distance field, as a geometric query tool for accelerating CAD-based transport
@@ -8,7 +8,7 @@ predictive model for the data structure's utilization based on various problem
 parameters is also introduced and demonstrations of its effectiveness are shown
 for a number of simple problems as well two production level models.
 
-\section{Signed Distance Field Preconditioning}\label{section:preconditioner_theory}
+\section{Preconditioning Theory}\label{section:preconditioner_theory}
 
 Three types of geometric queries are common among the various Monte Carlo codes
 that DAGMC supports. These include next surface intersection, point containment,
@@ -86,7 +86,7 @@ tracing calls and a large number of these $O(logN)$ searches can be avoided.
   \label{fig:preconditioner_datastruct}
 \end{figure}
 
-\section{Signed Distance Field Implementation in DAGMC}
+\section{Implementation in MOAB}
 
 \subsection{Construction}
 
@@ -162,8 +162,7 @@ they point outward from the volume they represent. In the rare cases for which
 the dot product of these vectors is ambiguous, or zero, DAGMC's point
 containment algorithm is used to disambiguate the value's sign.
 
-
-\section{Signed Distance Field Utilization}\label{section:preconditioner_utilization}
+\section{Utilization Modeling}\label{section:preconditioner_utilization}
 
 In effect, the preconditioner is attempting to check whether or not the particle
 will actually cross a surface before explicitly searching for the particle's

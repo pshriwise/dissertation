@@ -1,7 +1,5 @@
 
-
-
-\chapter{Geometry Query Preconditioning}
+\chapter{Geometry Query Preconditioning}\label{ch:preconditioning}
 
 This chapter describes the adaptation of a rendering data structure, the signed
 distance field, as a geometric query tool for accelerating CAD-based transport
@@ -10,7 +8,7 @@ predictive model for the data structure's utilization based on various problem
 parameters is also introduced and demonstrations of its effectiveness are shown
 for a number of simple problems as well two production level models.
 
-\section{Preconditioner Theory}
+\section{Preconditioner Theory}\label{section:preconditioner_theory}
 
 Three types of geometric queries are common among the various Monte Carlo codes
 that DAGMC supports. These include next surface intersection, point containment,
@@ -79,8 +77,6 @@ a $O(1)$ process to establish that the conditions of a geometric query are such
 that a more robust and computationally expensive ray is necessary before
 performing the ray tracing operation. It is hypothesized that in many cases
 during radiation transport that this process can be used to subvert many ray
-tracing calls and a large number of these $O(logN)$ searches can be avoided. The
-application of the signed distance field data structure in several test problems
-indicates that this is true.
+tracing calls and a large number of these $O(logN)$ searches can be avoided.
 
 

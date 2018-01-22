@@ -24,6 +24,14 @@ structure's utilization is also introduced. Finally, demonstrations of its
 effectiveness for a number of simple problems and production models are shown
 and discussed.
 
+\begin{figure}[H]
+  \includesvg{../images/preconditioner_datastruct}{0.5\textwidth}
+  \centering
+  \caption{2D visualization of the signed distance field with sign conventions
+    reversed for use in radiation transport.}
+  \label{fig:preconditioner_datastruct}
+\end{figure}
+
 \section{Preconditioning Theory}\label{section:preconditioner_theory}
 
 Of the geometric queries that DAGMC supports, next surface intersection, point
@@ -32,14 +40,6 @@ Typically, a ray is fired to satisfy any of these queries in DAGMC with
 $O(logN)$ complexity using MOAB's BVH, but it is hypothesized that these queries
 can be accelerated in many cases by first performing an $O(1)$ signed distance
 value look-up to precondition ray fire calls.
-
-\begin{figure}[ht]
-  \includesvg{../images/preconditioner_datastruct}{0.3\textwidth}
-  \centering
-  \caption{2D visualization of the signed distance field with sign conventions
-    reversed for use in radiation transport.}
-  \label{fig:preconditioner_datastruct}
-\end{figure}
 
 
 \precondQuery{Point Containment}

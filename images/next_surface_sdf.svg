@@ -9,13 +9,13 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   viewBox="0 0 826.48846 526.74866"
+   viewBox="0 0 991.78613 632.09839"
    stroke-miterlimit="10"
    id="svg4326"
    inkscape:version="0.91 r13725"
    sodipodi:docname="next_surface_sdf.svg"
-   width="826.48846"
-   height="526.74866"
+   width="991.78613"
+   height="632.09839"
    style="fill:none;stroke:none;stroke-linecap:square;stroke-miterlimit:10">
   <metadata
      id="metadata4348">
@@ -62,9 +62,9 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:zoom="0.9074537"
-     inkscape:cx="364.817"
-     inkscape:cy="279.90009"
+     inkscape:zoom="1"
+     inkscape:cx="475.01546"
+     inkscape:cy="305.02534"
      inkscape:window-x="1050"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
@@ -80,7 +80,7 @@
   <g
      clip-path="url(#g2f15e4a771_1_7.0)"
      id="g4331"
-     transform="translate(-77.138924,-98.48069)">
+     transform="matrix(1.2,0,0,1.2,-92.566708,-118.17683)">
     <path
        d="m 0,0 960,0 0,720 -960,0 z"
        id="path4333"
@@ -115,4 +115,46 @@
          style="fill:#000000" />
     </g>
   </g>
+  <rect
+     style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:1.20000005;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     id="rect5562"
+     width="248.60773"
+     height="48.928116"
+     x="118.00817"
+     y="20.025322"
+     rx="103.901"
+     ry="40.77343" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:36px;line-height:124.00000095%;font-family:Sans;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1"
+     x="114.57132"
+     y="53.425426"
+     id="text4204"
+     sodipodi:linespacing="124%"><tspan
+       sodipodi:role="line"
+       id="tspan4206"
+       x="114.57132"
+       y="53.425426"
+       style="font-size:19.5px">Current Particle Position</tspan></text>
+  <rect
+     style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:1.29425192;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     id="rect5582"
+     width="248.51349"
+     height="36.93243"
+     x="114.74934"
+     y="57.02179"
+     rx="103.901"
+     ry="26.44763" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:36px;line-height:124.00000095%;font-family:Sans;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1"
+     x="117.18513"
+     y="82.689072"
+     id="text4204-3"
+     sodipodi:linespacing="124%"><tspan
+       sodipodi:role="line"
+       id="tspan4206-6"
+       x="117.18513"
+       y="82.689072"
+       style="font-size:19.5px">Physics Event Location</tspan></text>
 </svg>

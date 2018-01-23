@@ -49,53 +49,55 @@ value look-up to precondition ray fire calls.
                 Point containment queries can be preconditioning by examining
                 the interploated signed distance value for the current particle
                 location. If the point's value is negative (or outside of the
-                signed distance field data structure), then the point is not
-                considered to be contained within the volume. If the point's
-                value is positive, then the point is determined to be inside the
-                volume.
+                SDF), then the point is considered to be outside of the
+                volume. If the point's value is positive, then the point is
+                determined to be inside the volume.
 
                 Given that there is error associated with each of these
-                interpolated values, the point containment using a signed
-                distance field should only be trusted if the absolute value of
-                the signed distance is greater than the expected error
-                associated with the value. If this is not the case, then a ray
-                must be fired to determine the particle's containment with
-                respect to the volume in question. Figure
-                \ref{fig:point_containment_sdf} graphically describes the
+                interpolated values, the result of this method should only be
+                trusted if the absolute value of the signed distance is greater
+                than the expected error associated with the value. The error If
+                this is not the case, then a ray must be fired to determine the
+                particle's containment with respect to the volume in
+                question. In effect, this verifies that the location is far
+                enough from the boundary of the volume to make a definititive
+                statement about whether it is inside or outside of the volume
+                based on the sign of it's interpolated signed distance value.
+                Figure \ref{fig:point_containment_sdf} graphically describes the
                 outcome of these different cases in 2D.
               }
 
 \precondQuery{Next Surface}
-              {next_surface_sdf}
-              {Examples of scenarios for next surface intersection preconditioning using signed distance values.}
-              {
-                Next surface intersection queries are the most commong geometry
-                query in Monte Carlo simulations. The queries are intiated by
-                native Monte Carlo codes to determine if a particle will cross a
-                surface before reaching its next physics event
-                location. Normally in DAGMC a ray is fired each time this query
-                is called. This can be avoided by using the signed distance
-                field to exclude the possibility of a surface crossing without
-                explicitly determining the next surface intersection. If the sum
-                of the signed distance values for both the current particle
-                position and the next physics event location is greater than the
-                distance between the two, then no surface crossing will occur
-                and the particle can safely advance to the next physics event
-                location. Figure \ref{fig:next_surface_sdf} depicts these
-                different cases in 2D space.
-                
-                For robustness, the error for each interpolation should be
-                subtracted from the sum of the signed distance values as a
-                protective measure against invalid surface crossings. If the
-                expanse between the particle's current location and its next
-                physics event interaction cannot be accounted for by the signed
-                distance values of the two points, then the next surface
-                intersection will be found using a ray fire
-                call. Is it acknowledged that not all
-                Monte Carlo codes provide the next physics event location along
-                with the particle's current location to their geometry
-                kernels. In this case, preconditioning of these queries in this
-                manner will not be possible.
+             {next_surface_sdf}
+             {Examples of scenarios for next surface intersection preconditioning using signed distance values.}
+             {
+               Next surface intersection queries are the most common geometry
+               query in Monte Carlo simulations. The queries are intiated by
+               native Monte Carlo codes to determine if a particle will cross a
+               surface before reaching its next physics event
+               location. Normally in DAGMC a ray is fired each time this query
+               is called. This can be avoided by using the signed distance
+               field to exclude the possibility of a surface crossing without
+               explicitly determining the next surface intersection. If the sum
+               of the signed distance values for both the current particle
+               position and the next physics event location is greater than the
+               distance between the two, then no surface crossing will occur
+               and the particle can safely advance to the next physics event
+               location. Figure \ref{fig:next_surface_sdf} depicts these
+               different cases in 2D space.
+               
+               For robustness, the error for each interpolation should be
+               subtracted from the sum of the signed distance values as a
+               protective measure against invalid surface crossings. If the
+               expanse between the particle's current location and its next
+               physics event location cannot be accounted for by the signed
+               distance values of the two points, then the next surface
+               intersection will be found using a ray fire
+               call. Is it acknowledged that not all
+               Monte Carlo codes provide the next physics event location along
+               with the particle's current location to their geometry
+               kernels. In this case, preconditioning of these queries in this
+               manner will not be possible.
               }
 
 \precondQuery{Closest Surface}
@@ -105,7 +107,7 @@ value look-up to precondition ray fire calls.
                Closest surface queries can be performed in a similar manner to
                the point containment queries, but they are more dependent on the
                native code's intent for their use. Some Monte Carlo codes always
-               query for the nearest volume surface intersection in order to
+               query for the closest surface intersection in order to
                determine whether or not the particle will exit the volume before
                reaching its next physics event location. This information can be
                interpolated from a signed distance field to the same effect.
@@ -131,32 +133,63 @@ value look-up to precondition ray fire calls.
 %%   \label{fig:precondition_ray}
 %% \end{figure}
 
+\bigskip
+             
 Using these methods, signed distance fields can act as a preconditioning tool
 for the relatively expensive ray fire process to accelerated CAD-based MCRT by
-using a $O(1)$ process to establish that the conditions of a geometric query are
-such that a more computationally expensive ray is necessary before performing
-the ray tracing operation. It is hypothesized that in many cases during
-radiation transport that this process can be used to avoid many ray tracing
-calls and a large number of these $O(logN)$ searches can be avoided.
+using an $O(1)$ process to establish that the conditions of a geometric query
+are such that a more computationally expensive ray fire is necessary before
+performing the ray tracing operation. It is hypothesized that for some Monte
+Carlo problems this process can be used to avoid $O(logN)$ ray fire calls to
+significantly reduce the runtime of the simulation.
 
 \section{Implementation in MOAB}
 
-\subsection{Construction}
+\subsection{SDF Construction}
 
-An initial implementation of the signed distance field employed MOAB's
-structured mesh interface and data tagging capabilites for storage of the data
-structure. This interface maintains a representation of the structured mesh with
-vertex coordinates and handles at each point along with hex elements for each
-mesh voxel. These vertex coordinates and hex elements can be accessed using
-$<i,j,k>$ indexing. While this format is somewhat memory intensive, it provides
+MOAB provides an interface for construction of structured mesh which stores
+explicit vertex coordinates, hex elements, and entity handles. As with any
+entity stored in MOAB, tag data can be applied to these elements. These vertex
+coordinates and hex elements can be accessed using $<i,j,k>$ indexing, where the
+coordinate $<0,0,0>$ and  $<N_{x}, N_{y}, N_{z}>$ represent the lowest and
+highest corner of the structured mesh in
+parameter space for a mesh containing $N_{x},N_{y},N_{z}$ elements in the x, y,
+and z directions respectively. This representation provides
 a fast path for verification, visualization, and proof of concept in transport
-test cases for demonstration.
+test cases for demonstration, but is very memory intensive. An implicit version
+of the structured mesh has been implemented which takes advantage of the uniform
+step size in each dimension to store only: the number of elements in the mesh,
+the location of the lowest corner in that mesh, and a flat array of the signed
+distance values associated with the elements of the mesh.
+%A much less memory intensive implementation in which only a box
+%corner, grid step size, dimensions, and the signed distance value data are
+%stored has now also been implemented.
+This avoids the storage of vertex coordinates, mesh element connectivity, and
+all associated handles to those entities. There is an added cost in re-computing
+vertex coordinates when a signed distance value is interpolated, but this added
+cost is negligible in comparison to a ray traverval and memory is of greater
+concern for this spatially dense data structure. This data structure can still
+interact with MOAB's structured mesh interface to generate an explicit mesh for
+visualization and verification if required.
+
+
+%% An initial implementation of the signed distance field employed MOAB's
+%% structured mesh interface and data tagging capabilites for storage of the data
+%% structure. This interface maintains a representation of the structured mesh with
+%% vertex coordinates and handles at each point along with hex elements for each
+%% mesh voxel. While this format is somewhat memory intensive, it provides
+%% a fast path for verification, visualization, and proof of concept in transport
+%% test cases for demonstration.
 
 \begin{figure}
   \begin{center}
-  \includegraphics[scale=0.22]{../images/sdf_sphere.png}
+  \includegraphics[scale=0.35]{../images/sdf_sphere.png}
   \caption{A visual of a signed distance field with step size 0.5 cm surrounding
-    the spherical volume of test case with a radius of 10 cm.}
+    the spherical volume of test case with a radius of 10 cm. Note the reversal
+    of the sign convention in comparison to Eq. \ref{eq:sdf}. It is preferable
+    to change this when populating the data structure rather than incurring the
+    additional computational cost of altering the sign of values for each
+    operation at runtime.}
   \end{center}
   \label{fig:sdf_sphere}
 \end{figure}
@@ -164,58 +197,40 @@ test cases for demonstration.
 Signed distance values can be retrieved from the structured mesh by determining
 which mesh voxel the point lies within. The point's element is accessed by
 determining an $<i,j,k>$ index using the point's x, y, and z values divided by
-the structured mesh step size. A trilinear interpolation of the element's 8 vertex
-coordinates and their signed distance values is then used to provide the signed
-distance value for the location of interest. As a result, the complexity of a
-signed distance value lookup from the signed distance field is
-$O(1)$. Performance improvements for geometric queries are based on using this
-process in place of the $O(log(N))$ ray tracing process.
-
-A much less memory intensive implementation in which only a box
-corner, grid step size, dimensions, and the signed distance value data are
-stored has now also been implemented. This avoids the storage of vertex
-coordinates, mesh element connectivity, and all associated handles to those
-entities. There is an added cost in re-computing vertex coordinates when a
-signed distance value is interpolated, but this added cost should still be
-negligible in comparison to a ray traverval and memory is of greater concern for
-this spatially dense data structure. This data structure can still interact with
-MOAB's structured mesh interface to generate an explicit mesh for visualization
-and verification if required.
+the structured mesh step size. A trilinear interpolation of the mesh element's 8
+vertex coordinates and their signed distance values is then used to provide the
+signed distance value for the location of interest. As a result, the complexity
+of a signed distance value lookup from the signed distance field is
+$O(1)$.
 
 As an initial implementation, one signed distance field is generated for each
 volume in DAGMC with extents matching the axis-aligned bounding box of the
 volume. The signed distance field is represented as a uniform structured mesh
 with a signed distance value at each vertex in the mesh as indicated in Fig.
-\ref{fig:preconditioner_datastruct}.\footnote{Altering the sign convention when
-  populating the data structure rather than incurring the additional
-  computational cost of altering the sign of values for each operation is
-  preferable.}
+\ref{fig:preconditioner_datastruct}.
 
-\subsection{Population}
+\subsection{SDF Population}
 
-It is mentioned above that signed distance fields are typically
-generated using an implicit, analytic representation, but a suitable data
-structure for populating the structured mesh with signed distance values is
-already in place in the form of DAGMC's bounding volume hierarchy. It is a more
-straightforward process to simply use DAGMC's current closest to location
-algorithm to generate signed distance values than to create an implicit surface
-approximation of the triangle mesh. Though the latter may be faster,
-performance improvements didn't seem to be impeded greatly by using this method
-to populate the data structure. This method also maintains a consistency between
-the intersections found by the ray tracing kernel and the signed distance field
-values.
+Signed distance fields are typically generated using an implicit, analytic
+representation, but a suitable data structure for populating the structured mesh
+with signed distance values is already in place in the form of DAGMC's bounding
+volume hierarchy. It is a more straightforward process to simply use DAGMC's
+current closest to location algorithm to generate signed distance values than to
+create an implicit surface approximation of the triangle mesh. This method also
+maintains a consistency between the intersections found by the ray tracing
+kernel and the signed distance field values.
 
-DAGMC's closest to boundary algorithm returns, among other pieces of
+DAGMC's closest to location algorithm returns, among other pieces of
 information, the nearest intersection location and the triangle on which this
 intersection exists. For each point in the signed distance field mesh, this
-algorithm is used to determine the magnitude of the distance value. To determine
-the sign of the distance value, a ray is constructed from query location and the
-intersection location. The dot product of this ray vector with the triangle's
-outward normal vector is used to determine the sign of the distance value. DAGMC
-maintains enough information to consistently orient triangle normals such that
-they point outward from the volume they represent. In the rare cases for which
-the dot product of these vectors is ambiguous, or zero, DAGMC's point
-containment algorithm is used to disambiguate the value's sign.
+algorithm is used to determine the magnitude of the distance value. To
+accomplish this, a ray is constructed from query location to the intersection
+location. The dot product of this ray vector with the triangle's outward normal
+vector is used to determine the sign of the distance value. DAGMC maintains
+enough information to consistently orient triangle normals such that they point
+outward from the volume they represent. In the rare cases for which the dot
+product of these vectors is ambiguous, or zero, DAGMC's point containment
+algorithm is used to disambiguate the value's sign.
 
 \section{Utilization Modeling}\label{section:preconditioner_utilization}
 
@@ -225,16 +240,20 @@ intersection with a surface along its current trajectory. If the result of this
 preconditioning check is always false and a ray is always fired, then these
 checks are only adding to the computational cost of the problem. This will
 always occur in volumes filled with void, for example, as particles immediately
-travel from one surface to another. As a result, the signed distance field
+travel from one side of a volume to another. As a result, the signed distance field
 should be applied selectively depending on each volume's geometric and material
 properties for optimal performance and high utilization of the preconditioning
-methods. Ideally, this method will only be applied to volumes in which the data
+methods.
+
+Ideally, this method will only be applied to volumes in which the data
 structure is able to precondition ray fire calls often or with high utilization
 of the data structure. The signed distance field is expected to have the biggest
 impact in performance when preconditioning next surface intersection queries, as
-they are most frequently called in Monte Carlo codes when tracking particles
+they are most commonly called in Monte Carlo codes when tracking neutral particles
 through the geometry. As such, this type of query is the focus of utilization
 measurement for the remainder of this section.
+
+PROVIDE PROOF THAT NEXT SURFACE IS MOST CALLED
 
 \begin{equation}
   U = \frac{ \small \text{Rays Avoided w/ SDF} }{ \small \text{Number of Geometry Queries} } 
@@ -242,24 +261,24 @@ measurement for the remainder of this section.
 %  \caption{Definition of signed distance field utilization as a ray fire preconditioner in DAGMC.}
 \end{equation}
 
-The utilization, $U$, of the signed distance field as a ray fire preconditioner can be
-described as the number of rays fire calls related to the next surface
-intersection queries that are avoided divided by the total number of next surface
-intersection queries made by the Monte Carlo code. This value is described
-in Eq. \ref{eq:preconditioner_utilization} and can be quantified using this
-definition using debugging tools, such as Valgrind, during DAGMC simulations.
-It is expected that in the majority of cases, as the utilization of preconditioning
-methods goes up, the performance of the simulation will also improve.
+As shown in Eq. \ref{eq:preconditioner_utilization}, the utilization, $U$, of
+the signed distance field as a ray fire preconditioner can be described as the
+number of ray fire calls related to the next surface intersection queries that
+are avoided divided by the total number of next surface intersection queries
+made by the Monte Carlo code. This value can be quantified using this definition
+using debugging tools, such as Valgrind, to determine the number of queries made
+in DAGMC and the number of rays fired inside of the subroutine.  It is expected
+that in the majority of cases, as the utilization of preconditioning methods
+goes up, the performance of the simulation will also improve.
+
+
 
 \begin{figure}[ht]
   \centering
-  \includesvg{../images/sdf_hydrogen_density_study_perf}{0.5\textwidth}
-  \caption{Performance results for a 5 MeV neutron source at the origin of a 10
-    cm radius sphere. Hydrogen density was varied from 0 to 1
-    $\frac{g}{cm^3}$. Simulations of 100M histories at each density were
-    performed using native MCNP5, DAG-MCNP5 without the signed distance field,
-    and DAG-MCNP5 with the signed distance field.}
-  \label{fig:sphere_hydrogen_density_study_perf}
+  \includesvg{../images/sdf_hydrogen_density_study_util}{\textwidth}
+  \caption{Utilization results for a 5 MeV neutron source at the origin of a 10 cm radius
+    sphere. Hydrogen density was varied from 0 to 1 $\frac{g}{cm^3}$.}
+  \label{fig:sphere_hydrogen_density_study_util}
 \end{figure}
 
 To understand this utilization more deeply with respect to material parameters,
@@ -267,69 +286,78 @@ the hydrogen density was varied from 0 to 1 $\frac{g}{cm^3}$ in the single-volum
 sphere test problem with a 5 MeV neutron point source. For each density, one
 simulation was performed without the signed distance field and another with the
 signed distance field and preconditioning enabled. Fig.
-\ref{fig:sphere_hydrogen_density_study_util} shows the results of this study. 
+\ref{fig:sphere_hydrogen_density_study_util} shows the utiilzation results of this study. 
 
 \begin{figure}[ht]
   \centering
-  \includesvg{../images/sdf_hydrogen_density_study_util}{0.5\textwidth}
-  \caption{Utilization results for a 5 MeV neutron source at the origin of a 10 cm radius
-    sphere. Hydrogen density was varied from 0 to 1 $\frac{g}{cm^3}$.}
-  \label{fig:sphere_hydrogen_density_study_util}
+  \includesvg{../images/sdf_hydrogen_density_study_perf}{\textwidth}
+  \caption{Performance results for a 5 MeV neutron source at the origin of a 10
+    cm radius sphere. Hydrogen density was varied from 0.0 to 1.0
+    $\frac{g}{cm^3}$. Simulations of 100M histories at each density were
+    performed using native MCNP5, DAG-MCNP5 without the signed distance field,
+    and DAG-MCNP5 with the signed distance field.}
+  \label{fig:sphere_hydrogen_density_study_perf}
 \end{figure}
 
 Utilization of the data structure in this study remains high until the hydrogen
 density falls to 0.1 $\frac{g}{cm^3}$ at which point a distinct knee appears and
 the utilization falls off quickly. Even at the lowest density reached in the
 study of 0.01 $\frac{g}{cm^3}$, the utilization of the signed distance field to
-avoid ray fire calls is 0.54.  It is difficult to judge the impact on the
-performance of this simulation for these low density values due to the limited
-size of the geometry and the short lived histories. As the material density
-decreases, particles quickly leave the geometry after very few collisions, but
+avoid ray fire calls is 0.54.
+
+
 Fig. \ref{fig:sphere_hydrogen_density_study_perf} provides an impression of the
 performance of these three implementations converge as the density of the
-hydrogen is varied. The application of the signed distance field allows for
-significantly improved performance until the density drops below 0.1
-$\frac{g}{cm^3}$ in agreement with utilization plot. In order to have more
-control over a simulation's physical parameters, subsequent experiments were
-performed using a simple simulation tool.
+hydrogen is varied. As the hydrogen density approaches 1.0 $\frac{g}{cm^3}$, a
+factor of ~3.5 improvement in runtime is seen in the simulation where the SDF is
+applied as a preconditioner. The application of the signed distance field allows
+for significantly improved performance until the density drops below 0.1
+$\frac{g}{cm^3}$ in agreement with utilization plot. As the material density
+decreases, particles quickly leave the geometry after very few collisions. It is
+difficult to judge the impact on the performance of this simulation for these
+low density values due to the limited size of the geometry and the short lived
+histories.  In order to have more control over a simulation's physical
+parameters, subsequent experiments were performed using a pseudo Monte Carlo
+simulation tool.
 
 \section{Signed Distance Field Utilization Modeling}
 
-In order to characterize utilization of a signed distance field as a next
-surface intersection query preconditioner for ray fire calls in DAGMC, a pseudo
-Monte Carlo simulation tool was developed using DAGMC. This tool was used to
-simulate different transport scenarios within a spherical geometry using an
-isotropic volumetric source and isotropic scattering. Particle histories are
-terminated based on a maximum number of collisions or departure from the problem
+In order to characterize utilization of a signed distance field as a
+preconditioner for next surface intersection queries in DAGMC, a pseudo Monte
+Carlo simulation tool was developed using DAGMC. This tool was used to simulate
+different transport scenarios within a spherical geometry using an isotropic
+volumetric source and isotropic scattering. Particle histories are terminated
+based on a maximum number of collisions or departure from the problem
 geometry. Particle distance traveled, $d$, can be represented by either a fixed
 distance or by sampling for the standard probability of interaction in a medium
-with mean free path, $\lambda$. The tool allows the mean free path to be set
+with mean free path, $\lambda$. The tool allows the value of $\lambda$ to be set
 directly, enabling a relation between the signed distance field and this value
-to be developed with the intent to use this relationship as a means for
-characterizing appropriate conditions for application of the signed distance field.
+to be developed with intent for use this relationship as a means for
+characterizing appropriate conditions for application of the signed distance
+field.
 
 \begin{figure}[!htb]
   \centering
-  \includesvg{../images/sdf_fixed_dist_results}{0.5\textwidth}
+  \includesvg{../images/sdf_fixed_dist_results}{\textwidth}
   \caption{Results of the model for the theoretical utilization limit with the
     results of the simulation for a fixed distance traveled case.}
   \label{fig:sdf_fixed_dist}    
 \end{figure}
 
 To begin, simulations were performed for particles with a fixed distance
-traveled, $\lambda$, varying that distance and the
-signed distance field step sizes. Run times of the simulation are not shown here
-as the data structure's utilization is the main focus of this study. The results
-of this study are shown in Fig. \ref{fig:sdf_fixed_dist}. As the signed distance
-field mesh step size increases, utilization of the data structure decreases due
-to the increasing error associated with the interpolation of signed distance
-values. Additionally, utilization is expected to decrease with increasing
-distance traveled. This decreased utilization is caused by not only the increased
-distance between the two particles, but also by the increased probability
-that both locations will be closer to surfaces of the sphere and have smaller
-signed distance values. A theoretical limit for the utilization is also shown in
-Fig. \ref{fig:sdf_fixed_dist}. The development of the analytic form for this limit will now be
-discussed.
+traveled for varying distances and signed distance field step sizes. Run times
+of the simulation are not shown here as the data structure's utilization is the
+main focus of this study. The results of the study are shown in
+Fig. \ref{fig:sdf_fixed_dist}. As the signed distance field mesh step size
+increases, utilization of the data structure decreases due to the increasing
+error associated with the interpolation of signed distance values. Additionally,
+utilization is expected to decrease with increasing distance traveled. This
+decreased utilization is caused by not only the increased distance between the
+two particles, but also by the increased probability that both locations will be
+closer to surfaces of the sphere and have smaller signed distance values. A
+theoretical limit for the utilization is also shown in
+Fig. \ref{fig:sdf_fixed_dist}. The development of the analytic form for this
+limit will now be discussed.
 
 \begin{figure}[ht]
   \centering
@@ -358,12 +386,10 @@ location of the next event, $n(d,\alpha,\beta)$, where $d$ is the distance
 traveled by the particle, $\alpha$ is the interior angle between the
 particle's \textit{position} vector and the particle's sampled direction
 vector, and $\beta$ represents an azimuthal angle for directions traveled with
-angle of departure $\alpha$. Fig. \ref{fig:model} depicts these
-variables, $r$, $d$, and $\alpha$ more clearly.  These points are distributed
-uniformly on a sphere at some distance $d$, and that distance is distributed
-according to some probability density function, $p_n(d)$. 
+angle of departure, $\alpha$. Fig. \ref{fig:model} depicts these
+variables, $r$, $d$, and $\alpha$ more clearly.
 
-In Eq. \ref{eq:util_model} the outer integral represents all possible particle positions within the
+The outer integral in Eq. \ref{eq:util_model} represents all possible particle positions within the
 geometric sphere and expands to
 
 \begin{equation}
@@ -371,7 +397,7 @@ geometric sphere and expands to
 \mathrm{d}\theta \mathrm{d}r \,  p_n(d) \mathrm{d}V_{track}
 \end{equation}
 
-The second integral then expands to
+The inner integral over $V_{track}$ then expands to
 
 \begin{equation}
 \small \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{0}^{\infty}\int_{0}^{2\pi}\int_{0}^{\pi}
@@ -405,14 +431,13 @@ space available to the problem
 r^2 \, \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
 \end{equation}
 
-and represents all geometric query space, $A$, for a sphere of radius,
+and represents all geometric query space, labeled $A$, for a sphere of radius,
 $R$ and a fixed distance traveled, $\lambda$.
 
 In order to understand what fraction of this query space is able to be
 preconditioned, the condition for avoiding an explicit nearest intersection
-search along a particle direction in Eq. \ref{eq:condition} must now be
-applied. Because this is intended to be an idealized upper limit for the
-utilization, error will be ignored.
+search along a particle direction in Eq. \ref{eq:condition} will now be
+applied.
 
 \begin{equation}
   SDV(\vec{p}) + SDV(\vec{n}) > |\vec{p}-\vec{n}| + 2\varepsilon(h)
@@ -430,9 +455,9 @@ This condition establishes that the nearest location to intersection for both
 points must be greater than the distance between the two points plus any error
 associated with their signed distance values as previously discussed. This
 condition is true for some fraction of the next surface queries in a Monte Carlo
-simulation, but not all.  Our mathematical model has no error, allowing for the
-largest possible volume of locations in which preconditioning will apply and the
-signed distance value for any point, $\vec{x}$, is
+simulation, but not all.  This model does not account for error, making it an
+idealized model representing the largest utilization possible for any given
+pseudo simulation.
 
 \begin{equation}
 SDV(\vec{x}) =  R-|\vec{x}|
@@ -443,7 +468,7 @@ Making these substitutions into the inequality gives
 \begin{equation}
 R-|\vec{p}| + R - |\vec{n}| >   |\vec{p}-\vec{n}|
 \end{equation}
-The right hand side of this inequality can simply be described as the distance
+The right hand side of this inequality can be described as the distance
 traveled, $d$, and the magnitude of $\vec{p}$ can be represented
 by the variable $r$.
 
@@ -469,7 +494,7 @@ R-r + R - \sqrt{r^2 + d^2 + 2rd \cos{\alpha}} > d
 \end{equation}
 
 The inequality has now been reduced to the three variables seen in
-Eq. \ref{eq:A_fixed} ($r$,$d$, and $\alpha$). This inequality can be applied to
+Eq. \ref{eq:A_fixed}:$r$, $d$, and $\alpha$. This inequality can be applied to
 construct limits of integration representing boundaries of space in which the
 SDF can be utilized. By rearranging the inequality, a limit on the angle of
 departure, $\alpha$, from the particle's position can be derived.
@@ -480,8 +505,11 @@ departure, $\alpha$, from the particle's position can be derived.
 
 \begin{figure*}[ht]
   \centering
-  \includesvg{../images/model_cases_fixed_distance}{0.8\textwidth}
-  \caption{Depiction of modeling cases.}
+  \includesvg{../images/model_cases_fixed_distance}{\textwidth}
+  \caption{Depiction of modeling cases. Left: an example of a track for which
+    $d < R - r$. Middle: an example of a track for which $R-r < d < R$ and can be
+    preconditioned.  Right: an example of a track for which $R-r < d < R$ and
+    cannot be preconditioned.}
   \label{fig:modeling_cases}
 \end{figure*}
 
@@ -494,9 +522,9 @@ about how signed distance values are being utilized.
 
 \begin{figure}
 \centering
-\includesvg{../images/alpha_r}{0.5\textwidth}
+\includesvg{../images/alpha_r}{\textwidth}
 \caption{Plot of minimum angle of departure restriction for particles with
-various radial positions in a sphere with R = 100 cm and varying distances traveled.}
+various radial positions, $r$, in a sphere with R = 100 cm and varying distances traveled.}
 \end{figure}
 
 The inequality is undefined until the distance reaches a value $d = R- r$. This
@@ -506,7 +534,7 @@ condition as depicted in Fig. \ref{fig:modeling_cases}. A violation of this
 limit may only occur when a particle travels far enough to reach the geometric
 sphere boundary along the current position vector as if it were moving directly
 toward the boundary of the sphere. An additional interesting feature of this
-plot is the convergence of all the curves as $d \rightarrow R$ on $\pi$. The
+plot is the convergence of all the curves on $\pi$ as $d$ approaches $R$. The
 convergence on $\pi$ indicates that as the distance traveled approaches $R$ the
 only direction that the particle can move is back toward the origin along the
 position vector. It also defines a maximum distance a particle can travel in the
@@ -561,78 +589,78 @@ single-volume geometries using dimensionless parameters to determine if the
 model above can be used to predict signed distance field utilization in other
 geometries as well.
 
-With the agreement of the simulation results and analytic model for signed
-distance field utilization for the fixed distance traveled case, the simulation
-has been used to produce a similar set of results in which the distance is
-sampled based on the standard probability for distance to interaction in a
-medium with a cross section, $\Sigma$, or mean free path $\lambda
-=1/\Sigma$. This results in the probability distribution function shown in
-Eq. \ref{eq:pn_sampled} for the particle distance traveled in this scenario.
+%% After the agreement of the simulation results and analytic model for signed
+%% distance field utilization for the fixed distance traveled case, the simulation
+%% was used to produce a similar set of results in which the distance is
+%% sampled based on the standard probability for distance to interaction in a
+%% medium with a cross section, $\Sigma$, or mean free path $\lambda
+%% =1/\Sigma$. This results in the probability distribution function shown in
+%% Eq. \ref{eq:pn_sampled} for the particle distance traveled in this scenario.
 
-\begin{equation}
-  \label{eq:pn_sampled}
-p_n(d) \propto \frac{e^{-\Sigma d}}{d^{2}} = \frac{e^{-\frac{d}{\lambda}}}{d^{2}}
-\end{equation}
+%% \begin{equation}
+%%   \label{eq:pn_sampled}
+%% p_n(d) \propto \frac{e^{-\Sigma d}}{d^{2}} = \frac{e^{-\frac{d}{\lambda}}}{d^{2}}
+%% \end{equation}
 
-\begin{figure}[ht]
-\centering
-\includesvg{../images/sdf_sampled_dist_results}{0.5\textwidth}
-\caption{Results of the model for the theoretical utilization limit with the
-results of the simulation for a sampled distance traveled case.}
-\label{fig:sdf_sampled_dist}
-\end{figure}
+%% \begin{figure}[ht]
+%% \centering
+%% \includesvg{../images/sdf_sampled_dist_results}{0.5\textwidth}
+%% \caption{Results of the model for the theoretical utilization limit with the
+%% results of the simulation for a sampled distance traveled case.}
+%% \label{fig:sdf_sampled_dist}
+%% \end{figure}
 
-%has to be in this section for latex reasons. grumble grumble...
-\begin{table*}[!h]
-  \centering
-  \begin{tabular}{lcccc}
-          \multicolumn{5}{l}{\textbf{\textit{Source Location:}} <0,0,-1>} \\
-          \textbf{Implementation} & \textbf{ctme (min)} & \textbf{wall time
-            (min)} & \textbf{time ratio} & \textbf{precond. utilization}\\
-          \hline
-          MCNP6 & 0.17 & 0.14 & 1 & N/A \\
-          DAG-MCNP6 & 1841.33 & 1841.33 & ~11,000 & N/A \\
-          DAG-MCNP6 w/ SDF & 0.48 & 0.46 & 2.82 & 0.94\\
-          \multicolumn{5}{l}{} \\
-          \multicolumn{5}{l}{\textbf{\textit{Source Location:}} <0,0,10>} \\
-          \textbf{Implementation} & \textbf{ctme (min)} & \textbf{wall time
-            (min)} & \textbf{time ratio} & \textbf{precond. utilization}\\
-          \hline
-          MCNP6 & 0.18 & 0.18 & 1 & N/A \\
-          DAG-MCNP6 & 11.12 & 11.16 & 62 & N/A \\
-          DAG-MCNP6 w/ SDF & 0.50 & 0.52 & 2.89 & 0.96 \\
+%% %has to be in this section for latex reasons. grumble grumble...
+%% \begin{table*}[!h]
+%%   \centering
+%%   \begin{tabular}{lcccc}
+%%           \multicolumn{5}{l}{\textbf{\textit{Source Location:}} <0,0,-1>} \\
+%%           \textbf{Implementation} & \textbf{ctme (min)} & \textbf{wall time
+%%             (min)} & \textbf{time ratio} & \textbf{precond. utilization}\\
+%%           \hline
+%%           MCNP6 & 0.17 & 0.14 & 1 & N/A \\
+%%           DAG-MCNP6 & 1841.33 & 1841.33 & ~11,000 & N/A \\
+%%           DAG-MCNP6 w/ SDF & 0.48 & 0.46 & 2.82 & 0.94\\
+%%           \multicolumn{5}{l}{} \\
+%%           \multicolumn{5}{l}{\textbf{\textit{Source Location:}} <0,0,10>} \\
+%%           \textbf{Implementation} & \textbf{ctme (min)} & \textbf{wall time
+%%             (min)} & \textbf{time ratio} & \textbf{precond. utilization}\\
+%%           \hline
+%%           MCNP6 & 0.18 & 0.18 & 1 & N/A \\
+%%           DAG-MCNP6 & 11.12 & 11.16 & 62 & N/A \\
+%%           DAG-MCNP6 w/ SDF & 0.50 & 0.52 & 2.89 & 0.96 \\
           
-  \end{tabular}
-  \caption{Performance results for an MCNP6 test case involving electron
-    transport of a 1 keV-100 keV photon source incident on an Fe/W target. 5,000
-    histories were run in this test problem.}
-  \label{tab:inp066_results}
-\end{table*}
+%%   \end{tabular}
+%%   \caption{Performance results for an MCNP6 test case involving electron
+%%     transport of a 1 keV-100 keV photon source incident on an Fe/W target. 5,000
+%%     histories were run in this test problem.}
+%%   \label{tab:inp066_results}
+%% \end{table*}
 
-Following the same process as in the fixed distance case by plugging Eq. \ref{eq:pn_sampled} into
-Eq. \ref{eq:subs_a_cond}, the utilization form for the sampled distance case is
-shown in Eq. \ref{eq:sampled_limit}.
+%% Following the same process as in the fixed distance case by plugging Eq. \ref{eq:pn_sampled} into
+%% Eq. \ref{eq:subs_a_cond}, the utilization form for the sampled distance case is
+%% shown in Eq. \ref{eq:sampled_limit}.
 
-\begin{equation}
-  \label{eq:sampled_limit}
-  U_{theoretical} = \frac{US}{A} = \frac{ \frac{1}{2} \lambda(R - 2 \lambda) e^{\frac{-R}{\lambda}} + \lambda^2 - \frac{3}{2} R \lambda + R^2 }{R^2}
-\end{equation}
+%% \begin{equation}
+%%   \label{eq:sampled_limit}
+%%   U_{theoretical} = \frac{US}{A} = \frac{ \frac{1}{2} \lambda(R - 2 \lambda) e^{\frac{-R}{\lambda}} + \lambda^2 - \frac{3}{2} R \lambda + R^2 }{R^2}
+%% \end{equation}
 
-The results of this set of simulations can be seen in
-Fig.\ref{fig:sdf_sampled_dist}. In this scenario, it is not expected that the
-utilization will approach zero when $\lambda = 100\, cm$, as the actual distance
-sampled may be considerably less than the provided mean free path for the
-simulation. Overall utilization values in this scenario for $\lambda$ from 0 to
-100 cm remain higher than the corresponding fixed distance simulation cases as
-is expected in a sampled distance case. Utilization values remain high for
-relatively large increases in mesh step size, $h$. This is important to
-application of the data structure given concerns regarding its potentially high
-memory footprint for large volumes. For example if the utilization of the signed
-distance field drops $~20\%$ when going from a step size of 1 cm to 6.21 cm, but
-the memory footprint of the data structure will have decreased by a factor of
-$6.21^3$ or $239.5$ as well. The optimization of the mesh step size with respect
-to its effect on utilization will also need to be included in future models of
-the utilization.
+%% The results of this set of simulations can be seen in
+%% Fig.\ref{fig:sdf_sampled_dist}. In this scenario, it is not expected that the
+%% utilization will approach zero when $\lambda = 100\, cm$, as the actual distance
+%% sampled may be considerably less than the provided mean free path for the
+%% simulation. Overall utilization values in this scenario for $\lambda$ from 0 to
+%% 100 cm remain higher than the corresponding fixed distance simulation cases as
+%% is expected in a sampled distance case. Utilization values remain high for
+%% relatively large increases in mesh step size, $h$. This is important to
+%% application of the data structure given concerns regarding its potentially high
+%% memory footprint for large volumes. For example if the utilization of the signed
+%% distance field drops $~20\%$ when going from a step size of 1 cm to 6.21 cm, but
+%% the memory footprint of the data structure will have decreased by a factor of
+%% $6.21^3$ or $239.5$ as well. The optimization of the mesh step size with respect
+%% to its effect on utilization will also need to be included in future models of
+%% the utilization.
 
 The fixed distance traveled scenario provides a nice baseline for agreement
 between the computational results and the model, but a more realistic scenario

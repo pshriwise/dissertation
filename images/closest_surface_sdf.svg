@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -114,4 +114,25 @@
          style="fill:#000000" />
     </g>
   </g>
+  <rect
+     style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     id="rect4926"
+     width="163.09372"
+     height="45.18137"
+     x="59.507168"
+     y="33.059559"
+     rx="103.901"
+     ry="45.18137" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:30px;line-height:124.00000095%;font-family:Sans;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1"
+     x="63.040794"
+     y="60.921539"
+     id="text4204"
+     sodipodi:linespacing="124%"><tspan
+       sodipodi:role="line"
+       id="tspan4206"
+       x="63.040794"
+       y="60.921539"
+       style="font-size:15.62500095px">Current Particle Position</tspan></text>
 </svg>

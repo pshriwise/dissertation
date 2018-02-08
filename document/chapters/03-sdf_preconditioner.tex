@@ -561,14 +561,14 @@ larger than $R$.
 \end{equation}
 
 
-By inserting this condition as a lower limit of the $d\alpha$ integration, the
-following integral will give all utilized space, $US$, in the query space of the
-simulation.
+By inserting this condition as a lower limit of the $d\alpha$ integration,
+Eq. \ref{eq:sus_a_cond} will give all utilized space, $US$, in the query space
+of the simulation.
 
 \begin{equation}
-  \label{eq:subs_a_cond}
 \small US = 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{\boldsymbol{\alpha_{min}}}^{\pi} \delta(d-\lambda) \,
 r^2 \, d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
+\label{eq:subs_a_cond}
 \end{equation}
 
 Evaluating this integral and dividing by all query space gives the
@@ -781,9 +781,11 @@ Fig. \label{fig:util_region_contributions}) is an interesting endeavor.
 from the inner region ($d < R-r$) and outer region ($d > R-r$).}
 \end{figure}
 
-When the mean free path $\lambda$ is very small, particles' next event locations
-rarely reach the outer region condition. As $\lambda$ increases, particles are
-more likely to enter that region and its contribution increases greately. Then
+Figure \ref{fig:util_region_contributions} depicts the utilization of the SDF
+data structure for various values of the mean free path, $\lambda$.
+When $\lambda$ is very small, particles' next event locations
+rarely reach the outer region condition of $ d > R - r $. As $\lambda$ increases, particles are
+more likely to enter that region and its contribution increases greatly. Then
 as particles begin to travel distances on the order of the sphere radius the
 utilization decreases. The interior region utilization acts as one would
 expect. When particles travel small distances with respect to the sphere radius,
@@ -791,3 +793,68 @@ there is high utilization, but as the particles begin to travel further its
 utilization rapidly decreases. The contribution from the outer region defines the
 significance of using both the current position signed distance value as well as the
 next event location's signed distance value to precondition ray fire calls in DAGMC.
+
+\subsubsection{Modeling with Error Evaluation}
+
+Thus far, the error associated with the tri-linear interpolation used to recover
+signed distance values from the signed distance field has been ignored. In
+order to optimize step size of the uniform mesh making up the signed distance
+field, it is important to take this error into account when predicting the
+utilization of the data structure.
+
+As seen in Figure \ref{fig:sdf_sampled_dist}, the step size of the mesh can
+significantly impact the utilization of the data structure and in turn the
+overall performance of the simulation. It is important to use a step size which
+will not artificially limit the effect of the data structure, but the signed
+distance field is a dense data structure and uses a considerable amount of
+memory. The memory usage of the signed distance field is inversely proportional
+to the cube of the mesh step size ($\alpha \frac{1}{h^{3}}$). Therefore it is
+important to consider the impact that this error will have on the utilization
+of the data structure.
+
+The expansion of Eq. \ref{eq:condition} with the error term maintained results in
+a new condition for the minimum angle of departure ($\alpha_{min}$) shown in
+Eq. \ref{eq:min_alpha_w_error}
+
+\begin{equation}
+\small
+\begin{split}
+\alpha_{min} =& (H(d-(R-r-\epsilon))-H(d-(R-\epsilon))) \arccos\Bigg ( \frac{(2R-r-d-2\epsilon)^2-d^2-r^2}{2 d r} \Bigg ) \\
+&+ \pi \, H(d-(R-\epsilon))
+\end{split}
+\label{eq:min_alpha_w_error}
+\end{equation}
+
+This formulation of $\alpha_{min}$ can be used directly in the integration described
+in Eq. \ref{eq:subs_a_cond}. The final form of the model after the integration being:
+
+$$ US_{sampled} = \frac{(R-\epsilon) (\frac{1}{2} \lambda ( R - 2\lambda - \epsilon ) e^{\frac{-R + \epsilon}{\lambda}} +
+\lambda^{2} - \frac{3}{2}\lambda(R - \epsilon) + (R-\epsilon)^{2})}{R^3}$$
+
+
+%% For a direct evaluation of the utilization based on
+%% the mesh step size, $h$, the formula for the error can be substituted for
+%% $\epsilon$ to give
+
+%% \begin{equation}
+%% \small
+%% \begin{split}
+%% \alpha_{min} =& (H(d-(R-r-\sqrt{3}h))-H(d-(R-\sqrt{3}h))) \arccos\Bigg ( \frac{(2R-r-d-2\sqrt{3}h)^2-d^2-r^2}{2 d r} \Bigg ) \\
+%% &+ \pi \, H(d-(R-\sqrt{3}h))
+%% \end{split}
+%% \end{equation}
+
+This updated model was then compared to pseudo-simulations using sampled
+distances for the next physics event location. The result of this can be seen in
+Figure \ref{fig:sdf_util_sampled_distance_w_error}.
+
+\begin{figure}[ht]
+  \centering
+  \includesvg{../images/sdf_util_sampled_distance_w_error}{\textwidth}
+  \caption{Theoretical limits for SDF utilization accounting for error evaluation plotted with simulation
+    results for varying mesh step sizes.}
+  \label{fig:sdf_util_sampled_distance_w_error}
+\end{figure}
+
+
+  

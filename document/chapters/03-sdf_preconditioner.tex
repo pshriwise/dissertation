@@ -706,12 +706,10 @@ now is d has become a distrubution rather than a constanct value, so as the
 distance traveled changes the queries will fall into either category for a
 single particle position.
 
-
 Another way of viewing of viewing this condition in the case of a varying
 distance is to define these same categories based on the distance traveled. Now
 rather than defining how the angular condition is applied based on position, the
 angular condition will be applied based on the distance the particle travels.
-
 
 $$ d < R-r : \alpha_{min} = 0 $$
 $$ d > R-r : \alpha_{min} = \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg
@@ -851,10 +849,11 @@ Figure \ref{fig:sdf_util_sampled_distance_w_error}.
 \begin{figure}[ht]
   \centering
   \includesvg{../images/sdf_util_sampled_distance_w_error}{\textwidth}
-  \caption{Theoretical limits for SDF utilization accounting for error evaluation plotted with simulation
-    results for varying mesh step sizes.}
+  \caption{Theoretical limits for SDF utilization accounting for error
+    evaluation plotted with simulation results for varying mesh step sizes.}
   \label{fig:sdf_util_sampled_distance_w_error}
 \end{figure}
 
-
-  
+To apply this model to other geometries, the mean free path and mesh step size
+were normalized using a measure of the free space in a volume compared to its
+surface area, the average chord length ($R_{av}$).

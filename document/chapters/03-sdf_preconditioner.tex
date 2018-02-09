@@ -856,4 +856,38 @@ Figure \ref{fig:sdf_util_sampled_distance_w_error}.
 
 To apply this model to other geometries, the mean free path and mesh step size
 were normalized using a measure of the free space in a volume compared to its
-surface area, the average chord length ($R_{av}$).
+surface area, the average chord length ($R_{av}$). (INSERT_WEIGNER_REFERENCE_HERE) This value can be defined as
+seen in Eq. \ref{eq:average_chord_length}.
+
+\begin{equation}
+\centering
+ R_{av} = \frac{4V}{S}
+ \caption{Definition of the average chord length of a volume where $V$ is the volume and $S$ is
+          the surface area. }
+ \label{eq:average_chord_length}
+\end{equation}
+
+The mean free path and mesh step size can be normalized by this value to
+represent values relative to the geometry. Normalizing the mean free path to the
+average chord length is a way of describing the likelyhood that a particle will
+reach the surface of the volume in a way that is independent of the distance
+traveled by the particles and the explicit geometry. Normalizing the mesh step
+size using the average chord length is a description of how much of the particle
+track the error will occupy. This allows us to now describe the space in a
+[n=(0,1),c=(0,1)] domain for an arbitrary geometry, particle distance traveled,
+and mesh step size.
+
+This normalization allows a way to compare the model developed above to compare
+utilization results for other geometries, which will be important in assessing
+the utilization of the SDF in more geometrically complex volumes. In order to
+test the extension of this analytic model to other geometries, the pseudo
+simulation for various path lengths was repeated for cylinder and cone
+geometries. The results of the utilization model and simulation results can be
+found in Figures INSERT_REFERENCE_TO_FIGURES HERE. The results of these tests
+indicate that the utilization model can be used to predict the data structure's
+utilization for other geometries as well, though with some limitations.
+
+For small values of $n$, the utilization model is much closer to the simulated
+result. As the value of $n$ increases, however, the model no longer agrees well
+with the simulated results. The reason for this is that the analytic model
+breaks down for values of n larger than

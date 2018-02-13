@@ -949,3 +949,31 @@ the memory usage of the data structure or the utilization of the data structure
 depending on options passed into the script. The output of the script then
 describes inputs to the utilization model, the predicted utilization of the data
 structure, and an estimate of data structure's memory usage.
+
+This analysis script was used to examine several models to search for volumes
+with a significant impact on the simulation, but the addition of the data
+structure had only small effects on the performance of the simulation. One
+additional factor that the script takes into account is the number of collisions
+in the volumes it is examining. Despite the fact that the collision density of
+the transport in a given volume may be high relative to its average chord
+length, if a small percentage of the transport occurs in that volume, then the
+benefits of applying the SDF are diminished. As an estimate of this, the ratio
+of collisions a given volume to the total number of collisions in the sumulation
+was used as an estimate for the proportion of geometric queries occuring in the
+volume.  Additionally, it has been found through profiling of various models
+that as the collision density increases, the proportion of the runtime spent
+querying the geometry is small relative to the time spent calling physics
+subroutines. Despite these factors diminishing the effects of the data
+structure, a volume in the medical isotope production model from SHINE (shown in
+Figure \ref{fig:shine_sdf}) was determined to be a suitable candidate for SDF
+application.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{SHINE.eps}
+\caption{A cutaway view of the SHINE model used for demonstration of the SDF
+  data structure.}
+\label{fig:shine_sdf}
+\end{figure}
+
+

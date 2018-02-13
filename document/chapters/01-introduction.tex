@@ -60,9 +60,31 @@ geometries.
 The Direct Accelerated Geometry Monte Carlo (DAGMC) \cite{Tautges_2009} is one
 of several software packages which enables Monte Carlo simulations on CAD-based
 geometries. DAGMC's design allows it to serve as a particle
-tracking and geometry kernel for a variety of Monte Carlo codes. Specifically,
+tracking and geometry kernel for a variety of Monte Carlo codes all of which are
+listed in Table \ref{tab:dagmc_implementations}..
+
+
+Specifically,
 it has been successfully integrated with MCNP, FLUKA, and Geant4 to
 date \cite{LANL_MCNP5_VOLIII, Bohlen_2014, GEANT4_2003}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c}
+    \hline
+    Monte Carlo Code & DAGMC Implementation \\
+    \hline
+    MCNP5            & DAG-MCNP5            \\
+    MCNP6            & DAG-MCNP6            \\
+    Fluka            & FluDAG               \\
+    Tripoli4         & DAG-Tripoli4         \\
+    Geant4           & DagSolid             \\
+    Shift            & DAG-Shift            \\
+    \hline
+  \end{tabular}
+  \caption{A list of Monte Carlo codes and the names of their corresponding DAGMC implementations.}
+  \label{tab:dagmc_implementations}
+\end{table}
 
 \section{Statement of Problem}
 

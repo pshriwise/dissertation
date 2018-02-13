@@ -937,18 +937,15 @@ before running particle histories.
 \subsubsection{Application in Simulation}
 
 The geometry-agnostic version of the utilization model was used to create a
-\textit{de facto} analysis script for predicting the SDF's
-utilization in production DAG-MCNP models. This analysis uses information about
-the average particle track length for each volume as the input mean free path for the
+\textit{de facto} analysis script for predicting the SDF's utilization in
+production DAG-MCNP models. This analysis uses information about the average
+particle track length for each volume as the input mean free path for the
 utilization model. This information is gathered from Table 126 provided in MCNP
 output files from previous DAGMC simulations of the geometry. The input for the
 average chord length of each cell was calculated using DAGMC methods
-\textit{measure\_volume} and \textit{measure\_area} for each cell in question. The mesh step
-size was treated as a variable used to optimize either the memory usage of the
-data structure or the utilization of the data structure depending on options
-passed into the script. The output of the script then describes inputs to the
-utilization model, the predicted utilization of the data structure, and an
-estimate of data structure's memory usage.
-
-This script was applied to several production models to identify volumes sutable
-for application of the SDF.
+\textit{measure\_volume} and \textit{measure\_area} for each cell in
+question. The mesh step size was treated as a variable used to optimize either
+the memory usage of the data structure or the utilization of the data structure
+depending on options passed into the script. The output of the script then
+describes inputs to the utilization model, the predicted utilization of the data
+structure, and an estimate of data structure's memory usage.

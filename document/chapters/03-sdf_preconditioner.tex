@@ -15,6 +15,15 @@
   \end{adjustwidth}
 }
 
+\newcommand{\sdfModel}[2] {
+  \null %emptyline
+  \textbf{\uppercase{#1}} 
+  \begin{adjustwidth}{2.5em}{0pt}
+    #2
+  \end{adjustwidth}
+  \null
+}
+
 \chapter{Signed Distance Field Preconditioning}\label{ch:preconditioning}
 
 This chapter describes the adaptation of a rendering data structure, the signed
@@ -963,9 +972,56 @@ was used as an estimate for the proportion of geometric queries occuring in the
 volume.  Additionally, it has been found through profiling of various models
 that as the collision density increases, the proportion of the runtime spent
 querying the geometry is small relative to the time spent calling physics
-subroutines. Despite these factors diminishing the effects of the data
-structure, a volume in the medical isotope production model from SHINE (shown in
-Figure \ref{fig:shine_sdf}) was determined to be a suitable candidate for SDF
+subroutines.
+
+\sdfModel{ITER}{
+  The International Thermonuclear Experimental Reactor (ITER) is a demonstration
+  nuclear fusion device currently under construction in southern France. An
+  analysis of DAGMC was performed at the University of Wisconsin - Madison to
+  determine the dose rate to maintenance workers after shutdown of the
+  facility.
+}
+
+\sdfModel{FNG} {
+  The Frascati Neutron Generator (FNG) is a neutrom source device which uses a
+  tritium gas target to generate 2.5-MeV neutrons at a fluence of 1E11 n/s.
+}
+
+\sdfModel{nTOF}{
+  The neutron Time Of Flight (nTOF) model is a project underway at the Institute
+  for Science and International Security (ISIS) in the United Kingdom. The aim
+  of this project is to determine neutron energies by measuring the time it
+  takes neutrons to travel from one detector to another.
+}
+
+\sdfModel{SHINE}{
+  The SHINE facility is a device which uses a beam fusion device to produce
+  14.1-MeV neutrons and irradiate an aqueous uranium solution to produce
+  molybdenum 99 for use in medical imaging.
+}
+
+\begin{table}[H]
+  \small
+  \makebox[\textwidth][c]{
+    \begin{tabular}{l c c c c}
+      \toprule
+      \textbf{DAGMC Model} & \textbf{Histories Simulated} & \textbf{Predicted Utilization} & \textbf{Actual Utilization} & \textbf{Timing Ratio} \\
+      \hline
+      ITER                 & N/A                          & N/A                            & N/A                         & N/A                   \\
+      FNG                  & N/A                          & N/A                            & N/A                         & N/A                   \\
+      nTOF                 & N/A                          & N/A                            & N/A                         & N/A                   \\
+      SHINE                & N/A                          & N/A                            & N/A                         & N/A                   \\
+      \bottomrule
+    \end{tabular}
+    }
+    \caption{A summary of SDF application to several production DAGMC models.}
+    \label{tab:sdf_prod_summary}
+\end{table}
+
+
+Despite these various factors diminishing the effects of the data structure, a
+volume in the medical isotope production model from SHINE (shown in Figure
+\ref{fig:shine_sdf}) was determined to be a suitable candidate for SDF
 application.
 
 \begin{figure}
@@ -982,15 +1038,15 @@ and a surounding light water moderator. As outlined in Table
 \ref{tab:shine_sdf_result}, the resulting improvement in performance for a
 simulation of 5000,000 particles was approximately 35\% of the total runtime.
 
-\begin{table}
+\begin{table}[H]
 \centering
 \begin{tabular}{c c c}
+  \toprule
+  \textbf{Implementation} & \textbf{Runtime (min)} & \textbf{Timing Ratio} \\
   \hline
-  Implementation & Runtime (min) & Timing Ratio \\
-  \hline
-  DAG-MCNP & 76.14 & 1.00 \\
-  DAG-MCNP w/ SDF & 49.28 & 0.65 \\
-  \hline
+  DAG-MCNP                & 76.14                  & 1.00                  \\
+  DAG-MCNP w/ SDF         & 49.28                  & 0.65                  \\
+  \bottomrule
 \end{tabular}
 \caption{Timing results for 500k particle histories of the SDF demonstration on
   the SHINE medical isotope production model.}

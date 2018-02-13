@@ -858,8 +858,8 @@ Figure \ref{fig:sdf_util_sampled_distance_w_error}.
 
 To apply this model to other geometries, the mean free path and mesh step size
 were normalized using a measure of the free space in a volume compared to its
-surface area, the average chord length ($R_av$). WEIGER REFERENCE HERE  This value can be defined as
-seen in Eq. \ref{eq:average_chord_length}.
+surface area, the average chord length ($R_av$) \cite{Wigner_1981}.  This value
+can be defined as seen in Eq. \ref{eq:average_chord_length}.
 
 \begin{equation}
 \centering
@@ -873,9 +873,9 @@ seen in Eq. \ref{eq:average_chord_length}.
 
 The mean free path and mesh step size can be normalized by this value to
 represent values relative to the geometry. Normalizing the mean free path to the
-average chord length is a way of describing the likely-hood that a particle will
+average chord length is a way of describing the probability that a particle will
 reach the surface of the volume in a way that is independent of the distance
-traveled by the particles and the explicit geometry. Normalizing the mesh step
+traveled by the particles and the explicit geometry \cite{Mazzolo_2014}. Normalizing the mesh step
 size using the average chord length is a description of how much of the particle
 track the error will occupy. This allows us to now describe the space in a
 [n=(0,1),c=(0,1)] domain for an arbitrary geometry, particle distance traveled,

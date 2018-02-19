@@ -14,7 +14,7 @@ boundary condition.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.2]{iter_sideon.eps}
-  \includegraphics[scale=0.1]{ds_hv.eps}
+  \includegraphics[scale=0.2]{ds_hv.eps}
   \caption{Examples of high valence vertices in analysis and test models.}
   \label{fig:hv_examples}
 \end{figure}
@@ -39,8 +39,13 @@ tracer revealed a steep degredation in performance with a decreasing faceting
 tolerance or an increasing number of triangles. Using a DAGMC-based ray fire
 test program, the performance of DAGMC's ray fire ability was evaluated for four
 models. These models include a simple sphere, a notched or slotted sphere, and
-an outer volume of an ITER model.
+an outer volume of an ITER model, shown in Figure \ref{fig:sj_hv_test_models}.
 
-
-
-
+\begin{figure}[H]
+    \includegraphics[scale=0.32]{iter_rf_vol.eps}
+    \includegraphics[scale=0.42]{ds.eps}
+\begin{center}
+  \caption{Images of the slotted sphere and ITER volume used to perform DAGMC ray fire performance tests with increasing number of triangles or, equivalently, decreasing faceting tolerance.}
+\end{center}
+\label{fig:sj_hv_test_models}
+\end{figure} 

@@ -167,8 +167,8 @@ each OBB in the HV model tree was converted into a hex element and saved in a
 VTK mesh format. Each hex element representing an OBB was tagged with its
 depth in the tree as well as the triangle entities it contains, if any. These
 mesh files can then be used to visualize the hierarchy level-by-level
-superimposed on the geometric mesh. An example of this OBB visualization is
-shown in Figure \ref{fig:bad_hv_box}. 
+superimposed on the geometric mesh. An example of this OBB visualization for the
+high valence characterization model is shown in Figure \ref{fig:bad_hv_box}. 
 
 \begin{figure}[H]
   \centering
@@ -181,7 +181,26 @@ shown in Figure \ref{fig:bad_hv_box}.
     \label{fig:bad_hv_box}
 \end{figure}
 
+Because there are more entities to partition in the high valence region, it is
+expected the lowest levels of the BVH will contain only OBB's bounding triangles
+in that region. It was expected that leaf nodes of the BVH might contain many
+triangles of the high valence region, causing performance degradation of ray
+traversal in that many triangles must be checked for intersection. These types
+of poorly formed leaf nodes shift the complexity of the traversal back toward a
+linear search - which is sub-optimal. This feature of the produced BVH's in MOAB
+were observed, but visualization of the BVH provided the ability to observe
+another characteristic as well. Many leaf nodes containing large numbers of
+triangles in the high valence region also contained one or two large triangles
+outside of that region. The inclusion of these large triangles significantly
+increases the probability that a hierarchy traversal will visit that leaf node
+and thus all of the triangles contained by that leaf node. This artificial
+increase in the high valence regions cross-section greatly exacerbates the
+already poorly created nodes in the tree. 
 
-
-
-
+Due to the nature of the entity ratio
+heuristic used to divide nodes in the tree, as the high valence region becomes
+smaller more triangle centroids are shifted onto one side of the median splitting
+planes used to divide the nodes which contain portions of that region. If enough
+triangle centroids are on this side of the plane, then the cost of the entity
+ratio evaluation will exceed the preset upper limit of the cost (0.95 in MOAB)
+and the construction process will declare that node a leaf node.

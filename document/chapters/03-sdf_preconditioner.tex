@@ -1019,6 +1019,23 @@ subroutines.
 \end{table}
 
 
+\begin{table}[H]
+  \small
+  \makebox[\textwidth][c]{
+    \begin{tabular}{l c c c c c}
+      \toprule
+      \textbf{Model} & \textbf{Particle Types} & \textbf{Total Geometry Queries} & \textbf{Next Surface} & \textbf{Closest Surface} & \textbf{Point in Volume} \\
+      \hline
+      ITER           & N/A                     & 4001570110                      & < 0.1\%               & 0 \%                     & 99.99\%                  \\
+      nTOF           & N/A                     & 62553081                        & 99.4\%                & 0.5\%                    & 0.1\%                    \\
+      SHINE          & N/A                     & 81275652                        & 99.9\%                & 0\%                      & < 0.1\%                  \\
+      SNS            & N/A                     & 52576465                        & 99.1\%                & < 0.1\%                  & 0.8\%                    \\
+      \bottomrule
+    \end{tabular}
+    }
+\end{table}  
+
+
 Despite these various factors diminishing the effects of the data structure, a
 volume in the medical isotope production model from SHINE (shown in Figure
 \ref{fig:shine_sdf}) was determined to be a suitable candidate for SDF

@@ -1010,6 +1010,7 @@ subroutines.
       ITER                 & 1M                           & 37.1                                & 40.1                             & 0.86                  \\
       nTOF                 & 10K                          & 62.9                                & 28.2                             & 0.89                  \\
       SHINE                & 500k                         & 60.1                                & 48.2                             & 0.64                  \\
+      SNS                  & N/A                          & N/A                                 & N/A                              & N/A                   \\
       \bottomrule
     \end{tabular}
     }
@@ -1052,3 +1053,34 @@ simulation of 5000,000 particles was approximately 35\% of the total runtime.
 \label{tab:shine_sdf_result}
 \end{table}
 
+\section{Performance Mitigating Factors}\label{sec:sdf_limitations}
+
+In the majority of the production models to which SDF geometry query
+preconditioning was applied, the effect on the overall performance of the
+simulation is much smaller than what was seen in the simple test cases. This is
+due to a variety of factors, each of which is demonstrated by one of the models
+in that table.
+
+\subsection{Physics Dominant Simulations}\label{subsec:sdf_phys_dominant}
+
+The nTOF model was selected as a charged particle transport demonstration. The
+SDF was expected to be extremely beneficial in this scenario due to the high
+collision density of charged particle transport relative to the size of certain
+volumes in the problem. The computational time spent on the detailed of these
+charged particles physics tends to dominate the runtime of the simulation,
+leaving little room for improvement in the overall simulation runtime by
+reducing geometric query costs.
+
+As a neutral particle example of this occurs in SHINE as well. In order to
+reduce the amount of time spend in the MCNP kernel for this calculation,
+groupwise cross-sections were specified for all materials in the problem. This
+allowed the SDF to have a more significant impact on the simulation runtime, but
+may not be desirable if coutinuous energy cross sections are necessary for a
+higher fidelity result.
+
+\subsection{Utilization Model Assumptions}\label{subsec:sdf_util_model_limits}
+
+A volume of the SNS model was identified as a good
+
+
+\subsection{Surface Mesh Complexity}\label{subsec:sdf_tree_depth}

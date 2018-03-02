@@ -1073,14 +1073,35 @@ reducing geometric query costs.
 
 As a neutral particle example of this occurs in SHINE as well. In order to
 reduce the amount of time spend in the MCNP kernel for this calculation,
-groupwise cross-sections were specified for all materials in the problem. This
+group-wise cross-sections were specified for all materials in the problem. This
 allowed the SDF to have a more significant impact on the simulation runtime, but
-may not be desirable if coutinuous energy cross sections are necessary for a
+may not be desirable if continuous energy cross sections are necessary for a
 higher fidelity result.
 
 \subsection{Utilization Model Assumptions}\label{subsec:sdf_util_model_limits}
 
-A volume of the SNS model was identified as a good
-
+A volume representing a mercury manifold in the SNS model was identified as a
+good candidate for SDF application. The SDF analysis model estimates the
+utilization of the SDF data structure under the assumption that the distribution
+of particle interactions in the volume is uniform. In this case, particle
+interactions occur mostly in regions of the volume where the local average chord
+length is smaller than the average chord length of the entire volume. This
+reduces the effectiveness of the SDF for the step size suggested by the input
+script. Additionally, an SDF which would provide better utilization would
+require a prohibitively small mesh step size in terms of the memory usage of the
+data structure. These factors mean that this volume and in turn the SNS
+simulation itself doesn't make it a candidate for application of the SDF as a
+geometry query precondition due to limitations in the analytic utilization prediction.
 
 \subsection{Surface Mesh Complexity}\label{subsec:sdf_tree_depth}
+
+In Section \ref{subsec:sdf_phys_dominant} limitations of the SDF impact on the
+nTOF simulations were cited as related to the time spent in physics subroutines,
+but the faceting of the particular volume which the SDF was applied to may play
+a role as well. The volume's faceting contained a relatively small number of
+triangles. This in turn means that the generated BVH for this volume was
+relatively shallow. The relative improvement in performance when avoiding a ray
+traversal is directly related to this tree depth. While the complexity of a BVH
+search is $O(log\, N_{tri})$, the cost relative to the $O(1)$ look-up of a signed
+distance value in the SDF becomes small as N becomes small, limiting the
+effectiveness of the SDF regardless of the utilization.

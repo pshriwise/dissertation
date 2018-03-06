@@ -132,35 +132,63 @@ impediment and determine its root cause.
 A ray fire test program was used to construct MOAB's BVH and perform ray queries
 using DAGMC's interface. Information on this test program can be found in the
 appendix of this work. This program was used to fire rays with random direction
-from the origin of the high valence test model while biasing the
-ray directions such that they should always find intersections on the modified surface
+from the origin of the high valence test model while biasing the ray directions
+such that they should always find intersections on the modified surface
 containing the high-valence region. A parameter sweep was performed by varying
 the percentage of the surface covered by the high-valence region as well as the
 valence of the region. Specification of the random number seed is allowed within
 the program to giving a more direct comparison of performance with the guarantee
-that the same set of rays is fired in each test case.
+that the same set of rays is fired in each test case. Each test shown in this
+section varies the valence of the corner vertices from 2 to 50,000 and the
+relative area of the high valence region from 0 to 1.
 
-Each test shown in this section varies the valence of the corner vertices from 2
-to 50,000 and the relative area of the high valence region from 0 to 1. From
-what is known about the construction of MOAB's BVH, it was expected that the
-average ray fire time would be most strongly correlated to the relative area of
-the high valence region, but would also increase with increasing valence of the
-corner vertices. The initial results of this study, shown in
-Figure \ref{fig:hv_study_moab}, meet only one of the expectations however. The
-ray fire times become far worse with increase in valence, but for a constant
-valence, the smaller relative area models show a longer average ray fire time than
-the models with larger relative areas. This suggests that the presence of a
-high-valence region in a surface is detrimental to performance regardless of the
-likely hood that a ray intersects with a triangle in that region. In order to
-investigate this matter further, a visualization tool for MOAB's BVH was
-developed to improve the author's intuition about this mesh pathology.
+\subsection{MOAB's Oriented Bounding Box Tree}\label{subsec:hv_study_MOAB}
+
+From what is known about the construction of MOAB's BVH, it was expected that
+the average ray fire time would be most strongly correlated to the relative area
+of the high valence region, but would also increase with increasing valence of
+the corner vertices. The initial results of this study, shown in Figure
+\ref{fig:hv_study_moab}, meet only one of the expectations however. The ray fire
+times become far worse with increase in valence, but for a constant valence, the
+smaller relative area models show a longer average ray fire time than the models
+with larger relative areas. This suggests that the presence of a high-valence
+region in a surface is detrimental to performance regardless of the likely hood
+that a ray intersects with a triangle in that region. In order to investigate
+this matter further, a visualization tool for MOAB's BVH was developed to
+improve the author's intuition about this mesh pathology.
 
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.55]{hv_study_MOAB.eps}
-    \caption{Results from parameter sweep of valence and valence area fraction in the high-valence test mesh.}
+    \caption{Results from parameter sweep of valence and valence area fraction
+      in the high-valence test mesh.}
     \label{fig:hv_study_moab}
 \end{figure}
+
+\subsection{Embree's Ray Tracing Kernel}
+
+The same test described in Section \ref{subsec:hv_study_MOAB} was performed
+using the ray fire test program compile with using EmDAG to fire rays. A
+different behavior was expected when using Embree to construct the underlying
+hierarchies due to its use of the SAH. Figure \ref{fig:hv_study_emdag} contains
+the results of this test run. Using the Embree kernel, the performance degrades
+in direct proportion to both valence and the relative area of the high valence
+region.
+
+
+\begin{figure}[H]
+  \centering
+    \includegraphics[scale=0.55]{hv_study_emdag.eps}
+    \caption{High valence parameter study results when applying Intel's Embree
+      within the DagMC ray fire program.}
+    \label{fig:hv_study_emdag}
+\end{figure}
+
+\subsection{MOAB SIMD Bounding Volume Hierarchy}\label{subsec:hv_study_simd}
+
+
+
+\subsection{Visualization and Diagnosis}\label{subsec:hv_vis}
 
 Using the same visitor pattern employed to traverse rays through the hierarchy,
 each OBB in the HV model tree was converted into a hex element and saved in a
@@ -195,7 +223,8 @@ outside of that region. The inclusion of these large triangles significantly
 increases the probability that a hierarchy traversal will visit that leaf node
 and thus all of the triangles contained by that leaf node. This artificial
 increase in the high valence regions cross-section greatly exacerbates the
-already poorly created nodes in the tree. 
+already poorly created nodes in the tree.
+
 
 Due to the nature of the entity ratio heuristic used to divide nodes in the
 tree, as the high valence region becomes smaller more triangle centroids are

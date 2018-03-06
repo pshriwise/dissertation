@@ -197,10 +197,74 @@ and thus all of the triangles contained by that leaf node. This artificial
 increase in the high valence regions cross-section greatly exacerbates the
 already poorly created nodes in the tree. 
 
-Due to the nature of the entity ratio
-heuristic used to divide nodes in the tree, as the high valence region becomes
-smaller more triangle centroids are shifted onto one side of the median splitting
-planes used to divide the nodes which contain portions of that region. If enough
-triangle centroids are on this side of the plane, then the cost of the entity
-ratio evaluation will exceed the preset upper limit of the cost (0.95 in MOAB)
-and the construction process will declare that node a leaf node.
+Due to the nature of the entity ratio heuristic used to divide nodes in the
+tree, as the high valence region becomes smaller more triangle centroids are
+shifted onto one side of the median splitting planes used to divide the nodes
+which contain portions of that region. If enough triangle centroids are on this
+side of the plane, then the cost of the entity ratio evaluation will exceed the
+preset upper limit of the cost (0.95 in MOAB) and the construction process will
+declare that node a leaf node. This settings governing this split process can be
+altered in MOAB, and changing the worst split ratio to 1.0 significantly
+improves the average ray fire time in the high valence characterization study,
+as seen in Figure \ref{fig:hv_study_moab_wsr1}.
+
+\begin{figure}[H]
+  \centering
+    \includegraphics[scale=0.55]{{hv_study_MOAB_wsr1}.eps}
+    \caption{Results of the high valence characterization study with a worst
+      case splitting ratio set to 1.}
+    \label{fig:hv_study_moab_wsr1}
+\end{figure}
+
+As expected, the use of this setting largely removes the degradation in performance
+caused by the high valence region by forcing the continued splitting of entities
+in the tree where large leaf nodes would have been created before. This
+demonstrates that altering this setting works well for this mesh feature, but it
+would be detrimental to the memory footprint of the overall hierarchy in the
+general case, causing certain areas of the tree to be over-refined. 
+ 
+\section{Adaptive BVH Construction}\label{sec:adaptive_construction}
+
+One of the benefits to having a BVH tool which is part of a mesh database like
+MOAB is the ability to query for more information about the mesh when
+constructing hierarchies like the BVH. This information has been used to detect
+high valence regions in the mesh and adapt BVH construction to improve the
+hierarchy quality in these areas.
+
+\subsection{Implementation}\label{sec:adaptive_construction_implementation}
+
+First, MOAB's BVH constructor was modified with the option of tagging poorly
+formed leaf nodes in the tree. This option will apply a tag to any leaf nodes
+which contain more entities the specified in the settings for the tree. These
+nodes are then revisited for further refinement later in the build process.
+
+For handling of these poorly formed leaf nodes, a new class was created in MOAB
+named the \textit{BVH Refiner}. This class visits each leaf node tagged by the
+build process to determine if further refinement is appropriate based on the
+available set of mesh features it is capable of handling. For each mesh feature
+added to the BVH Refine class, a detection method and build method is
+required. This class applies these detection methods and altered build methods
+to resolve these leaf nodes into improved regions of the tree. The intent of
+this design was to support the detection and adaptation to other pathological mesh
+features.
+
+In the high valence case, the refiner class will search for any vertex connected
+to more than 80\% of the entities in that particular leaf node. If this condition
+is met, the leaf node is declared part of a high valence region and an altered
+build method is applied. For the HV case, this build method has been established
+by previous work as the standard build algorithm with the worst case splitting
+ratio set to 1.0.
+
+\section{Adaptive Build Application}
+
+This adaptive build method was applied to the high valence test model as
+before. The results of this test can be seen in Figure
+\ref{fig:hv_study_adaptive}. Using the adaptive method, the average ray fire
+time is consistent across both valence and relative area of the HV region.
+
+\begin{figure}
+  \includegraphics[scale=0.55]{hv_study_moab_adaptive.eps}
+  \caption{High valence characterization study with the adaptive BVH building method
+    applied.}
+  \label{fig:hv_study_adaptive}
+\end{figure}

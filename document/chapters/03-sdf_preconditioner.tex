@@ -1000,6 +1000,12 @@ subroutines.
   molybdenum 99 for use in medical imaging.
 }
 
+\sdfModel{Spallation Neutron Source}{
+  The Spallation Neutron Source (SNS), located at Oak Ridge National Laboratory,
+  in which protons are accelerated to high energies (~1 GeV) and directed into a
+  mercury target to produce thermal neutrons for various research applications.
+  }
+
 \begin{table}[H]
   \small
   \makebox[\textwidth][c]{
@@ -1024,15 +1030,18 @@ subroutines.
   \makebox[\textwidth][c]{
     \begin{tabular}{l c c c c c}
       \toprule
-      \textbf{Model} & \textbf{Particle Types} & \textbf{Total Geometry Queries} & \textbf{Next Surface} & \textbf{Closest Surface} & \textbf{Point in Volume} \\
+      \textbf{Model} & \textbf{Particle Types}                  & \textbf{Total Geometry Queries} & \textbf{Next Surface} & \textbf{Closest Surface} & \textbf{Point in Volume} \\
       \hline
-      ITER           & N/A                     & 4001570110                      & < 0.1\%               & 0 \%                     & 99.99\%                  \\
-      nTOF           & N/A                     & 62553081                        & 99.4\%                & 0.5\%                    & 0.1\%                    \\
-      SHINE          & N/A                     & 81275652                        & 99.9\%                & 0\%                      & < 0.1\%                  \\
-      SNS            & N/A                     & 52576465                        & 99.1\%                & < 0.1\%                  & 0.8\%                    \\
+      SNS            & $\alpha$,p,$\gamma$,$\beta$,$^{3}H$,n... & 52576465                        & 99.1\%                & < 0.1\%                  & 0.8\%                    \\
+      nTOF           & p,$\gamma$,n                             & 62553081                        & 99.4\%                & 0.5\%                    & 0.1\%                    \\
+      ITER           & n                                        & 4001570110                      & < 0.1\%               & 0 \%                     & 99.99\%                  \\      
+      SHINE          & n                                        & 81275652                        & 99.9\%                & 0\%                      & < 0.1\%                  \\
       \bottomrule
     \end{tabular}
-    }
+  }
+  \caption{An examination of relative number of calls to the various Monte Carlo
+    geometric queries for several DAGMC production models.}
+  \label{tab:geom_query_ratios}
 \end{table}  
 
 

@@ -211,6 +211,37 @@ fails to create a well-structured tree for triangles that are part of the HV are
     \label{fig:hv_study_simd}
 \end{figure}
 
+Visualization of leaf nodes and the entities they contain for the MOAB SIMD BVH
+can be seen in Figure \ref{fig:hv_leaf_simd_bvh}.
+
+  \begin{figure}
+    \includegraphics[scale=0.5]{hv_leaf_simd_bvh.png}
+    \caption{MOAB SIMD BVH leaf nodes for the HV test model with area fraction
+      0.5 and a valence of 100 for the corner vertices.}
+    \label{fig:hv_leaf_simd_bvh}
+  \end{figure}
+  
+Both Embree and the MOAB SIMD BVH have the shared characteristic of a limited
+leaf size of eight primitives due to the way the leaves are encoded. This
+removes the possibility that large numbers of triangles in leaf nodes as the
+cause of performance degradation, which was true for MOAB's OBB Tree. In the case
+of Embree and the MBVH, the largest cause of performance degradation is
+overlapping regions of the leaf nodes.
+
+Because both of these implementations use AABBs, bounding of skinny, off-axis
+triangles results in bounding boxes with a considerable amount of empty space in
+them. An example of such a leaf can be seen in Figure
+\ref{fig:hv_overlap_simd_bvh}.  In high valence regions, this results in the
+same space being occupied by an abnormally high number of leaf bounding
+boxes. If a ray is fired into these overlapping leaves, the end result is a
+large number of triangles visited.
+
+\begin{figure}
+  \includegraphics[scale=0.5]{hv_overlap_simd_bvh.png}
+  \caption{Visualization of a large bounding box surrounding low aspect ratio, off-axis triangles.}
+  \label{fig:hv_overlap_simd_bvh.png}
+\end{figure}
+
 \subsubsection{Visualization and Diagnosis}\label{subsec:hv_vis}
 
 Using the same visitor pattern employed to traverse rays through the hierarchy,
@@ -247,7 +278,6 @@ increases the probability that a hierarchy traversal will visit that leaf node
 and thus all of the triangles contained by that leaf node. This artificial
 increase in the high valence regions cross-section greatly exacerbates the
 already poorly created nodes in the tree.
-
 
 Due to the nature of the entity ratio heuristic used to divide nodes in the
 tree, as the high valence region becomes smaller more triangle centroids are

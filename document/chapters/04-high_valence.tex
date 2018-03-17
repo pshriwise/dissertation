@@ -142,7 +142,9 @@ that the same set of rays is fired in each test case. Each test shown in this
 section varies the valence of the corner vertices from 2 to 50,000 and the
 relative area of the high valence region from 0 to 1.
 
-\subsection{MOAB's Oriented Bounding Box Tree}\label{subsec:hv_study_MOAB}
+\subsection{Entity-Based Heuristics}
+
+\subsubsection{MOAB's Oriented Bounding Box Tree}\label{subsec:hv_study_MOAB}
 
 From what is known about the construction of MOAB's BVH, it was expected that
 the average ray fire time would be most strongly correlated to the relative area
@@ -165,7 +167,9 @@ improve the author's intuition about this mesh pathology.
     \label{fig:hv_study_moab}
 \end{figure}
 
-\subsection{Embree's Ray Tracing Kernel}
+\subsection{Surface Area Heuristics}
+
+\subsubsection{Embree's Ray Tracing Kernel}
 
 The same test described in Section \ref{subsec:hv_study_MOAB} was performed
 using the ray fire test program compile with using EmDAG to fire rays. A
@@ -207,7 +211,7 @@ fails to create a well-structured tree for triangles that are part of the HV are
     \label{fig:hv_study_simd}
 \end{figure}
 
-\subsection{Visualization and Diagnosis}\label{subsec:hv_vis}
+\subsubsection{Visualization and Diagnosis}\label{subsec:hv_vis}
 
 Using the same visitor pattern employed to traverse rays through the hierarchy,
 each OBB in the HV model tree was converted into a hex element and saved in a

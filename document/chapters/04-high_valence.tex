@@ -173,8 +173,13 @@ different behavior was expected when using Embree to construct the underlying
 hierarchies due to its use of the SAH. Figure \ref{fig:hv_study_emdag} contains
 the results of this test run. Using the Embree kernel, the performance degrades
 in direct proportion to both valence and the relative area of the high valence
-region.
-
+region. This data represents the expected behavior of MOAB's BVH. Unlike MOAB
+however, Embree's use of the surface area heuristic prevents the artificial
+increase in probability of visiting triangles in the high valence region. Larger
+triangles adjacent to this region are more readily separated from the leaf due
+to the additional cost they add by increasing a bounding box's surface area and
+in turn its evaluated cost. Separation of triangles in the HV region itself is
+still difficult when restricted to axis-aligned candidate split planes.
 
 \begin{figure}[H]
   \centering
@@ -186,6 +191,14 @@ region.
 
 \subsection{MOAB SIMD Bounding Volume Hierarchy}\label{subsec:hv_study_simd}
 
+The MOAB SIMD BVH kernel created by the author has a similar trend to Embree's
+kernel where ray fire times increase proportionally to both the valence and size
+of the high valence region. The author's BVH applies a modified form of the
+surface area heuristic in which the surface area of the box is weighted by the
+number of entities it contains to determine if a split is beneficial or
+not. Near HV regions this heuristic is able to separate large triangles from the
+HV region in the same way as the unmodified surface area heuristic, but it
+fails to create a well-structured tree for triangles that are part of the HV area.
 
 \begin{figure}[H]
   \centering
@@ -193,7 +206,6 @@ region.
     \caption{High valence parameter study results for the MOAB SIMD BVH kernel.}
     \label{fig:hv_study_simd}
 \end{figure}
-
 
 \subsection{Visualization and Diagnosis}\label{subsec:hv_vis}
 

@@ -164,80 +164,6 @@ improve the author's intuition about this mesh pathology.
     \label{fig:hv_study_moab}
 \end{figure}
 
-\subsection{Surface Area Heuristics}
-
-\subsubsection{Embree's Ray Tracing Kernel}
-
-The same test described in Section \ref{subsec:hv_study_MOAB} was performed
-using the ray fire test program compile with using EmDAG to fire rays. A
-different behavior was expected when using Embree to construct the underlying
-hierarchies due to its use of the SAH. Figure \ref{fig:hv_study_emdag} contains
-the results of this test run. Using the Embree kernel, the performance degrades
-in direct proportion to both valence and the relative area of the high valence
-region. This data represents the expected behavior of MOAB's BVH. Unlike MOAB
-however, Embree's use of the surface area heuristic prevents the artificial
-increase in probability of visiting triangles in the high valence region. Larger
-triangles adjacent to this region are more readily separated from the leaf due
-to the additional cost they add by increasing a bounding box's surface area and
-in turn its evaluated cost. Separation of triangles in the HV region itself is
-still difficult when restricted to axis-aligned candidate split planes.
-
-\begin{figure}[H]
-  \centering
-    \includegraphics[scale=0.55]{hv_study_emdag.eps}
-    \caption{High valence parameter study results when applying Intel's Embree
-      within the DagMC ray fire program.}
-    \label{fig:hv_study_emdag}
-\end{figure}
-
-\subsection{MOAB SIMD Bounding Volume Hierarchy}\label{subsec:hv_study_simd}
-
-The MOAB SIMD BVH kernel created by the author has a similar trend to Embree's
-kernel where ray fire times increase proportionally to both the valence and size
-of the high valence region. The author's BVH applies a modified form of the
-surface area heuristic in which the surface area of the box is weighted by the
-number of entities it contains to determine if a split is beneficial or
-not. Near HV regions this heuristic is able to separate large triangles from the
-HV region in the same way as the unmodified surface area heuristic, but it
-fails to create a well-structured tree for triangles that are part of the HV area.
-
-\begin{figure}[H]
-  \centering
-    \includegraphics[scale=0.55]{hv_study_SIMD.eps}
-    \caption{High valence parameter study results for the MOAB SIMD BVH kernel.}
-    \label{fig:hv_study_simd}
-\end{figure}
-
-Visualization of leaf nodes and the entities they contain for the MOAB SIMD BVH
-can be seen in Figure \ref{fig:hv_leaf_simd_bvh}.
-
-  \begin{figure}
-    \includegraphics[scale=0.5]{hv_leaf_simd_bvh.png}
-    \caption{MOAB SIMD BVH leaf nodes for the HV test model with area fraction
-      0.5 and a valence of 100 for the corner vertices.}
-    \label{fig:hv_leaf_simd_bvh}
-  \end{figure}
-  
-Both Embree and the MOAB SIMD BVH have the shared characteristic of a limited
-leaf size of eight primitives due to the way the leaves are encoded. This
-removes the possibility that large numbers of triangles in leaf nodes as the
-cause of performance degradation, which was true for MOAB's OBB Tree. In the case
-of Embree and the MBVH, the largest cause of performance degradation is
-overlapping regions of the leaf nodes.
-
-Because both of these implementations use AABBs, bounding of skinny, off-axis
-triangles results in bounding boxes with a considerable amount of empty space in
-them. An example of such a leaf can be seen in Figure
-\ref{fig:hv_overlap_simd_bvh}.  In high valence regions, this results in the
-same space being occupied by an abnormally high number of leaf bounding
-boxes. If a ray is fired into these overlapping leaves, the end result is a
-large number of triangles visited.
-
-\begin{figure}
-  \includegraphics[scale=0.5]{hv_overlap_simd_bvh.png}
-  \caption{Visualization of a large bounding box surrounding low aspect ratio, off-axis triangles.}
-  \label{fig:hv_overlap_simd_bvh.png}
-\end{figure}
 
 \subsubsection{Visualization and Diagnosis}\label{subsec:hv_vis}
 
@@ -302,6 +228,7 @@ demonstrates that altering this setting works well for this mesh feature, but it
 would be detrimental to the memory footprint of the overall hierarchy in the
 general case, causing certain areas of the tree to be over-refined. 
 
+
 \subsection{Adaptive BVH Construction}\label{subsec:adaptive_construction}
 
 One of the benefits to having a BVH tool which is part of a mesh database like
@@ -333,6 +260,23 @@ is met, the leaf node is declared part of a high valence region and an altered
 build method is applied. For the HV case, this build method has been established
 by previous work as the standard build algorithm with the worst case splitting
 ratio set to 1.0.
+
+\section{Adaptive Build Application}
+
+This adaptive build method was applied to the high valence test model as
+before. The results of this test can be seen in Figure
+\ref{fig:hv_study_adaptive}. Using the adaptive method, the average ray fire
+time is consistent across both valence and relative area of the HV region.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.55]{hv_study_moab_adaptive.eps}
+  \caption{High valence characterization study with the adaptive BVH building method
+    applied.}
+  \label{fig:hv_study_adaptive}
+\end{figure}
+
+
 
 \section{Embree's Ray Tracing Kernel}\label{sec:emdag_hv_study}
 
@@ -387,6 +331,39 @@ fails to create a well-structured tree for triangles that are part of the HV are
     \label{fig:hv_study_simd}
 \end{figure}
 
+\subsection{Visualization and Diagnosis}
+
+Visualization of leaf nodes and the entities they contain for the MOAB SIMD BVH
+can be seen in Figure \ref{fig:hv_leaf_simd_bvh}.
+
+  \begin{figure}
+    \includegraphics[scale=0.5]{hv_leaf_simd_bvh.png}
+    \caption{MOAB SIMD BVH leaf nodes for the HV test model with area fraction
+      0.5 and a valence of 100 for the corner vertices.}
+    \label{fig:hv_leaf_simd_bvh}
+  \end{figure}
+  
+Both Embree and the MOAB SIMD BVH have the shared characteristic of a limited
+leaf size of eight primitives due to the way the leaves are encoded. This
+removes the possibility that large numbers of triangles in leaf nodes as the
+cause of performance degradation, which was true for MOAB's OBB Tree. In the case
+of Embree and the MBVH, the largest cause of performance degradation is
+overlapping regions of the leaf nodes.
+
+Because both of these implementations use AABBs, bounding of skinny, off-axis
+triangles results in bounding boxes with a considerable amount of empty space in
+them. An example of such a leaf can be seen in Figure
+\ref{fig:hv_overlap_simd_bvh}.  In high valence regions, this results in the
+same space being occupied by an abnormally high number of leaf bounding
+boxes. If a ray is fired into these overlapping leaves, the end result is a
+large number of triangles visited.
+
+\begin{figure}
+  \includegraphics[scale=0.5]{hv_overlap_simd_bvh.png}
+  \caption{Visualization of a large bounding box surrounding low aspect ratio, off-axis triangles.}
+  \label{fig:hv_overlap_simd_bvh.png}
+\end{figure}
+
 \section{Adaptive BVH Construction}
 
 As discussed in Sections \ref{sec:emdag_hv_study} and \ref{sec:simd_hv_study},
@@ -394,18 +371,3 @@ the pathology identified in both the Embree and the MMPBVH is the large overlap
 of AABBs in the HV region. To resolve this problem, oriendted bounding boxes are
 applied to leaf nodes as an additional filter for nodes which contain parts of
 the HV region.  
-
-\section{Adaptive Build Application}
-
-This adaptive build method was applied to the high valence test model as
-before. The results of this test can be seen in Figure
-\ref{fig:hv_study_adaptive}. Using the adaptive method, the average ray fire
-time is consistent across both valence and relative area of the HV region.
-
-\begin{figure}
-  \centering
-  \includegraphics[scale=0.55]{hv_study_moab_adaptive.eps}
-  \caption{High valence characterization study with the adaptive BVH building method
-    applied.}
-  \label{fig:hv_study_adaptive}
-\end{figure}

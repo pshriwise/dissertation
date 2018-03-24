@@ -7,7 +7,7 @@ DAGMC ray tracing performance. The valence of a vertex in a mesh is defined as
 the number of edges connected to that vertex. \textit{High} valence vertices are
 defined as vertices connected to an unusually large number of edges. This
 region, known as a high valence region, will typically take on a fan-like shape
-as seen in Figure \ref{fig:hv_example}.  The geometric origins of high valence
+as seen in Figure \ref{fig:hv_examples}.  The geometric origins of high valence
 regions are typically a planar surface intersected with some form of curved
 boundary condition. 
 
@@ -276,11 +276,9 @@ time is consistent across both valence and relative area of the HV region.
   \label{fig:hv_study_adaptive}
 \end{figure}
 
-
-
 \section{Embree's Ray Tracing Kernel}\label{sec:emdag_hv_study}
 
-The same test described in Section \ref{subsec:hv_study_MOAB} was performed
+The same test described in Section \ref{sec:hv_study_MOAB} was performed
 using the ray fire test program compile with using EmDAG to fire rays. A
 different behavior was expected when using Embree to construct the underlying
 hierarchies due to its use of the SAH. Figure \ref{fig:hv_study_emdag} contains
@@ -353,7 +351,7 @@ overlapping regions of the leaf nodes.
 Because both of these implementations use AABBs, bounding of skinny, off-axis
 triangles results in bounding boxes with a considerable amount of empty space in
 them. An example of such a leaf can be seen in Figure
-\ref{fig:hv_overlap_simd_bvh}.  In high valence regions, this results in the
+\ref{fig:hv_overlap_simd_bvh}. In high valence regions, this results in the
 same space being occupied by an abnormally high number of leaf bounding
 boxes. If a ray is fired into these overlapping leaves, the end result is a
 large number of triangles visited.
@@ -361,7 +359,7 @@ large number of triangles visited.
 \begin{figure}
   \includegraphics[scale=0.5]{hv_overlap_simd_bvh.png}
   \caption{Visualization of a large bounding box surrounding low aspect ratio, off-axis triangles.}
-  \label{fig:hv_overlap_simd_bvh.png}
+  \label{fig:hv_overlap_simd_bvh}
 \end{figure}
 
 \section{Adaptive BVH Construction}

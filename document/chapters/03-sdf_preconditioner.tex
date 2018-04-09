@@ -1106,7 +1106,14 @@ higher fidelity result.
 
 \subsection{Utilization Model Assumptions}\label{subsec:sdf_util_model_limits}
 
-A volume representing a mercury manifold in the SNS model was identified as a
+There are some cases in which the SDF utilization model is inaccurate. The
+calculation of the average chord length and average track length are assumed to
+be true over the entirety of the volume in question. In reality, these values
+will vary throughout the volume's domain. In cases where the local value of the
+average chord length is smaller than predicted, the utilization model will overestimate
+the SDF utilization. An example of this was found in the SNS test model.
+
+A volume representing the mercury manifold in the SNS model was identified as a
 good candidate for SDF application. The SDF analysis model estimates the
 utilization of the SDF data structure under the assumption that the distribution
 of particle interactions in the volume is uniform. In this case, particle
@@ -1117,7 +1124,15 @@ script. Additionally, an SDF which would provide better utilization would
 require a prohibitively small mesh step size in terms of the memory usage of the
 data structure. These factors mean that this volume and in turn the SNS
 simulation itself doesn't make it a candidate for application of the SDF as a
-geometry query precondition due to limitations in the analytic utilization prediction.
+geometry query preconditioner.
+
+\begin{sidewaysfigure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{sns_vol16_flux.png}
+  \caption{Example of utilization model limitation due to a small local average chord length
+    in the region of high collition density.}
+  \label{fig:sns_low_util}
+\end{sidewaysfigure}
 
 \subsection{Surface Mesh Complexity}\label{subsec:sdf_tree_depth}
 

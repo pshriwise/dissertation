@@ -237,7 +237,34 @@ constructing hierarchies like the BVH. This information has been used to detect
 high valence regions in the mesh and adapt BVH construction to improve the
 hierarchy quality in these areas.
 
-\subsection{Implementation}\label{subsec:adaptive_construction_implementation}
+\subsubsection{High Valence Detection}\label{subsubsec:hv_detection}
+
+A simple algorithm is used to determine whether or not the entities inside a
+leaf node are part of a high valence region. Any vertex connected to more than
+$\alpha$\% of the entities in a given leaf node will be considered a high valence
+region, indicating that an alternate build method or build settings should be
+applied.
+
+\begin{lstlisting}
+  def detect_hv_region(mesh, entities, alpha):
+      assert(a <= 1.0 and a > 0.0)
+      connectivity = mesh.get_connectivity(entities)
+
+      to_dim = 2
+      for vertex in connectivity:
+          # get all entities of dim 2 adjacent to the vertex
+          adj_entities = mesh.get_adjacencies(vert, to_dim)
+
+          # determine how many adj entities are in the set of entities
+          overlap = entities - adj_entities
+
+          if( size(overlap)/size(entities) < 1.0 - alpha):
+              return true
+
+      return false
+\end{lstlisting}
+
+\subsubsection{Implementation}\label{subsec:adaptive_construction_implementation}
 
 First, MOAB's BVH constructor was modified with the option of tagging poorly
 formed leaf nodes in the tree. This option will apply a tag to any leaf nodes
@@ -245,7 +272,7 @@ which contain more entities the specified in the settings for the tree. These
 nodes are then revisited for further refinement later in the build process.
 
 For handling of these poorly formed leaf nodes, a new class was created in MOAB
-named the \textit{BVH Refiner}. This class visits each leaf node tagged by the
+named the \textit{BVHRefiner}. This class visits each leaf node tagged by the
 build process to determine if further refinement is appropriate based on the
 available set of mesh features it is capable of handling. For each mesh feature
 added to the BVH Refine class, a detection method and build method is
@@ -261,7 +288,7 @@ build method is applied. For the HV case, this build method has been established
 by previous work as the standard build algorithm with the worst case splitting
 ratio set to 1.0.
 
-\section{Adaptive Build Application}
+\subsubsection{Application to the HV test model}
 
 This adaptive build method was applied to the high valence test model as
 before. The results of this test can be seen in Figure
@@ -275,6 +302,36 @@ time is consistent across both valence and relative area of the HV region.
     applied.}
   \label{fig:hv_study_adaptive}
 \end{figure}
+
+\subsubsection{Application in Production}
+
+This method was also applied to several DAGMC production models in order to determine
+its effect on simulation runtimes during transport.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c}
+    \toprule
+    \textbf{Model} & \textbf{HV Regions} & \textbf{Particle Histories} & \textbf{Runtime reduction} & \textbf{Buildtime increase} \\
+    \hline
+    FNG            & 514                 & 1M                          & 3.3\%                      & 18.5\%                      \\
+    ITER-BLITE     & 3522                & 1M                          & 23.4\%                     & 5.2\%                       \\
+    \bottomrule
+  \end{tabular}
+  \caption{Results of runtime reduction in several DAGMC production models when applying the BVH refinement.}
+  \label{tab:bvhrefine_production_results}
+\end{table}    
+
+In the case of FNG, the runtime is decreased only marginally, but in the ITER
+model the runtime is reduced by nearly $\frac{1}{4}$. It can be presumed that
+the reduction in the runtime is associated with the frequency with which a HV
+nodes in MOAB's OBB tree are visited. In the FNG model, the HV regions tend to
+be smaller and adjacent to the graveyard of the problem while in ITER there are
+large HV regions occupying large portions of the external reflecting surfaces of
+the model. This provides some anecdotal information about why the refinement has
+a larger effect in the ITER model than in the FNG model. It is possible,
+however, to quantify this effect more thoroughly by counting the number of HV
+node visits in either case during simulation.
 
 \section{Embree's Ray Tracing Kernel}\label{sec:emdag_hv_study}
 
@@ -351,21 +408,37 @@ overlapping regions of the leaf nodes.
 Because both of these implementations use AABBs, bounding of skinny, off-axis
 triangles results in bounding boxes with a considerable amount of empty space in
 them. An example of such a leaf can be seen in Figure
-\ref{fig:hv_overlap_simd_bvh}. In high valence regions, this results in the
-same space being occupied by an abnormally high number of leaf bounding
-boxes. If a ray is fired into these overlapping leaves, the end result is a
-large number of triangles visited.
+\ref{fig:hv_overlap_simd_bvh}. In high valence regions, this results in the same
+space being occupied by a high number of leaf bounding boxes. If a ray is fired
+into these overlapping leaves, the end result is a large number of leaf nodes,
+and in turn, triangles, visited.
 
 \begin{figure}
   \includegraphics[scale=0.5]{hv_overlap_simd_bvh.png}
-  \caption{Visualization of a large bounding box surrounding low aspect ratio, off-axis triangles.}
+  \caption{Visualization of a large bounding box surrounding low aspect ratio,
+    off-axis triangles.}
   \label{fig:hv_overlap_simd_bvh}
 \end{figure}
 
-\section{Adaptive BVH Construction}
+To alleviate the effect of the overlapping AABBs in this region, OBBs were
+implemented as part of the MOAB SIMD BVH kernel. Figure
+\ref{fig:hv_study_simd_obbs} shows the results of this study. Because the
+simplified SAH heuristic is able to separate large triangles exterior to the HV
+region into different leaf nodes and the maximum leaf node size is
+predetermined, scaling very similar to the MOAB OBB implementation after HV
+refinement is applied can be seen, though the overall speed is somewhat improved
+due to the single precision implementation.
 
-As discussed in Sections \ref{sec:emdag_hv_study} and \ref{sec:simd_hv_study},
-the pathology identified in both the Embree and the MMPBVH is the large overlap
-of AABBs in the HV region. To resolve this problem, oriendted bounding boxes are
-applied to leaf nodes as an additional filter for nodes which contain parts of
-the HV region.  
+\begin{figure}
+  \includegraphics[scale=0.55]{hv_study_SIMD_OBB.eps}
+  \caption{High valence vertex study for the MOAB SIMD kernel using OBBs.}
+  \label{fig:hv_study_simd_obbs}
+\end{figure}
+
+\subsection{Adaptive Construction: Mixed AABB/OBBs}
+
+The solution to HV regions when using the SIMD BVH kernel proposed by the author
+is to apply OBBs only in regions determined to be high valence using the same
+detection method described in Section \ref{subsubsec:hv_dectetion}. Large leaf
+nodes being split into smaller nodes will apply oriented bounding boxes to
+contain entities.

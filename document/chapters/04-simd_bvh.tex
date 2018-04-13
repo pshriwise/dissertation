@@ -16,18 +16,18 @@ bounding box tree) with a kernel produced by Intel, called Embree.
 
 \section{Linking DAGMC with Intel's Embree}\label{sec:embree}
 
-Embree is the result of a an effort to produce a performant CPU-based raytracer
+Embree is the result of a an effort to produce a performant CPU-based ray tracer
 as a demonstration of the expanding capabilities of modern CPU architectures
 \cite{Wald_2014}. In both construction and traversal of BVHs, Embree takes
 advantage of many of the latest developments in BVH research by using modern
 chipset architecture capabilities via vectorization at an implementation level
 as described in Section \ref{subsec:arch} of this work. The combination of these
-effects leads to a very powerful raytracing tool in terms of performance, as
+effects leads to a very powerful ray tracing tool in terms of performance, as
 demonstrated by the many projects which have incorporated Embree as their
 production ray tracing kernel such as Corona, Autodesk, FluidRay, and
 Brighter3D.As a result of its success in other areas, Embree was selected to be
 applied in DAGMC to satisfy geometric queries for MCNP. The resulting
-combination of these tools will be reffered to as EmDAG.
+combination of these tools will be referred to as EmDAG.
 
 \subsection{Transferring DAGMC Model's to Embree Scenes}%%Status:Done%%
 
@@ -61,7 +61,7 @@ same representation in each scene. It greatly simplifies particle tracking by
 guaranteeing that the same surfaces will not overlap each other in the different
 scenes they are a part of by doing the conversion of points from the MOAB
 database to Embree only once. Additionally, this method will maintain
-watertightnes at the boundaries between surfaces ensuring the same model
+watertightness at the boundaries between surfaces ensuring the same model
 fidelity as the representation in MOAB.
 
 \begin{figure}
@@ -89,7 +89,7 @@ allow for a user-defined callback method which allows users to validate a ray
 hit inside of Embree before returning a final result. Embree will return its
 most recent intersection with the scene to the filter function (the hit
 triangle's unnormalized vector included) and allow a method to either accept the
-hit or instruct Embree to continute tracing the ray path based on the outcome of
+hit or instruct Embree to continue tracing the ray path based on the outcome of
 the filter function. In MOAB, triangle normals are set in a global manner and
 adjusted using stored information within MOAB based on what volume is being
 queried at the moment. This is referred to as the surface's sense with respect
@@ -104,7 +104,7 @@ Embree is not much greater thanks to the single precision values for vertex
 locations used in Embree which will be addressed in a later section of this
 chapter.  By meeting DAGMC's requirements in the areas of topology, watertight
 representation, and hit acceptance/rejection based on triangle normals, Embree
-provides DagMC with all the information needed to perform geometric operations
+provides DAGMC with all the information needed to perform geometric operations
 required by the various Monte Carlo codes it supports, but in an agnostic manner
 to the ray tracing kernel being used.
 
@@ -113,7 +113,7 @@ to the ray tracing kernel being used.
 Using the same DAGMC-based ray fire test program, the performance of DAGMC's ray
 fire ability was compared to that of EmDAG's for three models. These models
 include a simple sphere, a notched sphere, and a high aspect ratio cylinder. In
-each of these tests, the models are tesselated with an increasingly smaller
+each of these tests, the models are tessellated with an increasingly smaller
 faceting tolerance in a higher number of triangles and more complex nature of
 the surface mesh in terms of BVH construction and traversal. The faceting
 tolerance is defined as the maximum distance between the faceted curve or
@@ -129,13 +129,13 @@ seed so that the same set of rays is fired in each ray tracing system.
       \includegraphics[scale=0.13]{larcyl.eps} \\
     \end{tabular}
     \caption{CAD representations of the sphere, slotted sphere, and high aspect
-      ratio cylinder test models used for ray fire timings of DagMC and
-      EmDagMC. (left to right) \label{models}}
+      ratio cylinder test models used for ray fire timings of DAGMC and
+      EmDAGMC. (left to right) \label{models}}
   \end{center}
 \end{figure} 
 
-The sphere and slotted sphere models present speicalized challenges to the BVH
-data structure as described in Section \ref{hv_study}. Due to memory contraints
+The sphere and slotted sphere models present specialized challenges to the BVH
+data structure as described in Section \ref{hv_study}. Due to memory constraints
 of the system used for testing EmDAG's performance against DAGMC, the ITER
 volume was removed and replaced with a high aspect ratio cylinder. The faceting
 of the cylinder contains many long, thin triangles running along the barrel of
@@ -169,25 +169,25 @@ decreasing faceting tolerance. This indicates that both systems are capable of
 building bounding volumes well for a model with long, skinny triangles. The
 scaling of the spherical case with increasing triangles is slightly worse than
 the HAR cylinder most likely because the BVH tree is unavoidably going to
-becomce gradually deeper as more and more triangles exist in the model. Finally,
+become gradually deeper as more and more triangles exist in the model. Finally,
 the slotted sphere contains many high valence regions and as expected it scales
 the worst with decreasing faceting tolerance as the valence of these regions
 increases. It is very apparent that there is nearly an order of magnitude
 difference in the ray fire timings MOAB and Embree. Due to the very similar
 scaling of each test model, it can be stated that the majority of the
-descrepancy in the ray fire timings between the two systems occurs in the
+discrepancy in the ray fire timings between the two systems occurs in the
 traversal methods employed by both systems and isn't likely due to a significant
 difference in the structure of the BVH being built by either system. Changes in
 the way the BVH is built typically accounts for anywhere from 30-40\% difference
-in ray fire timings whereas the descrepancy seen here between MOAB and Embree is
+in ray fire timings whereas the discrepancy seen here between MOAB and Embree is
 on average \textbf{an order of magnitude better} when using Embree. In large
 part, this has to do with Embree's freedom of design without the restriction of
 a ray tracing implementation inside the context of another application. MOAB's
 flexibility in core design allows for the robust implementation of an oriented
 bounding box tree within this context, but comes with the overhead of database
-calls to retreieve stored information which can be undesirable for a
-high-performance system and doesn't allow MAOB to take advantage of some
-implementation optimizations that Embree does. The vectorization of Embree's
+calls to retrieve stored information which can be undesirable for a
+high-performance system and doesn't allow MOAB to take advantage of some
+implementation optimization that Embree does. The vectorization of Embree's
 traversal through its BVH contributes greatly to its speed. This can be also
 considered a part of the design freedom allowed when designing an independent
 ray tracing system that cannot not be afforded using only MOAB's database
@@ -207,7 +207,7 @@ filled with a dense hydrogen material for high collisionality in the problem
 resulting in a large number of ray queries in the transport run. Each of these
 models' principal dimension is 10 cm. The source for these models is a 5 MeV
 neutron isotropic point source at the center of the volume. One million
-particles were simulated in each test. All of the test models were preproccessed
+particles were simulated in each test. All of the test models were preprocessed
 using a faceting tolerance of $10^{-4}$cm. Moving upward in complexity, another
 set of tests were run using a set of nested cubes and nested spheres. Each of
 the nested volume models contained three cells: the inner volume, a shell
@@ -229,7 +229,7 @@ irrelevant so long as particles are in fact reaching all of the cells.
     \begin{tabular}{lccc}
 
       \toprule
-      Test Model & MCNP & DagMCNP & EmDagMCNP \\
+      Test Model & MCNP & DAG-MCNP & EmDAG-MCNP \\
       %%\hline
       & \multicolumn{3}{c}{\textbf{time (min)/ ratio to MCNP}} \\
       \hline
@@ -266,14 +266,14 @@ model, it is likely that the number of surfaces relative to the number of
 triangles in their representation is high enough to allow EmDAG-MCNP to overtake
 MCNP's CSG calculations. This is a good demonstration of how CSG implementations
 suffer from the lack of a spatial search component when creating volumes from
-boolean combination of surfaces as mentioned in Section \ref{implicit_surfaces}.
+Boolean combination of surfaces as mentioned in Section \ref{implicit_surfaces}.
 
 \begin{table}[H]
   \small
   \begin{center}
     \begin{tabular}{lccc}
       \toprule
-      Value & MCNP & DagMCNP & EmDagMCNP \\
+      Value & MCNP & DAG-MCNP & EmDAG-MCNP \\
       \toprule
       %%Hist/min & 2.2991E+05 & 1.9877E+04 & 1.3947E+05 \\
       %%\hline
@@ -329,7 +329,7 @@ surprising as the model is expected to have the same watertight fidelity that it
 does when using DAGMC. In order to allow the run to complete, the number of
 allowed lost particles was increased to the number of the sources particles
 being run (1e8). The justification for this allowance being that if the lost
-particle rate is small enough, overall performace and results of the run would
+particle rate is small enough, overall performance and results of the run would
 still provide a viable comparison of the two systems. In the end, the model lost
 255 particles in 100 million histories. While this is concerning in terms of
 robustness, the lost particle rate per history wasn't considered high enough
@@ -368,11 +368,11 @@ DAG-MCNP is found in Table \ref{fngemdag}.
   \includegraphics[scale=0.45]{emdag_fng_cg_fine6.png}
   \caption{Callgraph of the EmDAG run on the FNG model for 1E7
     histories. (Processes taking $>=$6\% of the runtime are filtered in order to
-    siplify the callgraph.}
+    simplify the callgraph.}
   \label{emdag-fng-coarse}  
 \end{figure}
 
-While the performance of EmDAG greatly surpases that of DAGMC, it does not come
+While the performance of EmDAG surpasses that of DAGMC, it does not come
 as close to the performance of native MCNP as it did in the more simple
 transport test models. Upon visually inspecting the faceted FNG model, it was
 seen to contain many high valence regions. As an artifact of the variance
@@ -380,7 +380,7 @@ reduction used in the intended analysis of this model, many planes were inserted
 in the model in order to break up large cells with highly varying particle
 intensities. Where these planes intersect the cylindrical volumes of the model,
 many high valence regions result as can be seen in Figure
-\ref{fng-faceted-models}. As a result it became a curiousity as to whether or
+\ref{fng-faceted-models}. As a result it became a curiosity as to whether or
 not the high valence regions were being handled better by EmDAG than they were
 by DAGMC. In order to test this, the same programs used to do the high valence
 vertex study were built using EmDAG and the parameter study of the relative high
@@ -389,12 +389,12 @@ show that EmDAG also struggles with these high valence regions. In the worst
 scenario there is a degradation by two orders of magnitude compared to the best
 case scenario which is similar to what seen in the unmodified MOAB ray
 tracer. Additionally, it shows degraded performance in the same way that DAGMC
-was initally expected to falter - with increasing high valence area and
+was initially expected to falter - with increasing high valence area and
 valency. This is likely due to the nature of the heuristics used by Embree to
-construct its acceleration datastuctures.  Unlike MOAB, however, the BVH
+construct its acceleration data structures.  Unlike MOAB, however, the BVH
 building parameters are not as openly available via Embree's interface.There is,
 however, an option to reduce the size of the high valence regions in the mode
-within the faceting algorithm by definig a length tolerance.
+within the faceting algorithm by defining a length tolerance.
 
 \begin{figure}[H]
   \small
@@ -428,7 +428,7 @@ model could then be optimized. This optimization study, while interesting, will
 vary model to model and the results will be complex in nature, depending on the
 underlying geometry and geometry adjacent to those regions, etc. In light of the
 high valence study results showing that BVH building parameters can be altered
-to improve performance and accomodate these high valence regions, it seems that
+to improve performance and accommodate these high valence regions, it seems that
 a better solution is to follow that path over alteration of the mesh globally in
 the model. 
 
@@ -436,8 +436,8 @@ the model.
 
 While the implementation of Embree in DAGMC showed a vast improvement in
 performance relative to DAGMC's current implementation, several problems were
-encountered during the process. This is not surprising when repurposing a ray
-tracing kernal for an unintended application.
+encountered during the process. This is not surprising when re-purposing a ray
+tracing kernel for an unintended application.
 
 One of these problems is the presence of lost particles in a watertight
 model. The FNG model EmDAG was tested on is a fully sealed model via the
@@ -474,7 +474,7 @@ meshes have connectivity at their interface which share vertex handles inside of
 the MOAB database. These vertex handles will then point to the \textbf{exact
   same floating point representation} of the vertices no matter which of the
 surfaces is being queried. In this way particles are not lost through gaps in
-surfaces and firing a ray from the logcal position inside a volume should always
+surfaces and firing a ray from the logical position inside a volume should always
 result in a triangle intersection. This is not the case however when using
 EmDAG. Particles were somehow being lost in the transport process.
 
@@ -492,7 +492,7 @@ EmDAG. Particles were somehow being lost in the transport process.
 
 Some detailed debugging of this problem revealed that this occurs in a
 systematic fashion within the FNG model at intersections of 3 or more
-volumes. The secnario is that a particle moves into the intersection between two
+volumes. The scenario is that a particle moves into the intersection between two
 surfaces. When this occurs, an intersection with either surface connected to
 that interface is a valid hit so long as the surface is part of the volume the
 particle is current positioned within. The particle will then logically move
@@ -525,16 +525,16 @@ the triangle intersection on this volume and move on.
   \end{figure}
 
 By isolating this particle's history and producing the particle history with
-locations precise enough to detect the descrepancies between EmDAG and DAGMC, it
+locations precise enough to detect the discrepancies between EmDAG and DAGMC, it
 was found that the position of the particle in EmDAG was numerically too far
 outside of a volume to produce the correct triangle hit in either EmDAG or
-DAGMC's ray fire systems. The cause of this descrepancy is believed to have to
-do with the necessary conversion between double and sinble floating point
+DAGMC's ray fire systems. The cause of this discrepancy is believed to have to
+do with the necessary conversion between double and single floating point
 precision in the EmDAG system.
 
 As mentioned before, EmDAG uses single floating point representation in its ray
 tracing kernel while DAGMC uses a double precision representation of the
-geometry and particle information as does MCNP. In order to accomodate Embree's
+geometry and particle information as does MCNP. In order to accommodate Embree's
 representation, properties of the particle location and direction are converted
 to single precision for ray tracing queries in Embree and back to double
 precision when in DAGMC. When changing the floating point representation,
@@ -550,7 +550,7 @@ Monte Carlo Radiation Transport'' \cite{Smith_2011} there is a detailed
 description of the different pathologies encountered in tracking particles
 through a surface mesh representation of a geometric model. Briefly mentioned in
 this chapter is the possibility of a lost particle due to numerical error in the
-particle's position perpindicular to the particle's trajectory. Lost particles
+particle's position perpendicular to the particle's trajectory. Lost particles
 caused by this pathology are not covered however as the double floating point
 representation does not allow the particle position to change enough for this
 case to occur in practice. In EmDAG, however, this particular pathology is now

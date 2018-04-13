@@ -70,12 +70,10 @@ The Direct Accelerated Geometry Monte Carlo (DAGMC) \cite{Tautges_2009} is one
 of several software packages which enables Monte Carlo simulations on CAD-based
 geometries. DAGMC's design allows it to serve as a particle
 tracking and geometry kernel for a variety of Monte Carlo codes all of which are
-listed in Table \ref{tab:dagmc_implementations}..
+listed in Table \ref{tab:dagmc_implementations}.
 
-
-Specifically,
-it has been successfully integrated with MCNP, FLUKA, and Geant4 to
-date \cite{LANL_MCNP5_VOLIII, Bohlen_2014, GEANT4_2003}.
+Specifically, it has been successfully integrated with MCNP, FLUKA, and Geant4
+to date \cite{LANL_MCNP5_VOLIII, Bohlen_2014, GEANT4_2003}.
 
 \begin{table}[H]
   \centering
@@ -95,7 +93,7 @@ date \cite{LANL_MCNP5_VOLIII, Bohlen_2014, GEANT4_2003}.
   \label{tab:dagmc_implementations}
 \end{table}
 
-\section{Statement of Problem}
+\section{Statement of Problem}\label{sec:problem-statement}
 
 While the use of CAD geometries brings the benefits outlined above, it also adds
 complexity to particle tracking during Monte Carlo simulations. Particle
@@ -118,7 +116,7 @@ remains much slower than native geometry implementations in CSG. DAGMC's
 simulations are anywhere from 2.5 to 10 times longer than those of their native
 counterparts.
 
-\subsubsection{Performance Results}%%Status:Done%%
+\subsection{Performance Results}%%Status:Done%%
 
 Table \ref{dag-mcnp-benchmarks} represents a comparison of several
 representative MCNP problems when run the native geometry representations and
@@ -138,9 +136,9 @@ Wisconsin Nuclear Reactor (UWNR).
     \toprule
     Model & Native ctme (min) & DAG-MCNP ctme (min) & Ratio (Native/DAGMC) \\
     \hline
-    FNG &  5871.92 & 22769.33 & 3.9\\
-    ATR &  901.68 & 8627.80 & 9.6 \\
-    UWNR &  8767.29 & 69429.60 & 7.9\\
+    FNG   & 5871.92           & 22769.33            & 3.9                  \\
+    ATR   & 901.68            & 8627.80             & 9.6                  \\
+    UWNR  & 8767.29           & 69429.60            & 7.9                  \\
     \hline
   \end{tabular}
   \caption{Table comparing the performance of DAG-MCNP to native MCNP for the same modules after translation to a CAD-based surface mesh.}

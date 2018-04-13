@@ -432,7 +432,7 @@ to improve performance and accomodate these high valence regions, it seems that
 a better solution is to follow that path over alteration of the mesh globally in
 the model. 
 
-\subsubsection{Limitations of the EmDAG system}%%Status:In Progress%%
+\subsubsection{Limitations of the EmDAG system}\label{sec:emdag_limitations}
 
 While the implementation of Embree in DAGMC showed a vast improvement in
 performance relative to DAGMC's current implementation, several problems were
@@ -559,3 +559,28 @@ between DAGMC and Embree. In order to avoid this problem moving forward, any
 improvements to DAGMC's ray tracing kernel for particle tracking will need to
 maintain use of double precision representations for mesh elements for robust
 coupling of numerical and logical particle positions and directions.
+
+\section{A SIMD Ray Tracing Kernel for MOAB}
+
+
+As described in Section \ref{sec:emdag_limitations} a SIMD-oriented ray tracing
+kernel was successfully applied in DAGMC. Unfortunately, this system was
+inherently limited by conversion from single to double precision values. The
+use of double precision intersections is required for DAGMC to successfully
+interface with any of the Monte Carlo it supports. As a result, reduction of the
+triangle primitives to single precision is not an option.
+
+This section outlines an approach to using single precision bounding volumes
+around double precision geometric primitives. Because the majority of the
+computational work in ray tracing occurs in traversing the BVH as opposed to
+testing triangles for intersection, it is hypothesized that the majority of the
+performance benefits seen in the EmDAG implementation can be preserved in the
+proposed mixed precision system.
+
+\subsection{Design and Implementation}
+
+This kernel was created by the author as an independent project which draws on
+design elements from Embree while interfacing with MOAB to optimize CPU-based
+ray tracing for the application of CAD-based Monte Carlo Radiation
+Transport.
+

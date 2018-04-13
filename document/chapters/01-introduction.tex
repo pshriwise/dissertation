@@ -1,3 +1,11 @@
+\newcommand{\dagmcModel}[2] {
+  \null %emptyline
+  \textbf{\uppercase{#1}} 
+  \begin{adjustwidth}{2.5em}{0pt}
+    #2
+  \end{adjustwidth}
+  \null
+}
 
 \chapter{Introduction}\label{ch:introduction}
 
@@ -36,6 +44,7 @@ achieve satisfactory uncertainty in a region of interest.
 
 
 \section{Monte Carlo Geometry}
+
 
 Historically, Monte Carlo codes Constructive Solid Geometry (CSG) as their
 \textit{native} geometry representation. CSG representations represent 3D
@@ -109,7 +118,94 @@ remains much slower than native geometry implementations in CSG. DAGMC's
 simulations are anywhere from 2.5 to 10 times longer than those of their native
 counterparts.
 
-\newpage
+\subsubsection{Performance Results}%%Status:Done%%
+
+Table \ref{dag-mcnp-benchmarks} represents a comparison of several
+representative MCNP problems when run the native geometry representations and
+DAGMC coupled with MCNP, or DAG-MCNP.For smaller problems with simple geometries
+and relatively low numbers of histories required to reach an acceptably low
+level of statisitcal uncertainty, this might not pose as much of a problem to
+users. As problem geometries become more complicated and the number of histories
+becomes larger however, the discrepancy in computing time becomes of high
+importance when run times extend to days or weeks longer than they would using
+the native MCNP CSG geometry representation. These models include the Frascati
+Neutron Generator (FNG), the Advanced Test Reactor (ATR), and the University of
+Wisconsin Nuclear Reactor (UWNR).
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l c c c}
+    \toprule
+    Model & Native ctme (min) & DAG-MCNP ctme (min) & Ratio (Native/DAGMC) \\
+    \hline
+    FNG &  5871.92 & 22769.33 & 3.9\\
+    ATR &  901.68 & 8627.80 & 9.6 \\
+    UWNR &  8767.29 & 69429.60 & 7.9\\
+    \hline
+  \end{tabular}
+  \caption{Table comparing the performance of DAG-MCNP to native MCNP for the same modules after translation to a CAD-based surface mesh.}
+  \label{dag-mcnp-benchmarks}  
+\end{table}
+
+As a part of this study, these runs were repeated using the profiling tool,
+Callgrind, within KCachegrind to determine where is being spent in both the
+DAG-MCNP and native MCNP runs. Because the geometry representation and query
+system is the only difference between the two models, it is expected that the
+time is being spent there, but it is practical to confirm this and useful to
+know more specifically where in the query system this is occuring. All
+callgraphs are displayed with the MCNP \textit{history\_} subroutine at the
+top. It is inside this subroutine that MCNP calls upon DAGMC to fulfill
+geometric queries about the model. It should also be noted that for these
+profiling runs the fcad file produced by a previous DAGMC run was used. DAGMC
+produces this file after completing the BVH build for a given geometry. Using
+this file keeps the profiling information from being obfuscated by the building
+process of the BVH in MOAB and allows DAG-MCNP to move straight to particle
+transport after loading the geometry and BVH from the fcad file.
+
+In Figure \ref{dagmc-fng-coarse} a callgraph for a profiling run of FNG for 1e7
+histories is provided. In this callgraph it is shown that the time spent in
+transport is dominated by MOAB's ray tracing process used by DAGMC to track
+particles as they move through the geometry. About 60\% of the runtime is spent
+in DAGMC's \textit{ray\_fire} while in native MCNP the relative time spent on
+this process is reduced to ~5\% with the majority of the time spent in
+calculating cross sections under the textit{acetot\_} subroutine.
+
+\begin{figure}[H]
+  \centering
+  \caption{Callgraph of DAG-MCNP FNG run for 1e7 histories. (Processes taking
+    $<$10\% of the runtime are filtered out in order to simplify the callgraph.)}
+  \label{dagmc-fng-coarse}
+  \includegraphics[scale=0.3]{dagmc_fng_cg_coarse.png}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Callgraph of native MCNP FNG run for 1E7 histories. (Processes taking
+    $<$10\% of the runtime are filtered out in order to simplify the call
+    graph.)}
+  \label{mcnp-fng-coarse}
+  \includegraphics[scale=0.3]{native_fng_cg_coarse.png}
+\end{figure}
+
+
+It should be noted that in this case a pre-built BVH was include in
+the geometry file and read into place much more quickly than in a typical DAGMC
+run. While this processes does contribute to additional DAGMC runtime, the
+amount of time spent building these hierarchies is small relative to the time
+spent in particle transport due to the high number of histories required for
+good statistics in the Monte Carlo results.
+
+The combination of the profiling results indicating how much time is spent in
+tracking particles in DAGMC along with the difference in absolute run times
+confirms that indeed the performance bottleneck of DAGMC lies in its ability to
+quickly satisfy the geometric queries of the underlying Monte Carlo code it is
+coupled to. Looking more closely at the underlying calls in DAGMC, one can see
+that this time is collectively spent in the DAGMC \textit{ray\_fire} call with
+the BVH traversal lying below this along with many underlying MOAB
+database-related calls. This indicates that this time is spent even more
+specifically in traversing MOAB's OBB BVH via the database-oriented methods
+available in DAGMC.
+
 \section{Statement of Thesis}
 
 The purpose of this dissertation is to establish work that improves the

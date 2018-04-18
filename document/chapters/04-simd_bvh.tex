@@ -599,11 +599,25 @@ The details of these features can be found in Embree's GitHub repository
 The kernel created by the author is a lightweight version of the
 Embree kernel focused on static triangle meshses and access to an external mesh
 database used for engineering analysis. This allowed for several improvements in
-both robustness and memory usage in comparison to the EmDAG system.
+both robustness and memory usage in comparison to the EmDAG system. The
+remainder of this section will address some of these features and design
+changes.
 
+\subsubsection{MOAB Direct Access}
 
+MOAB provides a rich interface used to create, modify, and query both structured
+and unstructured mesh representations. It supports many meta-data types as well as
+the arbitrary grouping of mesh entities into sets to represent boundary
+conditions, material types, etc. MOAB also allows direct access to memory which
+is normally protected through its standard interface. This allows for rapid look
+ups data and allows other applications access to the memory as well. This
+capability can be extremely useful in data transfer or query based operations,
+such as ray tracing.
 
+The SIMD BVH kernel uses these methods to populate references to triangles in
+the BVH without needing to duplicate their coordinate values or
+connectivity. Access to these locations in memory is handled by an object called
+the MOABDirectAccessManager which protects the mesh information from
+modification during the building and traversal of the BVH.
 
-
-
-
+HOLES

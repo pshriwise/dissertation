@@ -444,3 +444,66 @@ doi = {10.1063/1.4891299},
 URL = {https://doi.org/10.1063/1.4891299}
 }
 
+@phdthesis{Smith_2011,
+	address = {Madison, WI, United States},
+	type = {{PhD} {Nuclear} {Engineering} and {Engineering} {Physics}},
+	title = {Robust {Tracking} and {Advanced} {Geometry} for {Monte} {Carlo} {Radiation} {Transport}},
+	abstract = {A set of improved geometric capabilities are developed for the Direct Accelerated Geometry for Monte Carlo (DAGMC) library to increase its ease of use and accuracy. The improvements are watertight faceting, robust particle tracking, automatic creation of nonsolid space, and overlap tolerance. Before being sealed, adjacent faceted surfaces do not have the same discretization along shared curves. Sealing together surfaces to create a watertight faceting prevents leakage of particles between surfaces. The tracking algorithm is made robust by ensuring numerical consistency and avoiding geometric tolerances. Monte Carlo simulation requires all space to be defined, whether it be vacuum, air, coolant, or a solid material. The implicit creation of nonsolid space reduces human effort otherwise required to explicitly create nonsolid space in a CAD program. CAD models often contain small gaps and overlaps between adjacent volumes due to imprecise modeling, file translation, or intentional deformation. Although gaps are filled by the implicit creation of nonsolid space, overlaps cause geometric queries to become unreliable. The particle tracking algorithm and point inclusion test are modified to tolerate small overlaps of adjacent volumes. Overlap-tolerant particle tracking eliminates manual repair of CAD models and enables analysis of meshed finite element models undergoing structural deformation. These improvements are implemented in a coupling of DAGMC with the Monte Carlo N-Particle (MCNP) code, known as DAG-MCNP. The elimination of both manual CAD repair and lost particles are demonstrated with CAD models used in production calculations.},
+	language = {English},
+	school = {University of Wisconsin-Madison},
+	author = {Smith, Brandon M.},
+	year = {2011},
+}
+
+@ARTICLE{IEEE_STD_2008, 
+journal={IEEE Std 754-2008}, 
+title={{IEEE} Standard for Floating-Point Arithmetic}, 
+year={2008}, 
+pages={1-70}, 
+keywords={IEEE standards;floating point arithmetic;programming;IEEE standard;arithmetic formats;computer programming;decimal floating-point arithmetic;754-2008;NaN;arithmetic;binary;computer;decimal;exponent;floating-point;format;interchange;number;rounding;significand;subnormal}, 
+doi={10.1109/IEEESTD.2008.4610935}, 
+month={Aug},}
+
+@inproceedings{White_2002,
+  title={Improved Imprint and Merge for Conformal Meshing},
+  author={David R. White and Sunil Saigal},
+  booktitle={IMR},
+  year={2002}
+}
+
+@misc{Embree,
+  author = {Wald, Ingo and Woop, Sven and Benthin, Carsten},
+  title = {Embree: High Performance Ray Tracing Kernels},
+  year = {2018},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/embree/embree}},
+  commit = {b1bdaa246c4d52a517a04d022b801902c555de03}
+}
+
+@article{Platis_2003,
+	title = {Fast {Ray}-{Tetrahedron} {Intersection} {Using} {Plucker} {Coordinates}},
+	volume = {8},
+	number = {4},
+	journal = {Journal of Graphics Tools},
+	author = {Platis, Nikos and Theoharis, Theoharis},
+	year = {2003},
+	pages = {37--48}
+}
+
+@inproceedings{Vaidyanathan_2016,
+author = {Vaidyanathan, K. and Akenine-M\"{o}ller, T. and Salvi, M.},
+title = {Watertight Ray Traversal with Reduced Precision},
+booktitle = {Proceedings of High Performance Graphics},
+series = {HPG '16},
+year = {2016},
+isbn = {978-3-03868-008-6},
+location = {Dublin, Ireland},
+pages = {33--40},
+numpages = {8},
+url = {http://dl.acm.org/citation.cfm?id=2977336.2977342},
+acmid = {2977342},
+publisher = {Eurographics Association},
+address = {Aire-la-Ville, Switzerland, Switzerland},
+}
+

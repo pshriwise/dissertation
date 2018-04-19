@@ -112,14 +112,15 @@ to the ray tracing kernel being used.
 
 Using the same DAGMC-based ray fire test program, the performance of DAGMC's ray
 fire ability was compared to that of EmDAG's for three models. These models
-include a simple sphere, a notched sphere, and a high aspect ratio cylinder. In
-each of these tests, the models are tessellated with an increasingly smaller
-faceting tolerance in a higher number of triangles and more complex nature of
-the surface mesh in terms of BVH construction and traversal. The faceting
-tolerance is defined as the maximum distance between the faceted curve or
-surface and the geometric curve or surface which it resolves. 600k rays are then
-fired from the center of the volume isotropically using the same random number
-seed so that the same set of rays is fired in each ray tracing system.
+include a simple sphere, a notched sphere, and a high aspect ratio (HAR)
+cylinder. In each of these tests, the models are tessellated with an
+increasingly smaller faceting tolerance in a higher number of triangles and more
+complex nature of the surface mesh in terms of BVH construction and
+traversal. The faceting tolerance is defined as the maximum distance between the
+faceted curve or surface and the geometric curve or surface which it
+resolves. 600k rays are then fired from the center of the volume isotropically
+using the same random number seed so that the same set of rays is fired in each
+ray tracing system.
 
 \begin{figure}[H]
   \begin{center}
@@ -366,9 +367,9 @@ DAG-MCNP is found in Table \ref{fngemdag}.
 \begin{figure}
   \centering
   \includegraphics[scale=0.45]{emdag_fng_cg_fine6.png}
-  \caption{Callgraph of the EmDAG run on the FNG model for 1E7
+  \caption{Call-graph of the EmDAG run on the FNG model for 1E7
     histories. (Processes taking $>=$6\% of the runtime are filtered in order to
-    simplify the callgraph.}
+    simplify the call-graph.}
   \label{emdag-fng-coarse}  
 \end{figure}
 
@@ -587,9 +588,9 @@ Transport. Several such design elements include:
 \begin{itemize}
   \item single-precision bounding entities
   \item bit-encoding of node types
-  \item templating of vector types to support SIMD instruction sets
-  \item memory pre-fecthing of node memory added to the traversal stack
-  \item precomputation of near and far box boundaries
+  \item templated vector types to support SIMD instruction sets
+  \item memory pre-fetching of node memory added to the traversal stack
+  \item pre-computation of near and far box boundaries
   \item simultaneous node intersection supported by templated vector types
 \end{itemize}
 
@@ -616,8 +617,203 @@ such as ray tracing.
 
 The SIMD BVH kernel uses these methods to populate references to triangles in
 the BVH without needing to duplicate their coordinate values or
-connectivity. Access to these locations in memory is handled by an object called
-the MOABDirectAccessManager which protects the mesh information from
-modification during the building and traversal of the BVH.
+connectivity. Access to these locations in memory is handled by a direct access
+manager object which protects the mesh information from modification during the
+building and traversal of the BVH. All coordinate and connectivity information
+accessed through this manager, which protects against modification of MOAB's
+memory.
 
-HOLES
+Information is looked up via offset values using handles for triangle and vertex
+entities. This allows coordinates values for triangle intersections to be
+gathered optimally from the database. Bypassing the MOAB interface in this way
+requires that there are no gaps or ``holes'' in the set of handles representing
+entities, that the set of entity handles in the database is contiguous.
+
+Fortunately, files loaded into MOAB have a contiguous entity handle space
+regardless of the contiguity at the time the file was written to disk. This
+guarantees that the set of entity handles representing DAGMC geometries will be
+contiguous when loading a geometry for simulation. If the mesh data is modified,
+in particular if entities are deleted, then this requirement will be broken and
+it may not be possible to use the direct access methods robustly. DAGMC does not
+modify mesh data once the file has been loaded for simulation. MOAB provides
+tools for collapsing or modifying the entity handle space if this becomes
+necessary in future applications of DAGMC.
+
+\subsubsection{Mixed Precision Ray Tracing}
+
+In the SIMD BVH kernel, bounding boxes are calculated in single precision based
+on double precision triangle coordinates from the MOAB direct access manager. As
+demonstrated by the limitations of the EmDAG implementation, double precision
+intersections with triangle primitives are necessary for robust radiation
+transport in CAD geometries.
+
+Using double precision ray values to intersect with single precision boxes is
+possible due to IEEE standards used to truncate double precision values to single
+precision values, but costly due to the conversion of the ray origin and
+direction for each box intersection \ref{IEEE_STD_2008}. Instead, a method was
+applied in which a traversal ray data structure is used represent the ray origin
+and direction in single precision. This greatly accelerates the traversal
+process moving through the hierarchy of bounding boxes. Once leaf nodes are
+reached in the tree, the original double precision values of the ray and double
+precision triangle coordinates are used to calculate intersections and return
+distances to the surface.
+
+This method removes the need for conversion of single precision intersection
+distances which caused lost particles in the EmDAG implementation, but there are
+other robustness concerns which must be addressed. In order to return the
+correct intersection distance, the leaf node containing the triangle which
+intersects with the ray at that distance must be visited. Upon converting ray
+origins and directions from double to single precision, small changes in the ray
+origin and direction are introduced. This effect is illustrated in Figure
+\ref{fig:double_ray_to_single_ray}.
+
+\begin{figure}
+  \begin{center}
+  \includesvg{../images/double_ray_float_ray}{0.5\textwidth}
+  \caption{A representation of the directional change due to conversion of a
+    ray's origin and direction from double to single precision. Where capital
+    letters indicate double precision values.}
+  \end{center}
+  \label{fig:double_to_single_ray}
+\end{figure}
+
+To ensure that node visits which would occur in double precision will also occur
+in single precision, the bounding boxes are artificially enlarged by a small
+amount to ensure that this is true. When determining how much the boxes need to
+be enlarged, it is important to understand the difference in the intersection
+locations caused by this change.
+
+Let the original, double precision, ray be $\vec{R}$ where its direction is
+
+$$ \vec{D} = < R_{u}, R_{v}, R_{w} > $$
+
+and the traversal ray, in single precision, be $\vec{r}$ where its direction is
+
+$$ \vec{d} = < r_{u}, r_{v}, r_{w} > $$
+
+Where the distance between these two vectors at their unit length
+can be described as.
+
+$$ \Delta = \sqrt{ (R_{u} - r_{u})^{2} + (R_{v} - r_{v})^{2} + (R_{w} -
+  r_{w})^{2} } $$
+
+Because the difference between the vectors in each dimension is representative
+of the truncation of double precision values to single precision, they can be
+set equal to a value $\delta$.
+
+$$ \delta = R_{u} - r_{u} = R_{v} - r_{v} = R_{w} -  r_{w} $$
+
+By substituting this value, $\Delta$ becomes
+
+$$ \Delta = \sqrt{3} \delta $$
+
+Extending this to a ray traveling a parametric distance, $t$, along the
+respective single and double precision ray directions, the value of $\Delta$
+becomes
+
+$$ \Delta = \sqrt{ (tR_{u} - tr_{u})^{2} + (tR_{v} - tr_{v})^{2} + (tR_{w} -
+  tr_{w})^{2} } $$
+
+$$ \Delta = \sqrt{3} t \delta $$
+
+This equation indicates that boxes will need to be expanded an amount $\Delta$
+in order to ensure that $\vec{r}$ will intersect any box $\vec{R}$ does. One
+concern with this expansion is that artificially extending the bounding boxes
+causes more overlap and raises the average number of nodes visited per traversal
+of the BVH. If the value of $\Delta$ is a large value, then the performance of
+tracing rays through the data structure may suffer. An examination of the
+$\Delta$ value indicates that this is not the case, however.
+
+As a worst-case consideration, $t$ should be evaluated as the maximum distance a
+particle might travel through the geometry. This can be evaluated as the longest
+possible diagonal of the problem's global bounding box using it's largest
+dimension, $l_{max}$.
+
+$$ t_{max} = \sqrt{3} l_{max} $$
+
+Given this value, the truncation will be, in the worst case, $10^{7}$ on modern
+CPU systems. This value can be considered to be relative to the overall
+geometric scale of the problem, represented by $t_{max}$. Using this analysis,
+the value of $\Delta_{max}$ can be written as 
+
+$$\Delta_{max} = 3 x 10^{-7} l_{max} $$
+
+The largest problem examined in this work is the ITER-BLITE model. The largest
+side of the global bounding box in this model is $4 x 10^{3}$ cm. Using this as a
+representative value of $l_{max}$ results in a box expansion value, $\Delta$, of
+$1.2 x 10^{-3}$. This value is small enough to cause minimal overlap in the
+bounding boxes and a negligible effect on the BVH performance, as seen in Figure
+\ref{fig:box_bump_study}. For all results discussed in this work $\Delta$ was
+set to $5 x 10 ^{-3}$.
+
+SOME RESULTS ON PERFORMANCE FOR DIFFERENT VALUES OF BOX BUMP HERE
+
+Knowing that the 
+
+Another method for working with mixed precision BVHs in double precision
+geometries was put forth by Vaidyanathan in which the ray's origin is
+periodically updated during traversal so that the deviation from the double
+precision intersection is limited \cite{Vaidyanathan_2016}. This method is
+intended for use with geometries in motion and requires additional computation
+during ray traversal. DAGMC geometries, and Monte Carlo radiation transport
+geometries in general, are static, so it is more efficient to account for the
+discrepancy caused by the reduced precision ray direction during construction of
+the BVH.
+
+\subsubsection{Simplified Surface Area Heuristic}
+
+The SIMD BVH kernel employs a modified version of the Surface Area Heuristic,
+discussed in Chapter \ref{ch:background}, which was developed by the
+author. This version of the heuristic, dubbed the Simplified Surface Area
+Heuristic (SSAH), removes estimation of the relative cost between a tree
+traversal step and a primitive intersection.
+
+This version of the heuristic considers the cost of traversal, $C_{t}$, to be
+small compared to the cost of a triangle primitive intersection, $C_{i}$. This
+assumption is stronger due to the mixed precision nature of the implementation
+than for systems in which the hierarchy and primitives are both stored with the
+same precision.
+
+After these considerations, the cost evaluation for a candidate node can be
+evaluated as seen in Figure \ref{fig:SSAH}.
+
+\begin{figure}[H]
+  \begin{align}
+    C =  \cancel{C_{t} +} \frac{SA_{L}}{SA_{P}} |P_{L}|C_{i} + \frac{SA_{R}}{SA_{P}} |P_{R}|C_{i} \\
+    C_{g} = \frac{SA_{L}}{SA_{P}} |P_{L}| +  \frac{SA_{R}}{SA_{P}}|P_{R}| \\
+    C = C{i}C_{g}
+  \end{align}
+  \begin{align*}
+    C^{a} = C_{i} C^{a}_{g} \\
+    C^{b} = C_{i} C^{b}_{g} \\
+    C^{a} < C^{b} \\
+    C_{i}C^{a}_{g} < C_{i}C^{b}_{g}
+  \end{align*}
+  \begin{align*}
+    C_{t} - & \,cost\, of\, traversal\, to\, child\, nodes \\
+    C_{i} - & \, cost\, of\, primitive\, intersection\, check\, \\
+    SA_{L} - &  \,surface\, area\, of\, left\, child \\
+    P_{L} - & \, primitives\, contained\, by\, the\, left\, child  \\
+    SA_{R} - & \, surface\, area\, of\, right\, child \\
+    P_{R} - & \, primitives\, contained\, by\, the\, right\, child \\
+    SA_{P} - & \, parent\, bounding\, volume \\
+  \end{align*}
+  \caption{A form of the simplified surface area heuristic for a binary tree.}
+  \label{fig:SSAH}
+\end{figure}
+
+By neglecting the traversal cost, the cost of the node can be broken into two
+components, the cost of the intersection, $C_{i}$ and the geometric cost,
+$C_{g}$. Because these values are used in a purely relative manner to compare
+the costs of candidate splits, the constant factor of the primitive intersection
+is no longer required. This form of the heuristic is purely a weighted geometric
+evaluation without estimation of implementation-based valued which can vary
+based on machine architecture, build settings, etc.
+
+\subsubsection{Plucker Ray-Triangle Intersections}\label{sec:intersection_distances}
+
+In MOAB, the Plucker ray triangle intersection\cite{Platis_2003} method is used to provide
+watertight intersections with triangle meshses.
+
+
+

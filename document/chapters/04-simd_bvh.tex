@@ -28,7 +28,7 @@ Brighter3D.As a result of its success in other areas, Embree was selected to be
 applied in DAGMC to satisfy geometric queries for MCNP. The resulting
 combination of these tools will be referred to as EmDAG.
 
-\subsection{Transferring DAGMC Model's to Embree Scenes}%%Status:Done%%
+\subsection{Transferring DAGMC Model's to Embree Scenes}\label{sec:emdag_transfer}
 
 The process of employing Embree as DAGMC's ray tracer begins by establishing an
 equivalent representation of the MOAB mesh in Embree. In comparison to MOAB,
@@ -638,7 +638,7 @@ modify mesh data once the file has been loaded for simulation. MOAB provides
 tools for collapsing or modifying the entity handle space if this becomes
 necessary in future applications of DAGMC.
 
-\subsubsection{Mixed Precision Ray Tracing}
+\subsubsection{Reduced-Precision Ray Tracing}
 
 In the SIMD BVH kernel, bounding boxes are calculated in single precision based
 on double precision triangle coordinates from the MOAB direct access manager. As
@@ -656,6 +656,14 @@ process moving through the hierarchy of bounding boxes. Once leaf nodes are
 reached in the tree, the original double precision values of the ray and double
 precision triangle coordinates are used to calculate intersections and return
 distances to the surface.
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/reduced_precision_scheme}{0.7\textwidth}
+  \caption{The reduced precision scheme used to accelerate ray traversal while
+    returning double precision intersections.}
+  \label{fig:reduced_precision_scheme}
+\end{figure}
 
 This method removes the need for conversion of single precision intersection
 distances which caused lost particles in the EmDAG implementation, but there are
@@ -736,18 +744,6 @@ geometric scale of the problem, represented by $t_{max}$. Using this analysis,
 the value of $\Delta_{max}$ can be written as 
 
 $$\Delta_{max} = 3 x 10^{-7} l_{max} $$
-
-The largest problem examined in this work is the ITER-BLITE model. The largest
-side of the global bounding box in this model is $4 x 10^{3}$ cm. Using this as a
-representative value of $l_{max}$ results in a box expansion value, $\Delta$, of
-$1.2 x 10^{-3}$. This value is small enough to cause minimal overlap in the
-bounding boxes and a negligible effect on the BVH performance, as seen in Figure
-\ref{fig:box_bump_study}. For all results discussed in this work $\Delta$ was
-set to $5 x 10 ^{-3}$.
-
-SOME RESULTS ON PERFORMANCE FOR DIFFERENT VALUES OF BOX BUMP HERE
-
-Knowing that the 
 
 Another method for working with mixed precision BVHs in double precision
 geometries was put forth by Vaidyanathan in which the ray's origin is
@@ -836,19 +832,107 @@ this limit will be discussed further in Chapter \ref{ch:high_valence}.
   \label{fig:leaf_encoding}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includesvg{../images/quad_tree_sets}{1.0\textwidth}
-  \caption{A representation how surface BVHs are joined into a volume BVH.}
-  \label{fig:quad_tree_sets}
+In DAGMC, a BVH is created for each set of triangles representing a
+surface. These surface trees are then joined into a single tree that represents
+a volume as depicted in Figure \ref{fig:quad_tree_sets}. This avoids duplication
+of surface trees for each volume. It also allows the return of which surface is
+intersected, allowing for optimized transport of a particle to the volume on the
+other side of that surface via the toplogy represented by the mesh hierarchy
+described in Section
+\ref{oh-crap-i-need-to-describe-our-mesh-data-model}. Embree allows for a
+similar model in which surfaces are represented as ``geometries'' rather than
+surfaces. Those geometries can be grouped into ``scenes'' rather than surfaces.
+More detail on this can be found in Section \ref{sec:emdag_transfer}. The
+creation of a special node to represent the root of a surface tree was
+implemented to provide this information. This node type is an extended node
+reference which contains additional information about the surface the tree is
+constructed around. In particular, this node stores the id of the surface and
+its sense information relative to the volumes on either side of the
+surface. This sense information is used to automatically adjust the returned triangle
+normals for any intersections with that surface, and avoids the duplication of
+triangle connectivity that was necessary in the EmDAG implementation.
+
+The node reference type is identified by toggling the least significant bit in
+the reference's integer value. Because only the first bit is altered, this node
+is not recognized as a leaf containing primitives but rather a leaf of the
+volume tree. Information about the current surface being visited and the sense
+information is updated on the traversal ray and used to set any hit information
+on the returned ray. The depth-first traversal of the hierarchy protects against
+any invalid surface information being set on the ray as the all nodes underneath
+that surface will be visited before moving on to the next surface, at which
+point the traversal ray information will be updated.
+
+\begin{figure}
+  \includesvg{../images/set_leaf_encoding}{1.0\textwidth}
+  \caption{Visual representation of set leaf encoding using integer-based
+    pointer values.}
+  \label{fig:set_leaf_encoding}
 \end{figure}
 
 
+This node type also provides the ability to avoid the duplication of triangle
+connectivity to represent sense-adjusted triangle normals as was required in the
+EmDAG system to track the relative surface-to-volume senses. A MOAB lookup of
+this sense information after returning ray hits is also a viable option, but it
+would be relatively expensive to in comparision to adjusting triangle normals on
+the fly.
 
-\subsubsection{Plucker Ray-Triangle Intersections}\label{sec:intersection_distances}
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/quad_tree_sets}{1.0\textwidth}
+  \caption{A representation of how surface BVHs are joined into a volume BVH.}
+  \label{fig:quad_tree_sets}
+\end{figure}
 
-In MOAB, the Plucker ray triangle intersection\cite{Platis_2003} method is used to provide
-watertight intersections with triangle meshses.
+\section{Robustness Testing}
+
+The the criterion for a robust ray tracing kernel are as follows:
+
+\begin{itemize}
+  \item every ray query should return the \textbf{same triangle} id as MOAB's BVH
+    implementation
+  \item every ray query should return the \textbf{same intersection distance} as MOAB's BVH
+\end{itemize}
+
+Many unit tests are used to ensure watertight box intersection using the slab
+method \cite{Kay_1986} in single precision, but the mixed precision scheme is
+best tested using MOAB mesh models. These robustness tests fire rays from the
+center of several single-volume MOAB/DAGMC models with rays directed at the
+vertices, edges, and center of each triangle in the model.
+
+The largest problem examined in this work is the ITER-BLITE model. The largest
+side of the global bounding box in this model is $4 x 10^{3}$ cm. Using this as a
+representative value of $l_{max}$ results in a box expansion value, $\Delta$, of
+$1.2 x 10^{-3}$. This value is small enough to cause minimal overlap in the
+bounding boxes and a negligible effect on the BVH performance, as seen in Figure
+\ref{fig:box_bump_study}. For all results discussed in this work $\Delta$ was
+set to $5 x 10 ^{-3}$.
 
 
+
+\subsection{Plucker Ray-Triangle Intersections}\label{sec:intersection_distances}
+
+In MOAB, the Plucker ray triangle intersection method is used to provide
+watertight intersections with triangle meshses \cite{Platis_2003}.
+
+
+\section{Ray Fire Performance}
+
+
+
+\section{Particle Transport Testing}
+
+
+\subsection{Numerically-Based Particle Tracking}
+
+
+\subsection{Transport Results}
+
+
+\section{Limitations}
+
+\subsection{Closest to Location}
+
+
+\subsection{Large Models}
 

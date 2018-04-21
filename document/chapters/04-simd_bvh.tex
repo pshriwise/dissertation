@@ -852,12 +852,17 @@ surface. This sense information is used to automatically adjust the returned tri
 normals for any intersections with that surface, and avoids the duplication of
 triangle connectivity that was necessary in the EmDAG implementation.
 
-The node reference type is identified by toggling the least significant bit in
+The set leaf node reference is identified by toggling the least significant bit in
 the reference's integer value. Because only the first bit is altered, this node
 is not recognized as a leaf containing primitives but rather a leaf of the
 volume tree. Information about the current surface being visited and the sense
 information is updated on the traversal ray and used to set any hit information
-on the returned ray. The depth-first traversal of the hierarchy protects against
+on the returned ray. The pointer value stored by the node reference is a pointer
+to the node reference for the bounding element at the top of the
+surfcetree. This node is pushed onto the stack and the traversal continues
+uninterrupted.
+
+The depth-first traversal of the hierarchy protects against
 any invalid surface information being set on the ray as the all nodes underneath
 that surface will be visited before moving on to the next surface, at which
 point the traversal ray information will be updated.
@@ -869,8 +874,7 @@ point the traversal ray information will be updated.
   \label{fig:set_leaf_encoding}
 \end{figure}
 
-
-This node type also provides the ability to avoid the duplication of triangle
+This node type also provides the ability to avoid duplication of triangle
 connectivity to represent sense-adjusted triangle normals as was required in the
 EmDAG system to track the relative surface-to-volume senses. A MOAB lookup of
 this sense information after returning ray hits is also a viable option, but it
@@ -894,23 +898,27 @@ The the criterion for a robust ray tracing kernel are as follows:
   \item every ray query should return the \textbf{same intersection distance} as MOAB's BVH
 \end{itemize}
 
-Many unit tests are used to ensure watertight box intersection using the slab
-method \cite{Kay_1986} in single precision, but the mixed precision scheme is
-best tested using MOAB mesh models. These robustness tests fire rays from the
-center of several single-volume MOAB/DAGMC models with rays directed at the
+To meet these criterion the Pl\"{u}cker ray-triangle intersection test used in
+MOAB is also used in the SIMD BVH kernel \cite{Platis_2003}. Many unit tests are
+used to ensure watertight box intersection using the slab method \cite{Kay_1986}
+in  single precision, but the mixed precision scheme is
+best tested using DAGMC models. Several unit tests in the kernel fire rays from the
+center of several single-volume DAGMC models with rays directed at the
 vertices, edges, and center of each triangle in the model.
 
+
+
 The largest problem examined in this work is the ITER-BLITE model. The largest
-side of the global bounding box in this model is $4 x 10^{3}$ cm. Using this as a
+side of the global bounding box in this model is $4 \, \text{x} \, 10^{3}$ cm. Using this as a
 representative value of $l_{max}$ results in a box expansion value, $\Delta$, of
-$1.2 x 10^{-3}$. This value is small enough to cause minimal overlap in the
+$1.2 \, \text{x} \, 10^{-3}$. This value is small enough to cause minimal overlap in the
 bounding boxes and a negligible effect on the BVH performance, as seen in Figure
 \ref{fig:box_bump_study}. For all results discussed in this work $\Delta$ was
-set to $5 x 10 ^{-3}$.
+set to $5 \, \text{x} \, 10 ^{-3}$.
 
 
 
-\subsection{Plucker Ray-Triangle Intersections}\label{sec:intersection_distances}
+\subsection{Pl\"{u}cker Ray-Triangle Intersections}\label{sec:intersection_distances}
 
 In MOAB, the Plucker ray triangle intersection method is used to provide
 watertight intersections with triangle meshses \cite{Platis_2003}.

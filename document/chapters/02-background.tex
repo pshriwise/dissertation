@@ -554,7 +554,7 @@ to limit reference splitting in an effort properly manage the data structure's
 memory footprint. The result of the SBVH is a hierarchy which can be traversed
 just like any other BVH but with significantly reduced sibling volume
 overlaps. The SBVH results consistently show significant improvement over other
-methods, ranging anywhere from (20-100\%).\cite{Stich_2009}
+methods, ranging anywhere from (20-100\%) \cite{Stich_2009}.
 
 In summary, bounding volume hierarcies are favoered in the field of ray tracing
 for their lower memory footprints and well-developed parallel building
@@ -578,7 +578,7 @@ recursively until leaf conditions are met in which a sufficiently small number
 of primitives is contained within the current voxel.
 
 This spatial subdivision technique is commonly used to efficiently index
-data in 3-D space.\cite{Glassner_1989} Octrees are somewhat like KD-trees in
+data in 3-D space \cite{Glassner_1989}. Octrees are somewhat like KD-trees in
 that their divisions are spatial, their partitions contain no overlaps, and the
 placement of entities in nodes occurs in a similar manner to that of KD-trees,
 but each node is represented by a closed bounding volume as in a BVH.

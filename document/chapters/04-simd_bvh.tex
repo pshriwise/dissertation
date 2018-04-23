@@ -124,9 +124,9 @@ ray tracing system.
 \begin{figure}[H]
   \begin{center}
     \begin{tabular}{ccc}
-      \includegraphics[scale=0.13]{sphere.eps} &
-      \includegraphics[scale=0.13]{ds.eps} &
-      \includegraphics[scale=0.13]{larcyl.eps} \\
+      \includegraphics[scale=0.15]{sphere.eps} &
+      \includegraphics[scale=0.15]{ds.eps} &
+      \includegraphics[scale=0.15]{larcyl.eps} \\
     \end{tabular}
     \caption{CAD representations of the sphere, slotted sphere, and high aspect
       ratio cylinder test models used for ray fire timings of DAGMC and
@@ -135,7 +135,7 @@ ray tracing system.
 \end{figure} 
 
 The sphere and slotted sphere models present specialized challenges to the BVH
-data structure as described in Section \ref{hv_study}. Due to memory constraints
+data structure as described in Section \ref{sec:hv_study_MOAB}. Due to memory constraints
 of the system used for testing EmDAG's performance against DAGMC, the ITER
 volume was removed and replaced with a high aspect ratio cylinder. The faceting
 of the cylinder contains many long, thin triangles running along the barrel of
@@ -157,8 +157,15 @@ results can be found in Figure \ref{emdag_timing_compare}.
 \begin{figure}[H]
   \vspace{-3cm}
   \centering
-%  \includegraphics[scale=0.33]{Eig_fix_rf.ps}
-%  \includegraphics[scale=0.33]{embree_rf.ps}
+
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.33]{Eig_fix_rf.eps}
+  \end{minipage}%
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.33]{embree_rf.eps}
+  \end{minipage}
   \caption{A comparison of average ray fire times between DAGMC using MOAB's ray
     tracing and Embree. Please note the difference in time scale.}
   \label{emdag_timing_compare}
@@ -266,7 +273,7 @@ model, it is likely that the number of surfaces relative to the number of
 triangles in their representation is high enough to allow EmDAG-MCNP to overtake
 MCNP's CSG calculations. This is a good demonstration of how CSG implementations
 suffer from the lack of a spatial search component when creating volumes from
-Boolean combination of surfaces as mentioned in Section \ref{implicit_surfaces}.
+Boolean combination of surfaces as mentioned in Section \ref{subsec:csg}.
 
 \begin{table}[H]
   \small
@@ -384,7 +391,7 @@ many high valence regions result as can be seen in Figure
 not the high valence regions were being handled better by EmDAG than they were
 by DAGMC. In order to test this, the same programs used to do the high valence
 vertex study were built using EmDAG and the parameter study of the relative high
-valence area and valency was performed. The results in Figure \ref{emdaghvstudy}
+valence area and valency was performed. The results in Section \ref{sec:emdag_hv_study}
 show that EmDAG also struggles with these high valence regions. In the worst
 scenario there is a degradation by two orders of magnitude compared to the best
 case scenario which is similar to what seen in the unmodified MOAB ray
@@ -672,7 +679,7 @@ correct intersection distance, the leaf node containing the triangle which
 intersects with the ray at that distance must be visited. Upon converting ray
 origins and directions from double to single precision, small changes in the ray
 origin and direction are introduced. This effect is illustrated in Figure
-\ref{fig:double_ray_to_single_ray}.
+\ref{fig:double_to_single_ray}.
 
 \begin{figure}
   \begin{center}
@@ -838,19 +845,17 @@ a volume as depicted in Figure \ref{fig:quad_tree_sets}. This avoids duplication
 of surface trees for each volume. It also allows the return of which surface is
 intersected, allowing for optimized transport of a particle to the volume on the
 other side of that surface via the toplogy represented by the mesh hierarchy
-described in Section
-\ref{oh-crap-i-need-to-describe-our-mesh-data-model}. Embree allows for a
-similar model in which surfaces are represented as ``geometries'' rather than
-surfaces. Those geometries can be grouped into ``scenes'' rather than surfaces.
-More detail on this can be found in Section \ref{sec:emdag_transfer}. The
-creation of a special node to represent the root of a surface tree was
-implemented to provide this information. This node type is an extended node
-reference which contains additional information about the surface the tree is
-constructed around. In particular, this node stores the id of the surface and
-its sense information relative to the volumes on either side of the
-surface. This sense information is used to automatically adjust the returned triangle
-normals for any intersections with that surface, and avoids the duplication of
-triangle connectivity that was necessary in the EmDAG implementation.
+described in Section \ref{sec:emdag_transfer}. Embree allows for a similar model
+in which surfaces are represented as ``geometries'' rather than surfaces. Those
+geometries can be grouped into ``scenes'' rather than surfaces.  The creation of
+a special node to represent the root of a surface tree was implemented to
+provide this information. This node type is an extended node reference which
+contains additional information about the surface the tree is constructed
+around. In particular, this node stores the id of the surface and its sense
+information relative to the volumes on either side of the surface. This sense
+information is used to automatically adjust the returned triangle normals for
+any intersections with that surface, and avoids the duplication of triangle
+connectivity that was necessary in the EmDAG implementation.
 
 The set leaf node reference is identified by toggling the least significant bit in
 the reference's integer value. Because only the first bit is altered, this node
@@ -915,7 +920,6 @@ $1.2 \, \text{x} \, 10^{-3}$. This value is small enough to cause minimal overla
 bounding boxes and a negligible effect on the BVH performance, as seen in Figure
 \ref{fig:box_bump_study}. For all results discussed in this work $\Delta$ was
 set to $5 \, \text{x} \, 10 ^{-3}$.
-
 
 
 \subsection{Pl\"{u}cker Ray-Triangle Intersections}\label{sec:intersection_distances}

@@ -767,7 +767,9 @@ implementations.
     K - & \, number \, of \, desired \, children \, per \, interior \, node \\
     T - & \, number \, of \, triangles \, in \, SIMD \, register
   \end{align*}
-  \caption{An adjusted form of the surface area heuristic as presented by Wald in \cite{Wald_2008}. Note: some notation has been modified to agree with notation used earlier in this work.}
+  \caption{An adjusted form of the surface area heuristic as presented by Wald
+    in \cite{Wald_2008}. Note: some notation has been modified to agree with
+    notation used earlier in this work.}
   \label{adjusted_SAH}
 \end{figure}
 
@@ -785,58 +787,70 @@ traversal of interior nodes \cite{Watcher_2006}.
 \subsection{Signed Distance Fields}
 
 Signed distance fields are commonly derived from implicit surface functions and
-variations on these functions are known as level-set functions. Both offer a rich
-and versatile representation of closed manifolds that can be used for modeling,
-simulation, and rendering. The Constructive Solid Geometry (CSG) representations
-seen in native Monte Carlo codes are usually formed from Boolean combinations of
-predefined implicit surfaces at their core. While these predefined surfaces do
-not give the freedom of model creation and manipulation found in many CAD
-systems, important geometric information required for visualization and
-simulation can be readily recovered from these implicit surfaces which may be of
-value in CAD-based radiation transport simulations.
+variations on these functions are known as level-set functions. Both offer a
+rich and versatile representation of closed manifolds used for modeling,
+simulation, and rendering. As discussed in Section
+\ref{subsec:implicit_surfaces}, Constructive Solid Geometry (CSG)
+representations seen in native Monte Carlo codes are usually formed from Boolean
+combinations of predefined implicit surfaces at their core. While these
+predefined surfaces do not give the freedom of model creation and manipulation
+found in many CAD systems, important geometric information required for
+visualization and simulation can be readily recovered from these implicit
+surfaces which may be of value in CAD-based radiation transport simulations.
 
-Implicit surface functions are multivariate functions defined over the
-$R^3$ domain as:
-\begin{equation} \label{eq:implicit_surf_rep}
-      \Omega(R^3)\rightarrow R
-\end{equation}
-where an isocontour of value, $v$, of the implicit surface can be
-described as
-\begin{equation} \label{eq:implicit_surf_isocontour}
-  \Omega(\vec{x}) - v  = 0 
-\end{equation}
-for all points $\vec{x}$ satisfying that equation. For simplicity, the surface
-isocontour value is typically defined as $0$. 
+\begin{figure}[H]
+  \includesvg{../images/preconditioner_datastruct}{0.5\textwidth}
+  \centering
+  \caption{2D visualization of the signed distance field with sign conventions
+    reversed for use in radiation transport.}
+  \label{fig:preconditioner_datastruct}
+\end{figure}
 
-By recognizing that the magnitude of $\Omega(\vec{x})$ is in fact a
-minimum interface distance function, one can construct a signed
-distance function, $SDV(\vec{x})$, using the isocontour representation
-and the magnitude of the function as seen in Eq.~\ref{eq:sdf}
-\cite{Osher_2003}.
 
-\begin{align} \label{eq:sdf}
-   SDV(\vec{x}) = |\Omega(\vec{x})|
-\end{align}
+%% Implicit surface functions are multivariate functions defined over the
+%% $R^3$ domain as:
+%% \begin{equation} \label{eq:implicit_surf_rep}
+%%       \Omega(R^3)\rightarrow R
+%% \end{equation}
+%% where an isocontour of value, $v$, of the implicit surface can be
+%% described as
+%% \begin{equation} \label{eq:implicit_surf_isocontour}
+%%   \Omega(\vec{x}) - v  = 0 
+%% \end{equation}
+%% for all points $\vec{x}$ satisfying that equation. For simplicity, the surface
+%% isocontour value is typically defined as $0$. 
 
-Signed distance function generation from implicit surfaces is a
+%% By recognizing that the magnitude of $\Omega(\vec{x})$ is in fact a
+%% minimum interface distance function, one can construct a signed
+%% distance function, $SDV(\vec{x})$, using the isocontour representation
+%% and the magnitude of the function as seen in Eq.~\ref{eq:sdf}
+%% \cite{Osher_2003}.
+
+%% \begin{align} \label{eq:sdf}
+%%    SDV(\vec{x}) = |\Omega(\vec{x})|
+%% \end{align}
+
+Signed distance field generation from implicit surfaces is a
 particularly valuable property of implicit surfaces. A signed distance
-function, $SDV(\vec{x})$, meets the following requirements
+field, $SDF(\vec{x})$, meets the following requirements
 for any point $\vec{x}$:
 
 \begin{itemize}
-\item $ SDV(\vec{x}) = 0 $ for all $ \vec{x} $ on the surface boundary,
-\item $ SDV(\vec{x}) < 0 $ for all $\vec{x}$ inside the surface boundary, and
-\item $ SDV(\vec{x}) > 0 $ for all $\vec{x}$ outside the surface boundary.
+\item $ SDF(\vec{x}) = 0 $ for all $ \vec{x} $ on the surface boundary,
+\item $ SDF(\vec{x}) < 0 $ for all $\vec{x}$ inside the surface boundary, and
+\item $ SDF(\vec{x}) > 0 $ for all $\vec{x}$ outside the surface boundary.
 \end{itemize}
 
-Implicit surfaces and level-set methods can be naturally extended to
-represent dynamic geometries by including a time dependence in the
-function, making them powerful tools for populating signed distance
-fields in simulation and rendering of fluids, smoke, fire, etc. In
-these applications the data structure is populated with signed
-distance values for a given time in the rendering. The signed distance
-field can then be used to determine point containment queries in a
-straightforward manner. It can also trace rays at any time via a
-method in which the ray length is repeatedly clipped using signed
-distance values to approach a surface in a process called ray marching
-\cite{Tomczak_2012}.
+A two dimension example of a signed distance field can be seen in Figure
+\ref{fig:preconditioner_datastruct}, but with the signs of values reversed for
+reasons addressed in Chapter \ref{ch:preconditioning}.
+
+Implicit surfaces can be naturally extended to represent dynamic geometries by
+including a time dependence in the function, making them powerful tools for
+populating signed distance fields in simulation and rendering of fluids, smoke,
+fire, etc. To simulate these phenomenon, the data structure is populated with
+signed distance values for a given time in the rendering. The signed distance
+field can then be used to determine point containment queries and approximate
+nearest surfaces values. It can also trace rays at any time via a method in
+which the ray length is repeatedly clipped using signed distance values to
+approach a surface in a process called ray marching \cite{Tomczak_2012}.

@@ -107,7 +107,7 @@ provides DAGMC with all the information needed to perform geometric operations
 required by the various Monte Carlo codes it supports, but in an agnostic manner
 to the ray tracing kernel being used.
 
-\subsubsection{EmDAG Performance Testing}%%Status:In Progress%%
+\subsubsection{EmDAG Performance Testing}\label{subsubsec:emdag_rf_performance}
 
 Using the same DAGMC-based ray fire test program, the performance of DAGMC's ray
 fire ability was compared to that of EmDAG's for three models. These models
@@ -750,7 +750,11 @@ CPU systems. This value can be considered to be relative to the overall
 geometric scale of the problem, represented by $t_{max}$. Using this analysis,
 the value of $\Delta_{max}$ can be written as 
 
-$$\Delta_{max} = 3 x 10^{-7} l_{max} $$
+\begin{equation}
+  \centering
+  \Delta_{max} = 3 x 10^{-7} l_{max}
+  \label{eq:box_extension_limit}
+\end{equation}
 
 Another method for working with mixed precision BVHs in double precision
 geometries was put forth by Vaidyanathan in which the ray's origin is
@@ -761,6 +765,45 @@ during ray traversal. DAGMC geometries, and Monte Carlo radiation transport
 geometries in general, are static, so it is more efficient to account for the
 discrepancy caused by the reduced precision ray direction during construction of
 the BVH.
+
+To further understand this effect, the value of the box extension in the kernel
+was varied from \num{1E-8} to \num{1E2}. For each box extension value, the same
+set of ray fire tests in Section \ref{subsubsec:emdag_rf_performance} were
+run. The average of the ray fire times over all faceting tolerances is used as a
+representative value in Figure \ref{fig:box_bump_tests} to described the
+performance for each model. Performance of the MPBVH kernel isn't strongly
+effected below $\Delta$ values of \num{1E-2}. Above this value, the performance
+degrades rapidly as box overlaps become large and the false positive
+intersections of the ray with nodes in the tree dominates the run time. When the
+extension of the boxes becomes large enough, the runtimes plateau - indicating
+that every node in the tree is being visited for each ray fire. Below a value of
+\num{1e-6}, missed rays begin to appear in the runs. The threshold for this
+region can be prediced using the model in Equation
+\ref{eq:box_extension_limit}. The longest dimension for any of the models ranges
+from 10 to 50 units in size. Inserting this into Equation
+\ref{eq:box_extension_limit} indicates that missed rays will start occur at
+values of $\Delta$ = ~\num{3E-6}. These boundaries leave a significant room for
+box extension values which do not affect performance or robustness of the
+kernel.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.8]{box_extension_test.eps}
+%  \includesvg{../images/box_extension_test}{0.8\textwidth}
+  \caption{Study of ray tracing performance and robustness for various values of
+    the box extension parameter, $\Delta$. 600,000 rays were fired at each model
+    for faceting tolerance values fanging from. Points in the graph represent
+    the average over all faceting tolerances used.}
+  \label{fig:box_bump_tests}
+\end{figure}
+
+The biggest geometric problem examined in this work is the ITER-BLITE model. The
+largest side of the global bounding box in this model is $4 \, \text{x} \,
+10^{3}$ cm. Using this as a representative value of $l_{max}$ results in a box
+expansion value, $\Delta$, of $1.2 \, \text{x} \, 10^{-3}$. This value is small
+enough to cause minimal overlap in the bounding boxes and a negligible effect on
+the BVH performance, as seen in Figure \ref{fig:box_bump_study}. For all results
+discussed in this work $\Delta$ was set to $5 \, \text{x} \, 10 ^{-3}$.
 
 \subsubsection{Simplified Surface Area Heuristic}
 
@@ -911,15 +954,6 @@ best tested using DAGMC models. Several unit tests in the kernel fire rays from 
 center of several single-volume DAGMC models with rays directed at the
 vertices, edges, and center of each triangle in the model.
 
-
-
-The largest problem examined in this work is the ITER-BLITE model. The largest
-side of the global bounding box in this model is $4 \, \text{x} \, 10^{3}$ cm. Using this as a
-representative value of $l_{max}$ results in a box expansion value, $\Delta$, of
-$1.2 \, \text{x} \, 10^{-3}$. This value is small enough to cause minimal overlap in the
-bounding boxes and a negligible effect on the BVH performance, as seen in Figure
-\ref{fig:box_bump_study}. For all results discussed in this work $\Delta$ was
-set to $5 \, \text{x} \, 10 ^{-3}$.
 
 
 \subsection{Pl\"{u}cker Ray-Triangle Intersections}\label{sec:intersection_distances}

@@ -1287,12 +1287,31 @@ production models as well.
   \label{tab:mpbvh_transport_timing_production}
 \end{table}
 
-
-
 \section{Limitations}
 
-\subsection{Closest to Location}
-
+%\subsection{Closest to Location}
 
 \subsection{Large Models}
+
+\section{Summary}
+
+The MPBVH implementation provides a means of exploiting the performance
+capabilities of CPUs for single precision values while providing the higher
+precision intersection values required for robust engineering analysis tools
+such as DAGMC. The demonstration of this capability is enabled by the direct
+access methods available in MOAB, but the methods described in this work could
+in theory be applied to other spatial databases with contiguous memory designs.
+
+For the purposes of CAD-based MCRT, the MPBVH kernel's design, inspired largely
+by Embree, allows for a simple yet robust tracking algorithm in DAGMC. These
+methods have been demonstrated on production models used in verification and
+analysis applications of DAGMC. The combination of this algorithm and the
+SIMD-oriented traversal of the hierarchy in single precision provides a
+reduction in DAGMC runtime by factors of 2-5 depending on the model with no
+change in the final result.
+
+
+
+
+
 

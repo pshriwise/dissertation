@@ -943,7 +943,7 @@ the fly.
 The the criterion for a robust ray tracing kernel are as follows:
 
 \begin{itemize}
-  \item every ray query should return the \textbf{same triangle} id as MOAB's BVH
+  \item every ray query should return the \textbf{same triangle id} as MOAB's BVH
     implementation
   \item every ray query should return the \textbf{same intersection distance} as MOAB's BVH
 \end{itemize}
@@ -979,15 +979,248 @@ the current implementation in MOAB and comparable to the EmDAG implementation.
   \label{fig:mpbvh_rf_tests}
 \end{figure}
 
-\subsection{Numerically-Based Particle Tracking}
- 
+\subsection{Simplified Particle Tracking}
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/mbray_structs}{1.0\textwidth}
+  \caption{Ray structures used to communicate hit information between the MPBVH and DAGMC.}
+  \label{fig:mpbvh_ray_structures}  
+\end{figure}
+
+The MPBVH kernel has been implemented in DAGMC as a numerically based particle
+tracking tool using a simple algorithm for determining \textit{Next Surface}
+queries and \textit{Point Containment} queries. Previously, additional logical
+work was used to avoid lost particles and infinite loops in particle
+histories. This tracking algorithm uses structures known as the \textbf{MBRay}
+(short for MOAB Ray) and \textbf{MBAccumulatorRay}. Both of these structures
+(shown in Figure \ref{fig:mpbvh_ray_structures}) are critical to the use of the
+MPBVH as a robust particle tracking tool.
+
+The method used for \textit{Next Surface} queries is described below:
+
+\begin{lstlisting}[language=Python,basicstyle=\small]
+  def next_surface(current_volume,
+                   point,
+                   direction,
+                   dist_limit
+                   &next_surface,
+                   &next_surface_distance):
+
+      # create a ray with infinite length
+      ray = MBRay(point,direction)
+      ray.volID = current_volume
+    
+      # if the ray orientation is set, ignore
+      # hits which opposed the triangle's
+      # sense-adjusted normal
+      if ray_orientation == 1 :
+        set_filter(backface_cull)
+      # if the orientation is not set, remove the filter
+      else:
+        unset_filter()
+    
+      # fire the ray
+      fire_ray(ray)
+    
+      # if the ray missed and overlaps are allowed in the model
+      # fire a ray in the opposite direction
+      if ray.surfID == -1 and get_overlap_thickness() != 0.0: {
+        small_val = get_overlap_thickness() * 0.01
+        ray.direction *= -1
+        # apply some small space at the beginning of the ray
+        # where hits are ignored
+        ray.tnear = small_val
+        # set the ray distance to the overlap thickness
+        ray.tfar = get_overlap_thickness()
+    
+        # unset the ray filter regardless of the ray orientation
+        unset_filter()
+    
+        fire_ray(ray)
+        
+        # update ray value to zero for this type of hit
+        ray.tfar = 0
+    
+      # if we have a hit at this point, set the returned
+      # surface ID and distance
+      if ray.surfID != -1:
+        next_surf = ray.surfID
+        next_surf_distance = ray.tfar
+
+      # otherwise the particle is lost,
+      # set return information accordingly
+      else:
+        next_surf = 0
+        next_surf_distance = ray.tfar
+    
+        return
+
+  def backface_cull( &mbray ):
+
+      # if the ray direction opposes the hit triangle's
+      # normal vector, reject the ray hit
+      if dot_product(mbray.dir, mbray.norm) < 0.0:
+          mbray.geomID = -1
+          mbray.primID = -1
+
+      return
+
+\end{lstlisting}
+
+This algotrithm avoids many logical checks and the classification of hit
+locations for repeated hits. It also avoids mesh database lookups of adjacent
+triangles for edge and node hits. This used to be necessary due to the ray
+history passed into the \textit{Next Surface} query, causing rays to sometimes
+become stuck in what was referred to as the ``pinwheel'' loop. The ray history
+was as an optimization to avoid repeated intersections with the same
+triangle. By abandoning this construct and relying entirely on the performance
+of the underlying ray tracing kernel, the algorithm can be simplified to always
+return the nearest intersection. Infinite loops in which particles oscillate
+between volumes on a surface boundary are addressed by using exiting
+intersections.
+
+The conditions laid out for a robust tracking
+algorithm by B. Smight are as follows \cite{Smith_2011}:
+
+\begin{enumerate}[a]
+  \item Particles cannot become lost
+  \item Infinite loops cannot occur
+\end{enumerate}
+
+The algorithm presented here addresses \textbf{a)} by using the watertight Pl\"{u}cker
+intersection test and extending ray boxes to ensure the corect triangle is
+visited for intersection. Part \textbf{b)} is addressed by applying a small
+tnear value to the ray when firing in the negative direction and limiting the
+ray length to the allowed overlap thickness. This prevents particles from
+repeatedly finding zero distance intersections without becoming lost if they are
+logically on the boundary of a surface.
+
+The MPBVH provides the capability to set callback functions used to filter and
+validate ray intersections, as demonstrated by the \textit{backface\_cull}
+function above. These filter functions can also be used to accumulate ray hits,
+which is critical to implementation of a robust point containment algorithm
+based on the MPBVH, shown below:
+
+\begin{lstlisting}[language=Python,basicstyle=\small]
+  def point_contained( volume, point, direction, &result):
+      # result values : 0 - outside; 1 - inside
+
+      # start with an outside value
+      result = 0
+  
+      # if a direction was not supplied,
+      # generate a random one
+      if not direction:
+          direction = get_random_direction()
+
+      # create a ray
+      ray = MBRay(point, direction)
+      ray.volID = volume
+
+      # accept ray hits regardless of
+      # orientation w.r.t. triangle normal
+      unset_filter()
+
+      # fire the ray
+      fire_ray(ray)
+      # calculate the dot product of
+      # ray direction and triangle normal
+      dot_prod= dot_product(ray.dir, ray.norm)
+      
+      # if a hit is found, 
+      if ray.geomID != -1 and dot_prod != 0.0:
+         result =  dot_prod < 0.0 ? 1 : 0;
+         return
+
+      # if the ray is tangent, the overlap thickness is
+      # non-zero, or it missed - 
+      # count hits and sum orientations
+      if dot_prod == 0.0 or get_overlap_thickness() > 0.0:
+         aray = MBAccumulatorRay aray(point, direction)
+         aray.volID = volume
+
+         set_filter(count_hits)
+
+         fire_ray(ray)
+
+         # if no hits were found
+         # point is outside
+         if aray.num_hit == 0:
+             result = 0
+             return
+
+         # fire ray in negative direction
+         # and reset length
+         aray.dir *= -1
+         aray.tfar = inf;
+
+         fire_ray(aray)
+         
+         # if no hits were found
+         # point is outside
+         if aray.num_hit == 0:
+             result = 0
+             return
+            
+         # check the value of the sum
+         if 0 > aray.sum:
+            result = 1
+         else:
+            result = 0
+            
+      return       
+
+  def count_hits( &aray ):
+      if dot_product(aray.dir, aray.norm) > 0.0:
+          aray.sum -= 1 # exiting hit
+      else:
+          aray.sum += 1 # entering hit          
+
+      # always reset ray hit values
+      aray.geomID = -1
+      aray.primID = -1
+
+      # increment number of hits
+      ray.num_hit++
+
+      return
+          
+\end{lstlisting}
+
+In this method the ray is intersected with the volume and a hit is evaluated as
+either entering or exiting based on the dot product calculation with the
+sense-adjusted triangle normal. If the ray finds no intersection and any of the
+following conditions are true:
+
+\begin{itemize}
+  \item the ray misses the volume
+  \item the ray direction is tangent to the intersected triangle normal
+  \item the overlap tolerance is non-zero
+\end{itemize}
+
+Then ray hits are accumulated by firing a \textbf{MBAccumulatorRay} in both the
+positive and negative direction. All hits are registered on the ray as exiting
+or entering based on the dot product calculation of the direction and triangle
+normal (see the \textit{count\_hits} function). If no hits are found, then the
+point is outside of the volume. If hits are found, the sign of the summation
+value indicates whether more exiting or entering hits were found. If more
+eixiting than entering hits are found, then the particle is considered to be
+inside the volume. Otherwise it is considered to be outside of the volume.
+
+This algorithm was applied to all of the simluation results presented in this
+chapter without lost particles or causing infinite loops.
+
 \section{Simulation Results}
 
-The MPBVH kernel was applied to the same set of transport test cases as the
-EmDAG implementation. Table \ref{tab:mpbvh_transport_results} shows the results
-of tests. The MPBVH implementation performs comparably to EmDAG for the cube and
-nested cubes cases, but is significantly slower in the sphere and nested spheres
-cases. This is expected based on the difference in pure ray fire times from Section \ref{sec:mpbvh_rf_perf}
+\subsection{Simple Test Cases}\label{subsec:mpbvh_simple_tests}
+The MPBVH kernel was applied as the ray tracing kernel for the same set of
+transport test cases as the EmDAG implementation. Table
+\ref{tab:mpbvh_transport_timing_simple} shows the results of tests. The MPBVH
+implementation performs comparably to EmDAG for the cube and nested cubes cases,
+but is significantly slower in the sphere and nested spheres cases. This is
+expected based on the difference in pure ray fire times from Section
+\ref{sec:mpbvh_rf_perf}
 
 \begin{table}[H]
   \small
@@ -1014,9 +1247,44 @@ cases. This is expected based on the difference in pure ray fire times from Sect
     \end{tabular}
   \end{center}
   \caption{Runtime comparison native MCNP, DAG-MCNP, and DAG-MCNP using the
-    MPBVH over four transport test problems.}
+    MPBVH over four transport test problems. No lost particles occured in any of
+  these runs and all results match the standard DAGMC implementation exactly.}
   \label{tab:mpbvh_transport_timing_simple}
-  
+\end{table}
+
+\subsection{Production Simulations}
+
+After verifying that no particles were lost in the simple test cases, the MPBBVH
+implementation of DAGMC was applied to the same FNG model as EmDAG. The results
+of this simluation can be seen in Table
+\ref{tab:mpbvh_transport_timing_production}. In contrast to the EmDAG system, no
+lost particles were found in the FNG simulation with a volumetric source and all
+tallly results matched the standard DAGMC implementation with reduction in the
+runtime by over a factor of two. Due to the success of the DAGMC MPBVH
+implementation for the FNG model, this system was applied to several other
+production models as well.
+
+\begin{table}[H]
+  \small
+  \begin{center}
+    \begin{tabular}{lccc}
+
+      \toprule
+      Test Model & MCNP & DAG-MCNP & DAG-MCNP MPBVH \\
+      %%\hline
+      & \multicolumn{3}{c}{\textbf{time (min)/ ratio to MCNP}} \\
+      \hline
+      FNG           & 2.49 / 1.00 &  9.83  / 3.95  & 6.48 / 2.60 \\
+      ATR           & 3.18 / 1.00 &  36.16 / 11.37 & 8.54 / 2.68 \\
+      UWNR          & 270  / 1.00 &  7900  / 29.26 & 3645 / 13.5 \\
+      ITER-BLITE    & N/A  / 1.00 &  116   / N/A   & 44   / N/A  \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \caption{Runtime comparison native MCNP, DAG-MCNP, and DAG-MCNP using the
+    MPBVH over four transport test problems. No lost particles occured in any of
+  these runs and all results match the standard DAGMC implementation exactly.}
+  \label{tab:mpbvh_transport_timing_production}
 \end{table}
 
 

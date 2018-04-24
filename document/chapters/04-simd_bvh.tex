@@ -780,7 +780,7 @@ intersections of the ray with nodes in the tree dominates the run time. When the
 extension of the boxes becomes large enough, the runtimes plateau - indicating
 that every node in the tree is being visited for each ray fire. Below a value of
 \num{1e-6}, missed rays begin to appear in the runs. The threshold for this
-region can be prediced using the model in Equation
+region can be predicted using the model in Equation
 \ref{eq:box_extension_limit}. The longest dimension for any of the models ranges
 from 10 to 50 units in size. Inserting this into Equation
 \ref{eq:box_extension_limit} indicates that missed rays will start occur at
@@ -794,7 +794,7 @@ kernel.
 %  \includesvg{../images/box_extension_test}{0.8\textwidth}
   \caption{Study of ray tracing performance and robustness for various values of
     the box extension parameter, $\Delta$. 600,000 rays were fired at each model
-    for faceting tolerance values fanging from. Points in the graph represent
+    for faceting tolerance values ranging from. Points in the graph represent
     the average over all faceting tolerances used.}
   \label{fig:box_bump_tests}
 \end{figure}
@@ -889,7 +889,7 @@ surface. These surface trees are then joined into a single tree that represents
 a volume as depicted in Figure \ref{fig:quad_tree_sets}. This avoids duplication
 of surface trees for each volume. It also allows the return of which surface is
 intersected, allowing for optimized transport of a particle to the volume on the
-other side of that surface via the toplogy represented by the mesh hierarchy
+other side of that surface via the topology represented by the mesh hierarchy
 described in Section \ref{sec:emdag_transfer}. Embree allows for a similar model
 in which surfaces are represented as ``geometries'' rather than surfaces. Those
 geometries can be grouped into ``scenes'' rather than surfaces.  The creation of
@@ -909,7 +909,7 @@ volume tree. Information about the current surface being visited and the sense
 information is updated on the traversal ray and used to set any hit information
 on the returned ray. The pointer value stored by the node reference is a pointer
 to the node reference for the bounding element at the top of the
-surfcetree. This node is pushed onto the stack and the traversal continues
+surface tree. This node is pushed onto the stack and the traversal continues
 uninterrupted.
 
 The depth-first traversal of the hierarchy protects against
@@ -928,7 +928,7 @@ This node type also provides the ability to avoid duplication of triangle
 connectivity to represent sense-adjusted triangle normals as was required in the
 EmDAG system to track the relative surface-to-volume senses. A MOAB lookup of
 this sense information after returning ray hits is also a viable option, but it
-would be relatively expensive to in comparision to adjusting triangle normals on
+would be relatively expensive to in comparison to adjusting triangle normals on
 the fly.
 
 \begin{figure}[H]
@@ -955,14 +955,14 @@ single precision, but the mixed precision scheme is best tested using DAGMC
 models. In MOAB, the Plucker ray triangle intersection method is used to provide
 watertight intersections with triangle meshses \cite{Platis_2003}. The same
 algorithm was applied in the MPBVH to ensure that simulation results using both
-the MPBVH and MOAB OBBTree are consistent. Several unit tests in the kernel fire
+the MPBVH and MOAB BVH are consistent. Several unit tests in the kernel fire
 rays from the center of single-volume DAGMC models with rays directed at
 the vertices, edges, and center of each triangle in the model. These tests
 ensure that the same triangle is hit and \textit{exactly} the same intersection
 distance is returned in either system.
 
 Missed rays and lost particles are also monitored in testing the ray fire
-performance and in partricle transport, though none were found outside of the
+performance and in particle transport, though none were found outside of the
 controlled box extension study in Section \ref{subsubsec:reduced_precision}.
 
 \section{Ray Fire Performance}\label{sec:mpbvh_rf_perf}
@@ -1068,7 +1068,7 @@ The method used for \textit{Next Surface} queries is described below:
 
 \end{lstlisting}
 
-This algotrithm avoids many logical checks and the classification of hit
+This algorithm avoids many logical checks and the classification of hit
 locations for repeated hits. It also avoids mesh database lookups of adjacent
 triangles for edge and node hits. This used to be necessary due to the ray
 history passed into the \textit{Next Surface} query, causing rays to sometimes
@@ -1081,7 +1081,7 @@ between volumes on a surface boundary are addressed by using exiting
 intersections.
 
 The conditions laid out for a robust tracking
-algorithm by B. Smight are as follows \cite{Smith_2011}:
+algorithm by B. Smith are as follows \cite{Smith_2011}:
 
 \begin{enumerate}[a]
   \item Particles cannot become lost
@@ -1089,9 +1089,9 @@ algorithm by B. Smight are as follows \cite{Smith_2011}:
 \end{enumerate}
 
 The algorithm presented here addresses \textbf{a)} by using the watertight Pl\"{u}cker
-intersection test and extending ray boxes to ensure the corect triangle is
+intersection test and extending ray boxes to ensure the correct triangle is
 visited for intersection. Part \textbf{b)} is addressed by applying a small
-tnear value to the ray when firing in the negative direction and limiting the
+value to the ray which will be ignored when firing in the negative direction and limiting the
 ray length to the allowed overlap thickness. This prevents particles from
 repeatedly finding zero distance intersections without becoming lost if they are
 logically on the boundary of a surface.
@@ -1182,7 +1182,7 @@ based on the MPBVH, shown below:
       aray.primID = -1
 
       # increment number of hits
-      ray.num_hit++
+      aray.num_hit++
 
       return
           
@@ -1205,10 +1205,10 @@ or entering based on the dot product calculation of the direction and triangle
 normal (see the \textit{count\_hits} function). If no hits are found, then the
 point is outside of the volume. If hits are found, the sign of the summation
 value indicates whether more exiting or entering hits were found. If more
-eixiting than entering hits are found, then the particle is considered to be
+exiting than entering hits are found, then the particle is considered to be
 inside the volume. Otherwise it is considered to be outside of the volume.
 
-This algorithm was applied to all of the simluation results presented in this
+This algorithm was applied to all of the simulation results presented in this
 chapter without lost particles or causing infinite loops.
 
 \section{Simulation Results}
@@ -1247,19 +1247,19 @@ expected based on the difference in pure ray fire times from Section
     \end{tabular}
   \end{center}
   \caption{Runtime comparison native MCNP, DAG-MCNP, and DAG-MCNP using the
-    MPBVH over four transport test problems. No lost particles occured in any of
+    MPBVH over four transport test problems. No lost particles occurred in any of
   these runs and all results match the standard DAGMC implementation exactly.}
   \label{tab:mpbvh_transport_timing_simple}
 \end{table}
 
 \subsection{Production Simulations}
 
-After verifying that no particles were lost in the simple test cases, the MPBBVH
+After verifying that no particles were lost in the simple test cases, the MPBVH
 implementation of DAGMC was applied to the same FNG model as EmDAG. The results
-of this simluation can be seen in Table
+of this simulation can be seen in Table
 \ref{tab:mpbvh_transport_timing_production}. In contrast to the EmDAG system, no
 lost particles were found in the FNG simulation with a volumetric source and all
-tallly results matched the standard DAGMC implementation with reduction in the
+tally results matched the standard DAGMC implementation with reduction in the
 runtime by over a factor of two. Due to the success of the DAGMC MPBVH
 implementation for the FNG model, this system was applied to several other
 production models as well.
@@ -1282,16 +1282,33 @@ production models as well.
     \end{tabular}
   \end{center}
   \caption{Runtime comparison native MCNP, DAG-MCNP, and DAG-MCNP using the
-    MPBVH over four transport test problems. No lost particles occured in any of
+    MPBVH over four transport test problems. No lost particles occurred in any of
   these runs and all results match the standard DAGMC implementation exactly.}
   \label{tab:mpbvh_transport_timing_production}
 \end{table}
 
-\section{Limitations}
+\section{Limitations and Future Work}
 
 %\subsection{Closest to Location}
 
 \subsection{Large Models}
+
+As discussed in Section \ref{subsubsec:reduced_precision}, the box extension
+value may need to be varied depending on the size of the model. The value
+currently applied in the kernel is suitable for the majority of the models used
+in DAGMC. The study on this value indicates that it could be increased
+significantly to retain robustness in models of a larger geometric scale without
+detriment to the performance of the simulation.
+
+In the future, this extension value could be set on a volume-by-volume basis as
+intersection distances in DAGMC should never exceed the maximum chord length of
+a volume before being considered lost. This would limit the performance
+degradation for models of a large global scale with small, local volumes.
+
+Though this work does not address such applications, time-dependent simulations
+could update this extension value on-the-fly when updating bounding boxes,
+though the additional cost of ensuring that all parent bounding boxes are
+updated appropriately is unclear.
 
 \section{Summary}
 

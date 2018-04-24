@@ -1,5 +1,5 @@
 
-\chapter{SIMD MOAB Bounding Volume Hierarchy}\label{ch:simd_bvh}
+\chapter{Mixed Precision Bounding Volume Hierarchy}\label{ch:simd_bvh}
 
 
 \section{Introduction}
@@ -568,8 +568,7 @@ improvements to DAGMC's ray tracing kernel for particle tracking will need to
 maintain use of double precision representations for mesh elements for robust
 coupling of numerical and logical particle positions and directions.
 
-\section{A SIMD Ray Tracing Kernel for MOAB}
-
+\section{A Mixed Precision BVH}
 
 As described in Section \ref{sec:emdag_limitations} a SIMD-oriented ray tracing
 kernel was successfully implemented and applied in DAGMC. Unfortunately, this
@@ -583,14 +582,16 @@ around double precision geometric primitives. Because the majority of the
 computational work in ray tracing occurs in traversing the BVH as opposed to
 testing triangles for intersection, it is hypothesized that the majority of the
 performance benefits seen in the EmDAG implementation can be preserved in the
-proposed mixed precision system.
+proposed mixed precision system, dubbed the Mixed Precision Bounding Volume
+Hierarchy (MPBVH).
 
 \subsection{Design and Implementation}
 
-This kernel was created by the author as an independent project which draws on
+The MPBVH was created by the author as an independent project which draws on
 design elements from Embree while interfacing with MOAB to optimize CPU-based
 ray tracing for the application of CAD-based Monte Carlo Radiation
-Transport. Several such design elements include:
+Transport. Several such design elements found in both the Embree and the MPBVH
+include:
 
 \begin{itemize}
   \item single-precision bounding entities
@@ -622,7 +623,7 @@ ups data and allows other applications access to the memory as well. This
 capability can be extremely useful in data transfer or query based operations,
 such as ray tracing.
 
-The SIMD BVH kernel uses these methods to populate references to triangles in
+The MPBVH uses these methods to populate references to triangles in
 the BVH without needing to duplicate their coordinate values or
 connectivity. Access to these locations in memory is handled by a direct access
 manager object which protects the mesh information from modification during the
@@ -646,7 +647,7 @@ modify mesh data once the file has been loaded for simulation. MOAB provides
 tools for collapsing or modifying the entity handle space if this becomes
 necessary in future applications of DAGMC.
 
-\subsubsection{Reduced-Precision Ray Tracing}
+\subsubsection{Reduced-Precision Ray Tracing}\label{subsubsec:reduced_precision}
 
 In the SIMD BVH kernel, bounding boxes are calculated in single precision based
 on double precision triangle coordinates from the MOAB direct access manager. As
@@ -765,7 +766,7 @@ intended for use with geometries in motion and requires additional computation
 during ray traversal. DAGMC geometries, and Monte Carlo radiation transport
 geometries in general, are static, so it is more efficient to account for the
 discrepancy caused by the reduced precision ray direction during construction of
-the BVH.
+the MPBVH.
 
 To further understand this effect, the value of the box extension in the kernel
 was varied from \num{1E-8} to \num{1E2}. For each box extension value, the same
@@ -803,12 +804,12 @@ largest side of the global bounding box in this model is $4 \, \text{x} \,
 10^{3}$ cm. Using this as a representative value of $l_{max}$ results in a box
 expansion value, $\Delta$, of $1.2 \, \text{x} \, 10^{-3}$. This value is small
 enough to cause minimal overlap in the bounding boxes and a negligible effect on
-the BVH performance, as seen in Figure \ref{fig:box_bump_study}. For all results
+the BVH performance, as seen in Figure \ref{fig:box_bump_tests}. For all results
 discussed in this work $\Delta$ was set to $5 \, \text{x} \, 10 ^{-3}$.
 
 \subsubsection{Simplified Surface Area Heuristic}
 
-The SIMD BVH kernel employs a modified version of the Surface Area Heuristic,
+The MPBVH employs a modified version of the Surface Area Heuristic,
 discussed in Chapter \ref{ch:background}, which was developed by the
 author. This version of the heuristic, dubbed the Simplified Surface Area
 Heuristic (SSAH), removes estimation of the relative cost between a tree
@@ -858,7 +859,7 @@ based on machine architecture, build settings, etc.
 
 \subsubsection{Set Leaves}
 
-Tree nodes in both Embree and the SIMD BVH kernel are represented by node
+Tree nodes in both Embree and the MPBVH are represented by node
 reference construct which stores a single pointer value as an integer
 representation. All stored constructs, namely the bounding nodes and primitive
 references, in the BVH are designed to be 16-byte aligned in memory, leaving the
@@ -948,32 +949,76 @@ The the criterion for a robust ray tracing kernel are as follows:
 \end{itemize}
 
 To meet these criterion the Pl\"{u}cker ray-triangle intersection test used in
-MOAB is also used in the SIMD BVH kernel \cite{Platis_2003}. Many unit tests are
-used to ensure watertight box intersection using the slab method \cite{Kay_1986}
-in  single precision, but the mixed precision scheme is
-best tested using DAGMC models. Several unit tests in the kernel fire rays from the
-center of several single-volume DAGMC models with rays directed at the
-vertices, edges, and center of each triangle in the model.
+MOAB is also used in the MPBVH \cite{Platis_2003}. Many unit tests are used to
+ensure watertight box intersection using the slab method \cite{Kay_1986} in
+single precision, but the mixed precision scheme is best tested using DAGMC
+models. In MOAB, the Plucker ray triangle intersection method is used to provide
+watertight intersections with triangle meshses \cite{Platis_2003}. The same
+algorithm was applied in the MPBVH to ensure that simulation results using both
+the MPBVH and MOAB OBBTree are consistent. Several unit tests in the kernel fire
+rays from the center of single-volume DAGMC models with rays directed at
+the vertices, edges, and center of each triangle in the model. These tests
+ensure that the same triangle is hit and \textit{exactly} the same intersection
+distance is returned in either system.
 
+Missed rays and lost particles are also monitored in testing the ray fire
+performance and in partricle transport, though none were found outside of the
+controlled box extension study in Section \ref{subsubsec:reduced_precision}.
 
+\section{Ray Fire Performance}\label{sec:mpbvh_rf_perf}
 
-\subsection{Pl\"{u}cker Ray-Triangle Intersections}\label{sec:intersection_distances}
+The same set of ray fire performance tests were run as in Section
+\ref{subsubsec:emdag_rf_performance}. As shown in Figure
+\ref{fig:mpbvh_rf_tests}, the MPBVH shows a significant improvement compared to
+the current implementation in MOAB and comparable to the EmDAG implementation.
 
-In MOAB, the Plucker ray triangle intersection method is used to provide
-watertight intersections with triangle meshses \cite{Platis_2003}.
-
-
-\section{Ray Fire Performance}
-
-
-
-\section{Particle Transport Results}
-
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.33]{mpbvh_rf.eps}
+  \caption{Average ray fire times for the MPBVH for a sphere, slotted sphere, and High Aspect Ratio (HAR) cylinder.}
+  \label{fig:mpbvh_rf_tests}
+\end{figure}
 
 \subsection{Numerically-Based Particle Tracking}
+ 
+\section{Simulation Results}
 
+The MPBVH kernel was applied to the same set of transport test cases as the
+EmDAG implementation. Table \ref{tab:mpbvh_transport_results} shows the results
+of tests. The MPBVH implementation performs comparably to EmDAG for the cube and
+nested cubes cases, but is significantly slower in the sphere and nested spheres
+cases. This is expected based on the difference in pure ray fire times from Section \ref{sec:mpbvh_rf_perf}
 
-\subsection{Transport Results}
+\begin{table}[H]
+  \small
+  \begin{center}
+    \begin{tabular}{lccc}
+
+      \toprule
+      Test Model & MCNP & DAG-MCNP & EmDAG-MCNP \\
+      %%\hline
+      & \multicolumn{3}{c}{\textbf{time (min)/ ratio to MCNP}} \\
+      \hline
+      Sphere         & 2.93 / 1.00 & 25.13 / 8.58  & 9.38 / 3.2  \\
+      Cube           & 5.03 / 1.00 & 10.56 / 2.10 & 5.46 / 1.08 \\
+      Nested Spheres & 4.35 / 1.00  & 50.82 / 11.68  & 9.88 / 2.27 \\
+      Nested Cubes   & 4.73 / 1.00 & 9.26 / 1.96 & 4.09 / 0.86 \\
+      %%\hline
+      &  \multicolumn{3}{c}{\textbf{histories/min}} \\
+      \hline
+      Sphere & 3.4104E+05  & 3.9944E+04  & 2.1810E+05   \\
+      Cube & 1.9879E+05 & 9.4738E+04 & 1.7260E+05 \\
+      Nested Spheres & 2.2991E+05 & 1.9877E+04 & 1.3947E+05 \\
+      Nested Cubes & 2.1170E+05 & 1.0806E+05 & 2.3026E+05 \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \caption{Runtime comparison native MCNP, DAG-MCNP, and DAG-MCNP using the
+    MPBVH over four transport test problems.}
+  \label{tab:mpbvh_transport_timing_simple}
+  
+\end{table}
+
 
 
 \section{Limitations}

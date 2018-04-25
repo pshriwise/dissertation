@@ -245,13 +245,6 @@ irrelevant so long as particles are in fact reaching all of the cells.
       Cube & 5.03 / 1.00 & 10.56 / 2.10 & 5.80 / 1.153 \\
       Nested Spheres & 4.35 / 1.00  & 50.82 / 11.68  & 7.94 / 1.83 \\
       Nested Cubes & 4.73 / 1.00 & 9.26 / 1.96 & 4.35 / 0.92 \\
-      %%\hline
-      &  \multicolumn{3}{c}{\textbf{histories/min}} \\
-      \hline
-      Sphere & 3.4104E+05  & 3.9944E+04  & 2.1810E+05   \\
-      Cube & 1.9879E+05 & 9.4738E+04 & 1.7260E+05 \\
-      Nested Spheres & 2.2991E+05 & 1.9877E+04 & 1.3947E+05 \\
-      Nested Cubes & 2.1170E+05 & 1.0806E+05 & 2.3026E+05 \\
       \bottomrule
       
     \end{tabular}
@@ -634,7 +627,7 @@ distances to the surface.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/reduced_precision_scheme}{0.7\textwidth}
+  \includesvg{../images/reduced_precision_scheme}{0.6\textwidth}
   \caption{The reduced precision scheme used to accelerate ray traversal while
     returning double precision intersections.}
   \label{fig:reduced_precision_scheme}
@@ -899,7 +892,7 @@ the fly.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/quad_tree_sets}{1.0\textwidth}
+  \includesvg{../images/quad_tree_sets}{0.8\textwidth}
   \caption{A representation of how surface BVHs are joined into a volume BVH.}
   \label{fig:quad_tree_sets}
 \end{figure}
@@ -938,7 +931,7 @@ The same set of ray fire performance tests were run as in Section
 \ref{fig:mpbvh_rf_tests}, the MPBVH shows a significant improvement compared to
 the current implementation in MOAB and comparable to the EmDAG implementation.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[scale=0.33]{mpbvh_rf.eps}
   \caption{Average ray fire times for the MPBVH for a sphere, slotted sphere, and High Aspect Ratio (HAR) cylinder.}
@@ -947,12 +940,6 @@ the current implementation in MOAB and comparable to the EmDAG implementation.
 
 \section{Simplified Particle Tracking}
 
-\begin{figure}[H]
-  \centering
-  \includesvg{../images/mbray_structs}{1.0\textwidth}
-  \caption{Ray structures used to communicate hit information between the MPBVH and DAGMC.}
-  \label{fig:mpbvh_ray_structures}  
-\end{figure}
 
 The MPBVH kernel has been implemented in DAGMC as a numerically based particle
 tracking tool using a simple algorithm for determining \textit{Next Surface}
@@ -965,7 +952,7 @@ MPBVH as a robust particle tracking tool.
 
 The method used for \textit{Next Surface} queries is described below:
 
-\begin{lstlisting}[language=Python,basicstyle=\small]
+\begin{lstlisting}[language=Python,basicstyle=\tiny]
   def next_surface(current_volume,
                    point,
                    direction,
@@ -1046,6 +1033,13 @@ return the nearest intersection. Infinite loops in which particles oscillate
 between volumes on a surface boundary are addressed by using exiting
 intersections.
 
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/mbray_structs}{1.0\textwidth}
+  \caption{Ray structures used to communicate hit information between the MPBVH and DAGMC.}
+  \label{fig:mpbvh_ray_structures}  
+\end{figure}
+
 The conditions laid out for a robust tracking
 algorithm by B. Smith are as follows \cite{Smith_2011}:
 
@@ -1068,7 +1062,7 @@ function above. These filter functions can also be used to accumulate ray hits,
 which is critical to implementation of a robust point containment algorithm
 based on the MPBVH, shown below:
 
-\begin{lstlisting}[language=Python,basicstyle=\small]
+\begin{lstlisting}[language=Python,basicstyle=\tiny]
   def point_contained( volume, point, direction, &result):
       # result values : 0 - outside; 1 - inside
 
@@ -1202,13 +1196,6 @@ expected based on the difference in pure ray fire times from Section
       Cube           & 5.03 / 1.00 & 10.56 / 2.10 & 5.46 / 1.08 \\
       Nested Spheres & 4.35 / 1.00  & 50.82 / 11.68  & 9.88 / 2.27 \\
       Nested Cubes   & 4.73 / 1.00 & 9.26 / 1.96 & 4.09 / 0.86 \\
-      %%\hline
-      &  \multicolumn{3}{c}{\textbf{histories/min}} \\
-      \hline
-      Sphere & 3.4104E+05  & 3.9944E+04  & 2.1810E+05   \\
-      Cube & 1.9879E+05 & 9.4738E+04 & 1.7260E+05 \\
-      Nested Spheres & 2.2991E+05 & 1.9877E+04 & 1.3947E+05 \\
-      Nested Cubes & 2.1170E+05 & 1.0806E+05 & 2.3026E+05 \\
       \bottomrule
     \end{tabular}
   \end{center}

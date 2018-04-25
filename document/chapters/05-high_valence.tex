@@ -440,8 +440,9 @@ implementation after HV refinement is applied can be seen, though the overall
 speed is somewhat improved due to the single precision implementation.
 
 \begin{figure}
+  \centering
   \includegraphics[scale=0.55]{hv_study_SIMD_OBB.eps}
-  \caption{High valence vertex study for the MOAB SIMD kernel using OBBs.}
+  \caption{High valence vertex study for the MOAB SIMD kernel using only OBBs.}
   \label{fig:hv_study_simd_obbs}
 \end{figure}
 
@@ -482,7 +483,8 @@ accelerating intersections higher up in the tree while the OBBs resolve the high
 valence region with minimal overlap, resulting in an overall improvement in the
 runtimes for these regions.
 
-\begin{figure}
+\begin{figure}[H]
+  \centering
   \includegraphics[scale=0.55]{hv_study_mpbvh_mixed.eps}
   \caption{High valence vertex study for the MOAB SIMD kernel for mixed AABBs
     and OBBs using HV detection. A high valence threshold of 0.5 was applied in

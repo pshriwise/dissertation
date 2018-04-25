@@ -418,9 +418,16 @@ and in turn, triangles, visited.
 
 \begin{figure}
   \centering
-  \includegraphics[scale=0.5]{hv_overlap_simd_bvh.png}
-  \caption{Visualization of a large bounding box surrounding low aspect ratio,
-    off-axis triangles.}
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.37]{hv_overlap_simd_bvh.png}
+  \end{subfigure}%
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.37]{hv_obbs.png}
+  \end{subfigure}
+  \caption{Visualization of both axis-aligned and oriented boxes surrounding low
+    aspect ratio, off-axis triangles.}
   \label{fig:hv_overlap_simd_bvh}
 \end{figure}
 
@@ -457,7 +464,6 @@ transformations. Some of this computational cost is avoided by incorporating the
 spatial scaling of the node into both the affine space and reference point to
 avoid the additional computational cost of scaling the parametric values of the
 ray intersection later in the calculation.
-
 
 \subsection{Adaptive Construction: Mixed AABB/OBBs}
 

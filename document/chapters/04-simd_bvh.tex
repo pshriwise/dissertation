@@ -555,10 +555,10 @@ include:
 \begin{itemize}
   \item single-precision bounding entities
   \item bit-encoding of node types
-  \item templated vector types to support SIMD instruction sets
+  \item type-agnostic vectors to support SIMD instruction sets
   \item memory pre-fetching of node memory added to the traversal stack
   \item pre-computation of near and far box boundaries
-  \item simultaneous node intersection supported by templated vector types
+  \item vectorized node intersection
 \end{itemize}
 
 The details of these features can be found in Embree's GitHub repository
@@ -939,7 +939,6 @@ the current implementation in MOAB and comparable to the EmDAG implementation.
 \end{figure}
 
 \section{Simplified Particle Tracking}
-
 
 The MPBVH kernel has been implemented in DAGMC as a numerically based particle
 tracking tool using a simple algorithm for determining \textit{Next Surface}

@@ -44,6 +44,7 @@ models. These models include a simple sphere, a notched or slotted sphere, and
 an outer volume of an ITER model, shown in Figure \ref{fig:sj_hv_test_models}.
 
 \begin{figure}[H]
+  \centering
     \includegraphics[scale=0.32]{iter_rf_vol.eps}
     \includegraphics[scale=0.42]{ds.eps}
 \begin{center}
@@ -89,6 +90,7 @@ used as a production demonstration of the effect of high valence regions on
 DAGMC performance (see Figure \ref{fig:hv_examples}).
 
 \begin{figure}[H]
+  \centering
   \begin{center}
     \includegraphics[scale=0.5]{sj_hv_test_results_2010.eps} \\
     \caption{Results of MOAB ray tracing performance tests with decreasing
@@ -215,10 +217,10 @@ as seen in Figure \ref{fig:hv_study_moab_wsr1}.
 
 \begin{figure}[H]
   \centering
-    \includegraphics[scale=0.55]{{hv_study_MOAB_wsr1}.eps}
-    \caption{Results of the high valence characterization study with a worst
-      case splitting ratio set to 1.}
-    \label{fig:hv_study_moab_wsr1}
+  \includegraphics[scale=0.55]{{hv_study_MOAB_wsr1}.eps}
+  \caption{Results of the high valence characterization study with a worst
+    case splitting ratio set to 1.}
+  \label{fig:hv_study_moab_wsr1}
 \end{figure}
 
 As expected, the use of this setting largely removes the degradation in performance
@@ -391,12 +393,13 @@ fails to create a well-structured tree for triangles that are part of the HV are
 Visualization of leaf nodes and the entities they contain for the MOAB SIMD BVH
 can be seen in Figure \ref{fig:hv_leaf_simd_bvh}.
 
-  \begin{figure}
-    \includegraphics[scale=0.5]{hv_leaf_simd_bvh.png}
-    \caption{MOAB SIMD BVH leaf nodes for the HV test model with area fraction
-      0.5 and a valence of 100 for the corner vertices.}
-    \label{fig:hv_leaf_simd_bvh}
-  \end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.5]{hv_leaf_simd_bvh.png}
+  \caption{MOAB SIMD BVH leaf nodes for the HV test model with area fraction
+    0.5 and a valence of 100 for the corner vertices.}
+  \label{fig:hv_leaf_simd_bvh}
+\end{figure}
   
 Both Embree and the MOAB SIMD BVH have the shared characteristic of a limited
 leaf size of eight primitives due to the way the leaves are encoded. This
@@ -414,6 +417,7 @@ into these overlapping leaves, the end result is a large number of leaf nodes,
 and in turn, triangles, visited.
 
 \begin{figure}
+  \centering
   \includegraphics[scale=0.5]{hv_overlap_simd_bvh.png}
   \caption{Visualization of a large bounding box surrounding low aspect ratio,
     off-axis triangles.}
@@ -434,6 +438,27 @@ speed is somewhat improved due to the single precision implementation.
   \label{fig:hv_study_simd_obbs}
 \end{figure}
 
+\subsubsection{OBB Implementation}
+
+The same covariance method used in MOAB to construct OBB's was applied in the
+MPBVH \cite{Weghorst_1984}, but the storage technique used differs in order to
+accomodate the SIMD programming involved in the BVH traversal. OBB nodes are
+stored as scaled, affine transformations of the global problem space and the
+box's lower left corner is stored as a scaled reference point. When a ray is
+intersected with a node it is transformed and scaled at the same time, but
+separately, for each of the four OBBs the node represents. A recipricol
+direction is then calculated with respect to the oriented axes of each
+box. Intersection values and distances are then returned in the same way they
+are calculated for a node of AABBs \cite{Wald_2014}.
+
+OBB nodes contain additional information in the form of the affine space
+transformation and are more computationally expensive when computing ray
+transformations. Some of this computational cost is avoided by incorporating the
+spatial scaling of the node into both the affine space and reference point to
+avoid the additional computational cost of scaling the parametric values of the
+ray intersection later in the calculation.
+
+
 \subsection{Adaptive Construction: Mixed AABB/OBBs}
 
 The solution to HV regions when using the SIMD BVH kernel proposed by the author
@@ -442,6 +467,22 @@ detection method described in Section \ref{subsubsec:hv_dectetion}. Large leaf
 nodes being split into smaller nodes will apply oriented bounding boxes to
 contain entities if the set of triangles is determined to be a high valence
 region using the same method discussed in Section \ref{subsec:hv_detection}.
+The results using the mixed tree with OBBs applied in HV regions are shown in
+Figure \ref{fig:hv_study_mpbvh_mixed}. The mixed tree implementation shows some
+proportional scaling with both area fraction and valence, but overall timing
+is significnatly better, with the worst case timing still beating out the best
+case for the OBB only characterization test. This indicates that the AABBs are
+accelerating intersections higher up in the tree while the OBBs resolve the high
+valence region with minimal overlap, resulting in an overall improvement in the
+runtimes for these regions.
+
+\begin{figure}
+  \includegraphics[scale=0.55]{hv_study_mpbvh_mixed.eps}
+  \caption{High valence vertex study for the MOAB SIMD kernel for mixed AABBs
+    and OBBs using HV detection. A high valence threshold of 0.5 was applied in
+    this study.}
+  \label{fig:hv_study_mpbvh_mixed}
+\end{figure}
 
 \subsubsection{Additional Node Encoding}
 
@@ -460,24 +501,14 @@ traversal process.
   \label{fig:mixed_node_encoding}
 \end{figure}
 
-\subsubsection{OBB Implementation}
+\section{Transport Testing}
 
-The same covariance method used in MOAB to construct OBB's was applied in the
-MPBVH, but the storage technique used differs in order to accomodate the SIMD
-programming involved in the BVH traversal. OBB nodes are stored as scaled,
-affine transformations of the global problem space and the box's lower left
-corner is stored as a scaled reference point. When a ray is intersected
-with a node it is transformed and scaled at the same time, but separately, for
-each of the four OBBs the node represents. A recipricol direction is then
-calculated with respect to the oriented axes of each box. Intersection values
-and distances are then returned in the same way they are calculated for a node
-of AABBs.
+The Mixed MPBVH was applied to the same set of production transport tests as the
+AABB MPBVH in Section \ref{subsec:mpbvh_production_transport}. The results of
+these runs can be found in Figure \ref{fig:mixed_mpbvh_prod_timing}.
 
-OBB nodes contain additional information in the form of the affine space
-transformation and are more computationally expensive when computing ray
-transformations. Some of this computational cost is avoided by incorporating the
-spatial scaling of the node into both the affine space and reference point to
-avoid the additional computational cost of scaling the parametric values of the
-ray intersection later in the calculation.
+
+
+
 
 

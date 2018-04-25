@@ -185,19 +185,21 @@ geometry. Other tools such as MCAM \cite{Liu_2005} and McCad
 models, but these systems often require simplifications of the true model in
 translation.
 
-\subsection{CAD Geometry}
+\section{CAD Geometry}
 
 CAD systems allow for efficient and accurate representation of geometrically
 complex domains. Models can be created using interactive visualization tools
 represented in 3D space with a rich tool set for volume and surface
 creation. These creation and modification tools along with the immediate visual
 verification of a user's work reduces human error in model generation and design
-iteration.
+iteration. An example of this is shown in Figure \ref{fig:cad_fnsf}.
 
 \begin{figure}[H]
-  \includegraphics[scale=0.5, trim={100, 0, 0, 0}]{cad_stellarator.png}
-  \caption{The vacuum vessel of a stellarator CAD model.}
-  \label{fig:cad_stellarator}
+  \centering
+  \includegraphics[scale=0.4]{cad_fnsf.png}
+  \caption{The Fusion Neutron Science Facility (FNSF) model in the CUBIT \cite{Blacker_1994}
+    CAD system.}
+  \label{fig:cad_fnsf}
 \end{figure}
 
 In addition to reducing human error, CAD models provide a common domain for
@@ -209,15 +211,7 @@ surface. The use of representations like splines and subdivision surfaces allow
 for more accurate representation of complex forms which would be impossible to
 accurately represent using CSG.
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[scale=0.4]{cad_fnsf.png}
-  \caption{The Fusion Neutron Science Facility (FNSF) model in the CUBIT \cite{Blacker_1994}
-    CAD system.}
-  \label{fig:cad_fnsf}
-\end{figure}
-
-\subsection{Monte Carlo Radiation Transport on CAD Geometry}
+\section{CAD-Based Monte Carlo Radiation Transport}
 
 The Direct Accelerated Geometry Monte Carlo (DAGMC) software toolkit enables
 Monte Carlo radiation transport directly on CAD geometries
@@ -407,6 +401,7 @@ undesirable under certain conditions and violates the description of the KD-Tree
 as a pure querying structure by making modifications to the existing model.
 
 \begin{figure}[H]
+  \centering
   \includegraphics[scale=0.25]{2d_kd_eg.eps}
   \caption{Depiction of a two dimensional KD-Tree example adapted from Bently
     et. al. \cite{Bentley_1975}. Left: Graph representation of the
@@ -444,7 +439,7 @@ triangle sizes/densities. In practice, KD-Trees tend to be very deep and can
 consume relatively high amounts of memory compared to other acceleration data
 structures, however. 
 
-\subsubsection{Bounding Volume Hierarchies}%%Status: Done%%
+\subsection{Bounding Volume Hierarchies}%%Status: Done%%
 \label{subsec:BVH}
 The initial concept of using the bounding volume construct as a pre-check for
 ray-intersection with CSG objects was introduced by Weghorst in 1984
@@ -567,7 +562,7 @@ implement for the performance they are able to provide and have a smaller
 footprint relative to most other ray tracing acceleration data structures,
 making them attracitve to memory-limited environments such as GPUs.
 
-\subsubsection{Octrees}%%Status:Done%%
+\subsection{Octrees}%%Status:Done%%
 \label{subsec:octree}
 
 Octrees are a partitioning scheme in which cuboid bounding boxes known, also
@@ -639,7 +634,7 @@ advantageously for a combined purpose if a problem requires the storage of one
 or more well-resolved data fields near volume boundaries as well as the
 capability for ray tracing.
 
-\subsection{Architecture Based Acceleration}%%Status: Pending%%
+\subsection{Architecture-Based Acceleration}%%Status: Pending%%
 \label{subsec:arch}
 
 This section will focus on the advantages of vectorization implementations or

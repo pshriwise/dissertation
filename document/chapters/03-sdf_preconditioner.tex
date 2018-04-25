@@ -321,7 +321,7 @@ histories.  In order to have more control over a simulation's physical
 parameters, subsequent experiments were performed using a pseudo Monte Carlo
 simulation tool.
 
-\section{Signed Distance Field Utilization Modeling}
+\subsection{Signed Distance Field Utilization Modeling}
 
 In order to characterize utilization of a signed distance field as a
 preconditioner for next surface intersection queries in DAGMC, a pseudo Monte
@@ -337,7 +337,7 @@ to be developed with intent for use this relationship as a means for
 characterizing appropriate conditions for application of the signed distance
 field.
 
-\begin{figure}[!htb]
+\begin{figure}[H]
   \centering
   \includesvg{../images/sdf_fixed_dist_results}{\textwidth}
   \caption{Results of the model for the theoretical utilization limit with the
@@ -367,6 +367,8 @@ limit will now be discussed.
   \label{fig:model}
 \end{figure}
 
+\subsection{Analytic Model Development}
+  
 The utilization of the signed distance field as a preconditioner for ray tracing
 operations can be modeled as an evaluation of the combined probability space for
 particles with a current position, $\vec{p}$, and a next physics event location,
@@ -663,6 +665,7 @@ geometries as well.
 %% to its effect on utilization will also need to be included in future models of
 %% the utilization.
 
+
 The fixed distance traveled scenario provides a nice baseline for agreement
 between the computational results and the model, but a more realistic scenario
 is required before attempting to apply the model as a predicitive utility for
@@ -755,9 +758,10 @@ $$ \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{p_{max}}^{p_{min}}\int_{0}^{2\
 The evaluation of this integral divided by the full geometry query space for the
 distance sampling scenario after the $c=\frac{R}{\lambda}$ replacement is
 
-$$U(c) = \frac{1}{4}\frac{(4 c^2-6) c^2e^{-2c} - (c^3-c^2-\frac{3}{2}
-c+3)4ce^{-2c}+(-2 c^3+2c^2+9c-6) e^{-2c}+4c^2-9 c+6}{c^2}$$
-
+\begin{align*}
+  U(c) = &\frac{1}{4c^{2}} \Big{[} (4 c^2-6) c^2e^{-2c} - (c^3-c^2-\frac{3}{2} c+3)4ce^{-2c} \\
+    &+ (-2 c^3+2c^2+9c-6) e^{-2c}+4c^2-9 c+6 \Big{]}
+\end{align*}
 \begin{figure}[ht] \label{fig:sdf_sampled_dist}
 \centering
 \includesvg{../images/sdf_sampled_dist_results}{\textwidth}
@@ -793,7 +797,7 @@ utilization rapidly decreases. The contribution from the outer region defines th
 significance of using both the current position signed distance value as well as the
 next event location's signed distance value to precondition ray fire calls in DAGMC.
 
-\subsubsection{Modeling with Error Evaluation}
+\subsection{Applying SDF Error Evaluation}
 
 Thus far, the error associated with the tri-linear interpolation used to recover
 signed distance values from the signed distance field has been ignored. In
@@ -818,7 +822,7 @@ Eq. \ref{eq:min_alpha_w_error}
 \begin{equation}
 \small
 \begin{split}
-\alpha_{min} =& (H(d-(R-r-\epsilon))-H(d-(R-\epsilon))) \arccos\Bigg ( \frac{(2R-r-d-2\epsilon)^2-d^2-r^2}{2 d r} \Bigg ) \\
+\alpha_{min} =& \arccos\Bigg ( \frac{(2R-r-d-2\epsilon)^2-d^2-r^2}{2 d r} \Bigg )[H(d-(R-r-\epsilon))-H(d-(R-\epsilon))]  \\
 &+ \pi \, H(d-(R-\epsilon))
 \end{split}
 \label{eq:min_alpha_w_error}
@@ -855,7 +859,7 @@ Figure \ref{fig:sdf_util_sampled_distance_w_error}.
   \label{fig:sdf_util_sampled_distance_w_error}
 \end{figure}
 
-\subsubsection{Extension to other geometries}
+\subsection{Extension to other geometries}
 
 To apply this model to other geometries, the mean free path and mesh step size
 were normalized using a measure of the free space in a volume compared to its
@@ -935,7 +939,7 @@ limitations of this model if it is to be used in an automated process for
 application of the data structure either on-the-fly or as a preprocessing step
 before running particle histories.
 
-\subsubsection{Application in Simulation}
+\section{Application in DAGMC Simulations}
 
 The geometry-agnostic version of the utilization model was used to create a
 \textit{de facto} analysis script for predicting the SDF's utilization in
@@ -998,7 +1002,7 @@ subroutines.
   mercury target to produce thermal neutrons for various research applications.
   }
 
-\begin{table}[H]
+\begin{sidewaystable}
   \small
   \makebox[\textwidth][c]{
     \begin{tabular}{l c c c c}
@@ -1015,7 +1019,8 @@ subroutines.
     }
     \caption{A summary of SDF application to several production DAGMC models.}
     \label{tab:sdf_prod_summary}
-\end{table}
+\end{sidewaystable}
+
 
 
 \begin{table}[H]

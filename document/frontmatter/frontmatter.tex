@@ -9,7 +9,7 @@
 
 % DEDICATION
 \begin{dedication}
-	\emph{For my wife, Georgia, my family, and the dog of course.}
+	\emph{For my family and friends. And, most of all, Georgia. (The dog too I suppose)}
 \end{dedication}
 
 %% BEGIN PAGESTYLE
@@ -24,13 +24,14 @@
 \chapterstyle{deposit}
 \pagestyle{deposit}
 
-
 % ACKNOWLEDGMENTS
 \begin{acks}
 \input{frontmatter/acks}
 \end{acks}
 
 % CONTENTS, TABLES, FIGURES
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
 \renewcommand{\printtoctitle}[1]{\chapter*{#1}}
 \renewcommand{\printloftitle}[1]{\chapter*{#1}}
 \renewcommand{\printlottitle}[1]{\chapter*{#1}}
@@ -51,10 +52,10 @@
 \renewcommand{\cftsectionfont}{\itshape} 
 \renewcommand{\cftchapterpagefont}{\normalfont} 
 \renewcommand{\cftchapterpresnum}{\bfseries} 
-\renewcommand{\cftchapterleader}{} 
-\renewcommand{\cftsectionleader}{} 
-\renewcommand{\cftchapterafterpnum}{\cftparfillskip} 
-\renewcommand{\cftsectionafterpnum}{\cftparfillskip} 
+%\renewcommand{\cftchapterleader}{} 
+%\renewcommand{\cftsectionleader}{} 
+%\renewcommand{\cftchapterafterpnum}{\cftparfillskip}
+%\renewcommand{\cftsectionafterpnum}{\cftparfillskip}
 
 % \captionnamefont{\small\sffamily} 
 % \captiontitlefont{\small\sffamily} 

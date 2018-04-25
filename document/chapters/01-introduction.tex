@@ -108,8 +108,6 @@ still slower than native geometry implementations in CSG. DAGMC's simulations
 are anywhere from 2.5 to 10 times longer than those of their native
 counterparts.
 
-\subsection{Performance Results}%%Status:Done%%
-
 Table \ref{dag-mcnp-benchmarks} represents a comparison of several
 representative MCNP problems between the native geometry representations and
 DAGMC coupled with MCNP, or DAG-MCNP. For smaller problems with simple
@@ -126,11 +124,11 @@ Reactor (UWNR).
   \centering
   \begin{tabular}{l c c c}
     \toprule
-    Model & Native ctme (min) & DAG-MCNP ctme (min) & Ratio (Native/DAGMC) \\
+    Model & Native ctme (min) & DAG-MCNP ctme (min) & Timing Ratio \\
     \hline
-    FNG   & 5871.92           & 22769.33            & 3.9                  \\
-    ATR   & 901.68            & 8627.80             & 9.6                  \\
-    UWNR  & 8767.29           & 69429.60            & 7.9                  \\
+    FNG   & 5871.92           & 22769.33            & 3.9   \\
+    ATR   & 901.68            & 8627.80             & 9.6   \\
+    UWNR  & 8767.29           & 69429.60            & 7.9   \\
     \hline
   \end{tabular}
   \caption{Table comparing the performance of DAG-MCNP to native MCNP for the

@@ -28,7 +28,7 @@ Brighter3D. As a result of its success in other areas, Embree was selected to be
 applied in DAGMC to satisfy geometric queries for MCNP. The resulting
 combination of these tools will be referred to as EmDAG.
 
-\subsection{Transferring DAGMC Model's to Embree Scenes}\label{sec:emdag_transfer}
+\subsection{Implementation and Model Transfer}\label{sec:emdag_transfer}
 
 The process of employing Embree as DAGMC's ray tracer begins by establishing an
 equivalent representation of the MOAB mesh in Embree. In comparison to MOAB,
@@ -108,7 +108,7 @@ provides DAGMC with all the information needed to perform geometric operations
 required by the various Monte Carlo codes it supports, but in an agnostic manner
 to the ray tracing kernel being used.
 
-\subsubsection{EmDAG Performance Testing}\label{subsubsec:emdag_rf_performance}
+\subsection{Ray Fire Performance}\label{subsubsec:emdag_rf_performance}
 
 Using the same DAGMC-based ray fire test program, the performance of DAGMC's ray
 fire ability was compared to that of EmDAG's for three models. These models
@@ -161,11 +161,11 @@ results can be found in Figure \ref{emdag_timing_compare}.
 
   \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[scale=0.33]{Eig_fix_rf.eps}
+    \includegraphics[scale=0.35]{Eig_fix_rf.eps}
   \end{minipage}%
   \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[scale=0.33]{embree_rf.eps}
+    \includegraphics[scale=0.35]{embree_rf.eps}
   \end{minipage}
   \caption{A comparison of average ray fire times between DAGMC using MOAB's ray
     tracing and Embree. Please note the difference in time scale.}
@@ -202,7 +202,7 @@ ray tracing system that cannot not be afforded using only MOAB's database
 interface. However, a property unique to MOAB may allow for an implementation
 such as this as will be discussed near the end of this work.
 
-\subsection{EmDAG Transport Tests}
+\subsection{Transport Tests}
 \label{subsec:emdag_transport}
 
 As an extension of these pure ray fire tests, the effect of an improved ray
@@ -276,40 +276,6 @@ MCNP's CSG calculations. This is a good demonstration of how CSG implementations
 suffer from the lack of a spatial search component when creating volumes from
 Boolean combination of surfaces as mentioned in Section \ref{subsec:csg}.
 
-\begin{table}[H]
-  \small
-  \begin{center}
-    \begin{tabular}{lccc}
-      \toprule
-      Value & MCNP & DAG-MCNP & EmDAG-MCNP \\
-      \toprule
-      %%Hist/min & 2.2991E+05 & 1.9877E+04 & 1.3947E+05 \\
-      %%\hline
-      \multicolumn{4}{l}{\textbf{Cell 1 Tallies}} \\
-      \hline
-      Flux  & 5.25725E-03 & 5.25734E-03 & 5.25734E-03 \\
-      Energy  & 3.17869E-03 &  3.17873E-03 &  3.17873E-03 \\
-      \hline
-      \multicolumn{4}{l}{\textbf{Cell 2 Tallies}} \\
-      \hline
-      Flux  & 1.91645E-04 & 1.91644E-04 & 1.91644E-04 \\
-      Energy  & 5.22131E-05 & 5.22137E-05 & 5.22137E-05 \\
-      \hline
-      \multicolumn{4}{l}{\textbf{Cell 3 Tallies}} \\
-      \hline
-      Flux  & 1.18371E-05 & 1.18376E-05 & 1.18410E-05 \\
-      Energy  & 4.96282E-06 & 4.96285E-06 & 4.96285E-06 \\
-      \bottomrule
-                        
-    \end{tabular}
-    \caption{Nested Spheres Tally Results. Flux tally units are
-      $cm^{-2}$. Energy tally units are MeV/g. Note: result comparisons of other
-      test cases can be found in Appendix B.}
-    \label{nestedspheres}
-  \end{center}
-%%\vspace{-0.2cm}
-\end{table}
-
 
 The results of the single-volume test cases for native MCNP differ slightly from
 the agreeing tally results from the DAGMC-based systems. This is not surprising
@@ -318,7 +284,7 @@ result comparisons of DAGMC to native codes are not the concern of this study,
 only a comparison of the values returned by EmDAG in comparison to DAGMC is
 considered. Differences in the tally results between DAG-MCNP and EmDAG-MCNP are
 present only in the nested spheres transport model. There is a small difference
-in the flux tally for cell 3 as can be seen in Table \ref{nestedspheres}. By
+in the flux tally for cell 3 as can be seen in Table \ref{nestedspheres} of Appendix \ref{ch:appendix_a}. By
 examining the number of particle tracks in each cell, it can be determined that
 this discrepancy is caused by a single particle ending in EmDAG-MCNP near a
 surface of cell 2 while in DAG-MCNP the particle crosses into cell 3 before
@@ -440,7 +406,7 @@ to improve performance and accommodate these high valence regions, it seems that
 a better solution is to follow that path over alteration of the mesh globally in
 the model. 
 
-\subsubsection{Limitations of the EmDAG system}\label{sec:emdag_limitations}
+\subsection{Limitations}\label{sec:emdag_limitations}
 
 While the implementation of Embree in DAGMC showed a vast improvement in
 performance relative to DAGMC's current implementation, several problems were
@@ -585,7 +551,7 @@ performance benefits seen in the EmDAG implementation can be preserved in the
 proposed mixed precision system, dubbed the Mixed Precision Bounding Volume
 Hierarchy (MPBVH).
 
-\subsection{Design and Implementation}
+\subsection{Implementation and Design}
 
 The MPBVH was created by the author as an independent project which draws on
 design elements from Embree while interfacing with MOAB to optimize CPU-based
@@ -938,7 +904,7 @@ the fly.
   \label{fig:quad_tree_sets}
 \end{figure}
 
-\section{Robustness Testing}
+\subsection{Robustness Testing}
 
 The the criterion for a robust ray tracing kernel are as follows:
 
@@ -965,7 +931,7 @@ Missed rays and lost particles are also monitored in testing the ray fire
 performance and in particle transport, though none were found outside of the
 controlled box extension study in Section \ref{subsubsec:reduced_precision}.
 
-\section{Ray Fire Performance}\label{sec:mpbvh_rf_perf}
+\subsection{Ray Fire Performance}\label{sec:mpbvh_rf_perf}
 
 The same set of ray fire performance tests were run as in Section
 \ref{subsubsec:emdag_rf_performance}. As shown in Figure
@@ -979,7 +945,7 @@ the current implementation in MOAB and comparable to the EmDAG implementation.
   \label{fig:mpbvh_rf_tests}
 \end{figure}
 
-\subsection{Simplified Particle Tracking}
+\section{Simplified Particle Tracking}
 
 \begin{figure}[H]
   \centering
@@ -1211,9 +1177,9 @@ inside the volume. Otherwise it is considered to be outside of the volume.
 This algorithm was applied to all of the simulation results presented in this
 chapter without lost particles or causing infinite loops.
 
-\section{Simulation Results}
+\subsection{Simulation Results}
 
-\subsection{Simple Test Cases}\label{subsec:mpbvh_simple_tests}
+\subsubsection{Simple Test Cases}\label{subsec:mpbvh_simple_tests}
 The MPBVH kernel was applied as the ray tracing kernel for the same set of
 transport test cases as the EmDAG implementation. Table
 \ref{tab:mpbvh_transport_timing_simple} shows the results of tests. The MPBVH
@@ -1252,7 +1218,7 @@ expected based on the difference in pure ray fire times from Section
   \label{tab:mpbvh_transport_timing_simple}
 \end{table}
 
-\subsection{Production Simulations}\label{subsec:mpbvh_production_transport}
+\subsubsection{Production Simulations}\label{subsec:mpbvh_production_transport}
 
 After verifying that no particles were lost in the simple test cases, the MPBVH
 implementation of DAGMC was applied to the same FNG model as EmDAG. The results

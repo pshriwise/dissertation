@@ -247,7 +247,7 @@ $\alpha$\% of the entities in a given leaf node will be considered a high valenc
 region, indicating that an alternate build method or build settings should be
 applied.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=Python,basicstyle=\tiny]
   def detect_hv_region(mesh, entities, alpha):
       assert(a <= 1.0 and a > 0.0)
       connectivity = mesh.get_connectivity(entities)
@@ -257,7 +257,7 @@ applied.
           # get all entities of dim 2 adjacent to the vertex
           adj_entities = mesh.get_adjacencies(vert, to_dim)
 
-          # determine how many adj entities are in the set of entities
+          # determine the number of non-adjacent entities
           overlap = entities - adj_entities
 
           if( size(overlap)/size(entities) < 1.0 - alpha):

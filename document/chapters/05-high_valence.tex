@@ -47,12 +47,10 @@ an outer volume of an ITER model, shown in Figure \ref{fig:sj_hv_test_models}.
   \centering
     \includegraphics[scale=0.32]{iter_rf_vol.eps}
     \includegraphics[scale=0.42]{ds.eps}
-\begin{center}
   \caption{Images of the slotted sphere and ITER volume used to perform DAGMC
     ray fire performance tests with increasing number of triangles or,
     equivalently, decreasing faceting tolerance.}
-\end{center}
-\label{fig:sj_hv_test_models}
+  \label{fig:sj_hv_test_models}
 \end{figure} 
 
 In each of these tests, the models are tessellated with an increasingly smaller
@@ -470,10 +468,10 @@ ray intersection later in the calculation.
 
 The solution to HV regions when using the SIMD BVH kernel proposed by the author
 is to apply OBBs only in regions determined to be high valence using the same
-detection method described in Section \ref{subsubsec:hv_dectetion}. Large leaf
+detection method described in Section \ref{subsubsec:hv_detection}. Large leaf
 nodes being split into smaller nodes will apply oriented bounding boxes to
 contain entities if the set of triangles is determined to be a high valence
-region using the same method discussed in Section \ref{subsec:hv_detection}.
+region using the same method discussed in Section \ref{subsubsec:hv_detection}.
 The results using the mixed tree with OBBs applied in HV regions are shown in
 Figure \ref{fig:hv_study_mpbvh_mixed}. The mixed tree implementation shows some
 proportional scaling with both area fraction and valence, but overall timing
@@ -496,16 +494,18 @@ runtimes for these regions.
 
 To support a tree containing both AABBs and OBBs, additional encoding of
 interior nodes is required so that the appropriate node intersection methods are
-applied during traversal. The additional encoding representation for these node
-types can be seen in Figure \ref{fig:mixed_node_encoding}. This encoding scheme
-takes advantage of the two remaining bit configurations available for node
-definitions by setting the appropriate bits in the node reference objects. These
-node masks are stripped from the node reference's integer value to retrieve the
-pointer to the node objects themselves with little added overhead in the
-traversal process.
+applied during traversal. The additional encodings for these node types are
+illustrated in Figure \ref{fig:mixed_node_encoding}. This encoding scheme takes
+advantage of the two remaining bit configurations available for node definitions
+by setting the appropriate bits in the node reference objects. These node masks
+are stripped from the node reference's integer value to retrieve the pointer to
+the node objects themselves with little added overhead in the traversal process.
 
 \begin{figure}[H]
+  \centering
   \includesvg{../images/mixed_node_encoding}{1.0\textwidth}
+  \caption{Visual representation of bit encoding used to differentiate
+    axis-aligned and oriented nodes in the mixed MPBVH.}
   \label{fig:mixed_node_encoding}
 \end{figure}
 

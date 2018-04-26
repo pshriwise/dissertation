@@ -208,7 +208,7 @@ such as this as will be discussed near the end of this work.
 As an extension of these pure ray fire tests, the effect of an improved ray
 tracing system on particle transport was studied as well. These tests begin with
 several simple models and end with the application of EmDAG to one of the models
-used for DAGMC performance benchmarking in Chapter \ref{perf_benchmark}, FNG.
+used for DAGMC performance benchmarking in Chapter \ref{ch:introduction}, FNG.
 
 The first transport models to be tested were a single cube and single sphere
 filled with a dense hydrogen material for high collisionality in the problem
@@ -277,17 +277,17 @@ result comparisons of DAGMC to native codes are not the concern of this study,
 only a comparison of the values returned by EmDAG in comparison to DAGMC is
 considered. Differences in the tally results between DAG-MCNP and EmDAG-MCNP are
 present only in the nested spheres transport model. There is a small difference
-in the flux tally for cell 3 as can be seen in Table \ref{nestedspheres} of Appendix \ref{ch:appendix_a}. By
-examining the number of particle tracks in each cell, it can be determined that
-this discrepancy is caused by a single particle ending in EmDAG-MCNP near a
-surface of cell 2 while in DAG-MCNP the particle crosses into cell 3 before
-abruptly terminating though it still contributing slightly to the tally in cell
-3. It is believed that this difference in tally result is the result of a
-systematic difference between Embree and MOAB's ray fire conventionality rather
-than Embree's a result of the double to single floating point conversion of the
-model that occurs when using EmDAG though this difference in precision is
-suspected to be problematic in other ways as was discovered in transport on the
-FNG model.
+in the flux tally for cell 3 as can be seen in Table \ref{nestedspheres} of
+Appendix \ref{ch:appendix_a}. By examining the number of particle tracks in each
+cell, it can be determined that this discrepancy is caused by a single particle
+ending in EmDAG-MCNP near a surface of cell 2 while in DAG-MCNP the particle
+crosses into cell 3 before abruptly terminating though it still contributing
+slightly to the tally in cell 3. It is believed that this difference in tally
+result is the result of a systematic difference between Embree and MOAB's ray
+fire conventionality rather than Embree's a result of the double to single
+floating point conversion of the model that occurs when using EmDAG though this
+difference in precision is suspected to be problematic in other ways as was
+discovered in transport on the FNG model.
 
 Finally, a full-scale test of EmDAG was conducted on the FNG model using the
 same volumetric source as in the performance benchmarking tests described
@@ -617,7 +617,7 @@ transport in CAD geometries.
 Using double precision ray values to intersect with single precision boxes is
 possible due to IEEE standards used to truncate double precision values to single
 precision values, but costly due to the conversion of the ray origin and
-direction for each box intersection \ref{IEEE_STD_2008}. Instead, a method was
+direction for each box intersection \cite{IEEE_STD_2008}. Instead, a method was
 applied in which a traversal ray data structure is used represent the ray origin
 and direction in single precision. This greatly accelerates the traversal
 process moving through the hierarchy of bounding boxes. Once leaf nodes are
@@ -642,13 +642,12 @@ origins and directions from double to single precision, small changes in the ray
 origin and direction are introduced. This effect is illustrated in Figure
 \ref{fig:double_to_single_ray}.
 
-\begin{figure}
-  \begin{center}
+\begin{figure}[H]
+  \centering
   \includesvg{../images/double_ray_float_ray}{0.5\textwidth}
   \caption{A representation of the directional change due to conversion of a
     ray's origin and direction from double to single precision. Where capital
     letters indicate double precision values.}
-  \end{center}
   \label{fig:double_to_single_ray}
 \end{figure}
 
@@ -1089,7 +1088,10 @@ based on the MPBVH, shown below:
       
       # if a hit is found, 
       if ray.geomID != -1 and dot_prod != 0.0:
-         result =  dot_prod < 0.0 ? 1 : 0;
+          if dot_prod < 0.0:
+              result = 1
+          else:
+              result = 0
          return
 
       # if the ray is tangent, the overlap thickness is

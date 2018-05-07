@@ -111,16 +111,18 @@ function, $d(\vec{x})$, formally defined as:
 
 \begin{align} \label{eq:sdf}
   & d(\vec{x}) = min(|\vec{x} - \vec{x_{I}}|) \\
-  & \Omega(\vec(x))  \,s.t.  \,|\Omega(\vec{x})| = d(\vec(x)) 
+  & |\nabla \Omega(\vec{x})| = 1 \\
+  & \Omega(\vec{x})  \,s.t.  \,|\Omega(\vec{x})| = d(\vec{x})
 \end{align}
 
 \begin{align}
   d \, &- \, signed \, distance \, function \\
-  \vec{x_{I}} \, &- \,nearest \, boundary \,intersection
+  \vec{x}_{I} \, &- \,surface \, interface
 \end{align}
 
 \noindent
-Meaning that implicit surface functions can be modified to meet the three
+
+Implicit surface functions can be modified to meet the following
 requirements of a signed distance function:
 
 \begin{figure}[H]
@@ -187,7 +189,7 @@ translation.
 
 \section{CAD Geometry}
 
-CAD systems allow for efficient and accurate representation of geometrically
+Computer-Aided Design (CAD) systems allow for efficient and accurate representation of geometrically
 complex domains. Models can be created using interactive visualization tools
 represented in 3D space with a rich tool set for volume and surface
 creation. These creation and modification tools along with the immediate visual
@@ -269,9 +271,9 @@ primitives must be checked for intersection. Because a single separation into
 two spatial partitions is often insufficient to increase search efficiency, this
 partitioning process is performed recursively. The result is a tree, or
 hierarchy, structure in which partitions at the top of tree are associated other
-partitions, known as child nodes, rather than primitives. Partitions at the end,
-or bottom, of the tree are associated with geometric primitives representing the
-volume boundary.
+partitions, known as child nodes, rather than primitives. Partitions at the
+bottom of the tree are known as leaf nodes and are associated with geometric
+primitives representing the volume boundary rather than a bounding volume.
 
 The search for a ray intersection then becomes a traversal of the tree in which
 the children of the root node are checked for intersection. If an intersection
@@ -283,7 +285,7 @@ rejected as a possibility for a hit. This allows many primitives to rapidly be
 removed from the search and limit the number of true intersections to a small
 number compared to checking each primitive individually. This technique reduces
 the algorithmic complexity of the search from a brute force, or linear
-$O(log(N_{triangles})$ , search to a logarithmic $O(\, log(N_{primitives}))$
+$O(N_{primitives})$ , search to a logarithmic $O(\, log(N_{primitives}))$
 search.
 
 \subsection{Partition Splitting Heuristics}
@@ -296,7 +298,7 @@ used. This cost is representative of the comparison between a division of the
 node for several candidate split planes and forming a leaf from the current
 node.  Because there is no way to know exactly how expensive or inexpensive a
 split will be for the particular simulation at hand, heuristics are used to
-evaluate this cost and determine the optimal splitting plane using limited
+estimate this cost and determine the optimal splitting plane using limited
 information about the local nodes in the tree. More specifically, this
 information is typically limited to the number of primitives and bounds of the
 parent partition and resulting child partitions.
@@ -349,7 +351,7 @@ the surface area heuristic was introduced in 1987 by Goldsmith and Salmon
 
 \begin{figure}[H]
   \begin{equation}
-    C =  C_{t} + \frac{SA_{L}}{SA_{P}} |P_{L}|C_{i} +  \frac{SA_{R}}{SA_{P}} |P_{R}|C_{i}
+    C =  C_{t} + \frac{SA_{L}}{SA_{P}}P_{L}C_{i} +  \frac{SA_{R}}{SA_{P}}P_{R}C_{i}
     \label{eq:SAH}
   \end{equation}
   \begin{align*}
@@ -359,16 +361,16 @@ the surface area heuristic was introduced in 1987 by Goldsmith and Salmon
     P_{L} - & \, primitives\, contained\, by\, the\, left\, child  \\
     SA_{R} - & \, surface\, area\, of\, right\, child \\
     P_{R} - & \, primitives\, contained\, by\, the\, right\, child \\
-    SA_{P} - & \, parent\, bounding\, volume \\
+    SA_{P} - & \, parent\, node's \, surface \, area \\
   \end{align*}
   \caption{A form of the surface area heuristic for a binary tree.}
   \label{fig:SAH}
 \end{figure}
 
-For the general case, ERH has not proved to be as effective as the SAH, but it
-has proven to be a useful tool in correcting the surface area heuristic for
-triangle mesh features of a specific type. This scenario will be discussed further
-in Chapter \ref{ch:high_valence}.
+For the general case, ERH has not proved to be as effective as the SAH, but as
+seen in Chapter \ref{ch:high_valence} it is a useful tool in correcting the
+surface area heuristic for triangle mesh features of a specific type. This
+scenario will be discussed further in Chapter \ref{ch:high_valence}.
 
 \subsection{KD-Trees}
 \label{subsec:kd-trees}
@@ -416,21 +418,22 @@ based on the inherent quality of KD-Trees' non-overlapping sibling nodes. As a
 KD-Tree is being constructed, an ever-shrinking bounding box is being defined as
 one moves deeper into the tree. At the leaves of a KD-Tree, a well-resolved
 bounding box can be conceptualized using the coordinates of the last six
-splitting planes visited. The conceptual construction of this box is one way to
-move from node to node in a more efficient way than a more standard depth-first
-approach used in tree traversal. The partitions whose planes are used to
-construct this conceptual box can be linked to the current partition in order
-maintain a spatially localized search within the hierarchy. These links are
-referred to as neighbor links and, as shown by Samet et. al.\cite{Samet_1989},
-can be used to significantly reduce traversal costs in the KD-Tree. During
-traversal if a leaf is visited its neighbor links can be used to direct the
-query to either the next adjacent leaf or a nearby interior node in the tree
-thus avoiding a depth-first style traversal in which the next step upon visiting
-a leaf node is to return to the root node of the tree and continue. These
-neighbor links take advantage of the idea that if a leaf node is visited, but
-the desired intersection is not found, then it is likely that the desired
-intersection is close to the current leaf location. In this way, one can avoid
-large amounts of unnecessary shallow and mid-level tree traversal steps.
+splitting planes visited and possibly the domain boundary. The conceptual
+construction of this box is one way to move from node to node in a more
+efficient way than a more standard depth-first approach used in tree
+traversal. The partitions whose planes are used to construct this conceptual box
+can be linked to the current partition in order maintain a spatially localized
+search within the hierarchy. These links are referred to as neighbor links and,
+as shown by Samet et. al.\cite{Samet_1989}, can be used to significantly reduce
+traversal costs in the KD-Tree. During traversal if a leaf is visited its
+neighbor links can be used to direct the query to either the next adjacent leaf
+or a nearby interior node in the tree thus avoiding a depth-first style
+traversal in which the next step upon visiting a leaf node is to return to the
+root node of the tree and continue. These neighbor links take advantage of the
+idea that if a leaf node is visited, but the desired intersection is not found,
+then it is likely that the desired intersection is close to the current leaf
+location. In this way, one can avoid large amounts of unnecessary shallow and
+mid-level tree traversal steps.
 
 KD-Trees are frequently cited as being able to provide the best ray tracing
 performance to date \cite{Ernst_2007,Hurley_2002,Havran_2000}. In particular,
@@ -551,7 +554,7 @@ just like any other BVH but with significantly reduced sibling volume
 overlaps. The SBVH results consistently show significant improvement over other
 methods, ranging anywhere from (20-100\%) \cite{Stich_2009}.
 
-In summary, bounding volume hierarcies are favoered in the field of ray tracing
+In summary, bounding volume hierarchies are favored in the field of ray tracing
 for their lower memory footprints and well-developed parallel building
 schemes. These features are of great import for systems with limited memory,
 such as GPUs, and applications with intent for realtime viewing or
@@ -566,7 +569,7 @@ making them attracitve to memory-limited environments such as GPUs.
 \label{subsec:octree}
 
 Octrees are a partitioning scheme in which cuboid bounding boxes known, also
-known as voxels, are used to partition the 3D problem space into the 8 quadrants
+known as voxels, are used to partition the 3D problem space into the 8 octants
 defined by the global axes and extents of the parent voxel. These 8 voxels are
 then linked as children of the parent voxel. This process is repeated
 recursively until leaf conditions are met in which a sufficiently small number

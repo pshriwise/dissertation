@@ -59,7 +59,7 @@ allow for a common problem domain in coupled simulations. CAD systems also
 provide a rich set of tools for model generation, topological representation,
 and design iteration. For highly complex, well-developed models, these tools are
 more intuitive and efficient for human use over alteration of native text-based
-formats. Many tools exist for converting native CSG models to and from CAD
+formats. Several tools exist for converting native CSG models to and from CAD
 systems. A few have the capability to perform simulations directly on CAD
 geometries as well \cite{Leppanen_2015}.
 
@@ -92,13 +92,13 @@ in Table \ref{tab:dagmc_implementations}.
 While the use of CAD geometries brings the benefits outlined above, it also adds
 complexity to particle tracking during Monte Carlo simulations. Particle
 crossings with higher-order surfaces are difficult and sometimes impossible to
-compute analytically. To address this problem, the analytic CAD surfaces are
-discretized into a triangle mesh. This generalizes intersections with surfaces
-to intersections with a set of planar surfaces. However, a large number of
-triangles are needed to maintain an accurate representation of surfaces
-throughout the model. As a result, the costly search for surface crossings
-causes simulations on CAD-based geometries to take much longer than native CSG
-models.
+compute analytically. One method of addressing this problem is to discretize the
+analytic CAD surfaces into a triangle surface mesh. This generalizes
+intersections with surfaces to intersections with a set of planar.
+surfaces. However, a large number of triangles are needed to maintain an
+accurate representation of surfaces throughout the model. As a result, the
+costly search for surface crossings causes simulations on CAD-based geometries
+to take much longer than native CSG models.
 
 The intersection of a particle and trajectory with a triangulated surface is a
 well-researched problem in the area of ray tracing. In this field, geometries
@@ -137,20 +137,17 @@ Reactor (UWNR).
 \end{table}
 
 As a part of this study, these runs were repeated using the profiling tool,
-Callgrind, within KCachegrind to determine where computing time is being spent
-in both the DAG-MCNP and native MCNP runs. Because the geometry representation
-and query system is the only difference between the two models, it is expected
-that the time is being spent there, but it is practical to confirm this and
-useful to know more specifically where in the query system this is occurring. All
+Callgrind \cite{Pena_2016}, to determine where computing time is being spent in
+both the DAG-MCNP and native MCNP runs. Because the geometry representation and
+query system is the only difference between the two models, it is expected that
+the time is being spent there, but it is practical to confirm this and useful to
+know more specifically where in the query system this is occurring. All
 callgraphs are displayed with the MCNP \textit{history\_} subroutine at the
 top. It is inside this subroutine that MCNP calls DAGMC to fulfill geometric
-queries about the model. It should also be noted that for these profiling runs
-the ``fcad'' file produced by a previous DAGMC run was used. DAGMC produces this
-file after completing acceleration data structure builds for a given
-geometry. Using this file keeps the profiling information from being obfuscated
-by the building process of the data structures in MOAB and allows DAG-MCNP to
-move straight to particle transport after loading the geometry from the ``fcad''
-file.
+queries about the model. It should also be noted that only time spent simulating
+particle histories is reported in Table \ref{dag-mcnp-benchmarks}, not including
+setup operations for simulation such as nuclear cross section loading and
+acceleration data structure construction.
 
 In Figure \ref{dagmc-fng-coarse} a callgraph for a profiling run of FNG for 1e7
 histories is provided. In this callgraph it is shown that the time spent in
@@ -183,14 +180,14 @@ tracking particles in DAGMC along with the difference in absolute run times
 confirms that the performance bottleneck of DAGMC lies in its ability to quickly
 satisfy the geometric queries of the underlying Monte Carlo code it is coupled
 to. Looking more closely at the underlying calls in DAGMC, one can see that this
-time is collectively spent in the DAGMC \textit{ray\_fire} method. Functions
+time is collectively spent in the DAGMC \textit{ray\_fire} method. Function names
 like \textit{RayIntersectSets} and \textit{preorder\_traverse} indicate that
 this time is spent in MOAB's database-oriented ray tracing implementation.
 
 \section{Statement of Thesis}
 
-The purpose of this dissertation is to establish work which improves the
-performance of CAD-based Monte Carlo radiation transport in a manner that is
-widely accessible to analysts. The result is a compilation of adaptive data
-structure construction, data structure redesign, and alternative methods to
-reduce simulation times in DAGMC.
+The purpose of this dissertation is to improve the performance of CAD-based
+Monte Carlo radiation transport in a manner that is widely accessible to
+analysts. The result is a compilation of adaptive data structure construction,
+data structure redesign, and alternative methods to reduce simulation times in
+DAGMC.

@@ -2,7 +2,7 @@
   \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{#2}
-    \caption{\textbf{#1:} #3}
+    \caption{\textbf{#1:}#3}
     \label{fig:#1}
   \end{figure}
 }
@@ -11,38 +11,43 @@
 
 \section{Monte Carlo Geometry Queries}\label{sec:mc-geom-queries}
 
-A Monte Carlo geometry kernel must be able to robustly support the geometry
+A Monte Carlo geometry kernel must provide robust support for the geometry
 queries shown in Figures \ref{fig:Point Containment} - \ref{fig:Measure}.
 
 \geomQuery{Point Containment}{plc_query.eps}{
-    Given a volume and particle location, determine if the point is inside,
-    outside, or on the boundary of that volume.
+Given a set of volumes and particle location, $\mathbf{x}$, determine if the
+point is inside, outside, or on the boundary of that volume.
 }
 
 \geomQuery{Next Surface}{dtb_query.eps}{
-  Given a volume, particle location, and particle trajectory, determine the next
-  surface of the volume that the particle intersects along with the distance to
-  that intersection.
+Given a volume, $\mathbf{V}$, particle location, $\mathbf{x}$, and particle
+trajectory, \boldmath$\Omega$, determine the next surface, \boldmath$B$, of
+the volume that the particle intersects along with the distance, \boldmath$d$
+to that intersection.
 }
 
 \geomQuery{Closest Surface}{ctl_query.eps}{
-  Given a volume and particle location, determine the distance to to the nearest
-  surface of the volume in any direction.
+Given a volume, \boldmath$V$, and particle location, \boldmath$x$, determine
+the distance, \boldmath$d$, to to the nearest surface, \boldmath$S$, of the
+volume in any direction.
 }
 
 \geomQuery{Next Volume}{sc_query.eps}{
-  Given a volume and surface, determine the adjacent volume on the other side of
-  the surface.
+Given a particle at location, \boldmath$x$, in volume, \boldmath$V_1$,
+traveling in a direction, \boldmath$\Omega$, determine the correct adjacent
+volume, \boldmath$V_2$.
 }
 
 \geomQuery{Surface Normal}{normal_query.eps}{
-  Given a surface and particle location, determine the normal vector of the
-  surface at a point closest to the particle's location.
+Given a surface, \boldmath$S$ and particle location, \boldmath$x$ determine
+the normal vector, \boldmath$\vec{n}$ of the surface at a point closest to the
+particle's location.
 }
 
 \geomQuery{Measure}{measure_query.eps}{
-    Given a volume or surface in the geometry, determine properties of that entity
-  such as the volume or area.
+Given a volume, \boldmath$V$, or surface, \boldmath$S$ in the geometry,
+determine properties of that entity such as the volume, \boldmath$\lambda$,
+or area, \boldmath$\alpha$.
 }
 
 \section{Analytic Geometry Representations}\label{sec:analytic_geometry}
@@ -230,14 +235,15 @@ vertices.
 
 It is important that geometric relationships of the mesh are maintained to
 accelerate certain geometric queries on the surface mesh. For example,
-\textit{Next Volume} queries are accelerated by using these relationships to
-directly determine which volume a particle is passing into upon crossing a
-surface. In CSG, a surface crossing can require a series of point containment
-checks for each volume to determine new volume and media. Other queries become
-more complicated, however, due to the sheer number of triangles needed to
-properly define volumes with detailed features.
+\textit{Next Volume} (see Figure \ref{fig:Next Volume}) queries are accelerated
+by using these relationships to directly determine which volume a particle is
+passing into upon crossing a surface. In CSG, a surface crossing can require a
+series of point containment checks for each volume to determine new volume and
+media. Other queries become more complicated, however, due to the sheer number
+of triangles needed to properly define volumes with detailed features.
 
-\textit{Next Surface} and \textit{Closest to Location} geometry queries, for
+\textit{Next Surface} and \textit{Closest to Location} (see Figures
+\ref{fig:Next Surface} and \ref{fig:Closest to Location}) geometry queries, for
 example, can be computationally expensive for volumes composed of hundreds of
 thousands or even millions of triangles. A convenient way to think about
 performing geometric queries on triangulated surfaces or volumes is to consider

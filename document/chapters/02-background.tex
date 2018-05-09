@@ -290,7 +290,18 @@ the algorithmic complexity of the search from a brute force, or linear
 $O(N_{primitives})$ , search to a logarithmic $O(\, log(N_{primitives}))$
 search.
 
-\subsection{Partition Splitting Heuristics}
+The remainder of this section reviews specific splitting heuristics, bounding
+constructs, and data structure relationships often used in rendering and
+scientific simulation today. Next, two splitting heuristics, the Entity Ratio
+Heuristic (ERH) and Surface Area Heuristic (SAH) are discussed. After that,
+several common spatial hierarchies are described including the KD-Tree, Bounding
+Volume Hierarchy (BVH), and the Octree. The remainder of this section describes
+CPU architecture characteristics which allow adaptations of these hierarchical
+data structures to achieve improved performance. This description includes a
+commentary on the relevance of these accelerations and selection of design
+elements which make these adaptations relevant to MCRT.
+
+\subsection{Splitting Heuristics}
 
 There are two critical components that go into the creation of spatial
 partitions in ray tracing hierarchies. The first is the selection of a candidate

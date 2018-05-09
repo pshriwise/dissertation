@@ -108,8 +108,7 @@ function, $d(\vec{x})$, formally defined as:
 
 \begin{align} \label{eq:sdf}
   & d(\vec{x}) = min(|\vec{x} - \vec{x_{I}}|) \\
-  & |\nabla \Omega(\vec{x})| = 1 \\
-  & \Omega(\vec{x})  \,s.t.  \,|\Omega(\vec{x})| = d(\vec{x})
+  & \Omega(\vec{x})  \,s.t.  \, \Omega(\vec{x}) = |d(\vec{x})|
 \end{align}
 
 \begin{align}
@@ -119,8 +118,8 @@ function, $d(\vec{x})$, formally defined as:
 
 \noindent
 
-Implicit surface functions can be modified to meet the following
-requirements of a signed distance function:
+Implicit surface functions can be modified or selected such that the following
+conditions are met:
 
 \begin{figure}[H]
   \begin{center}

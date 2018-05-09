@@ -26,7 +26,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="191.41588"
+     inkscape:cx="100.50215"
      inkscape:cy="117.67778"
      inkscape:document-units="px"
      inkscape:current-layer="g5542"
@@ -35,9 +35,9 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1600"
-     inkscape:window-height="827"
-     inkscape:window-x="0"
+     inkscape:window-width="1680"
+     inkscape:window-height="1000"
+     inkscape:window-x="1050"
      inkscape:window-y="27"
      inkscape:window-maximized="1" />
   <metadata
@@ -48,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -172,27 +172,31 @@
       <text
          xml:space="preserve"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.375px;line-height:125%;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Italic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         x="301.76965"
-         y="272.92328"
-         id="text4294"
-         sodipodi:linespacing="125%"><tspan
-           sodipodi:role="line"
-           id="tspan4296"
-           x="301.76965"
-           y="272.92328"
-           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:30px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman,  Italic'">A</tspan></text>
-      <text
-         xml:space="preserve"
-         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.375px;line-height:125%;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Italic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         x="199.48611"
-         y="322.60956"
+         x="301.00644"
+         y="271.0918"
          id="text4294-2"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan4296-9"
-           x="199.48611"
-           y="322.60956"
-           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:30px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman,  Italic'">B</tspan></text>
+           x="301.00644"
+           y="271.0918"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:30px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman,  Italic'">V<tspan
+   style="font-size:64.99999762%;baseline-shift:sub"
+   id="tspan10968">1</tspan></tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.375px;line-height:125%;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Italic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         x="199.74156"
+         y="328.11148"
+         id="text4294-2-1"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan4296-9-4"
+           x="199.74156"
+           y="328.11148"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:30px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman,  Italic'">V<tspan
+   style="font-size:64.99999762%;baseline-shift:sub"
+   id="tspan10991">2</tspan></tspan></text>
     </g>
   </g>
 </svg>

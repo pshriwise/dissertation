@@ -959,19 +959,24 @@ describes inputs to the utilization model, the predicted utilization of the data
 structure, and an estimate of data structure's memory usage.
 
 This analysis script was used to examine several models to search for volumes
-with a significant impact on the simulation, but the addition of the data
-structure had only small effects on the performance of the simulation. One
-additional factor that the script takes into account is the number of collisions
-in the volumes it is examining. Despite the fact that the collision density of
-the transport in a given volume may be high relative to its average chord
-length, if a small percentage of the transport occurs in that volume, then the
-benefits of applying the SDF are diminished. As an estimate of this, the ratio
-of collisions a given volume to the total number of collisions in the sumulation
-was used as an estimate for the proportion of geometric queries occuring in the
-volume.  Additionally, it has been found through profiling of various models
-that as the collision density increases, the proportion of the runtime spent
-querying the geometry is small relative to the time spent calling physics
-subroutines.
+with a significant impact on the simulation. Most of the models used as
+benchmarks for timing comparisons in Table \ref{dag-mcnp-benchmarks} did not
+contain volumes appropriate for application of the SDF. As a result, other
+problems were sought out - several of which simulate charged particles just as
+the in the nTOF problem.
+
+In general, the addition of the data structure has a measurable but relatively
+small effect on the performance of the simulation. One additional factor that
+the script takes into account is the number of collisions in the volumes it is
+examining. Despite the fact that the collision density of the transport in a
+given volume may be high relative to its average chord length, if a small
+percentage of the transport occurs in that volume, then the benefits of applying
+the SDF are diminished. As an estimate of this, the ratio of collisions a given
+volume to the total number of collisions in the sumulation was used as an
+estimate for the proportion of geometric queries occuring in the volume.
+Additionally, it has been found through profiling of various models that as the
+collision density increases, the proportion of the runtime spent querying the
+geometry is small relative to the time spent calling physics subroutines.
 
 \sdfModel{ITER}{
   The International Thermonuclear Experimental Reactor (ITER) is a demonstration

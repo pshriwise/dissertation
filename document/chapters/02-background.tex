@@ -540,31 +540,34 @@ difficult to avoid, however, due to the reality that volumes are required to
 contain discrete elements for robustness, not just a section of the virtual
 space. Simply put, if the splitting plane of a bounding volume goes through one
 of the geometric primitives, there will be an overlap in the resulting child
-volumes. Overlaps of sibling AABBs are typically limited to the size of perhaps
-one or two geometric primitives, but this inefficiency can be exacerbated by the
-structure of triangulated objects the BVH's are being formed around. One such
-feature which will be addressed in Chapter \ref{ch:high_valence}.
+bounding volumes. Overlaps of sibling AABBs are typically limited to the size of
+perhaps one or two geometric primitives, but this inefficiency can be
+exacerbated by the structure of triangulated objects the BVH's are being formed
+around. One such feature which will be addressed in Chapter
+\ref{ch:high_valence}. Overlaps between sibling OBBs are more difficult to
+characterize as they may overlap regardless of the splitting plane used.
 
 The spatial BVH variant (SBVH) was introduced by Stich et. al. in 2009
 \cite{Stich_2009} with an additional complexity to the node splitting step. As
-candidate split planes are considered, triangles (or
-geometric primitives) are duplicated and contained in both resulting nodes. This grants much
-more freedom when considering how a node should be partitioned. The relatively simple application of this
-method is performed by considering both splits in which triangle duplication is
-prohibited and splits in which it is allowed. In the scenario for which triangle
-duplication is prohibited, the set of candidate planes is equivalent to that of
-a standard BVH building algorithm. Stich applies the surface area heuristic for
-the purpose of his publication. In the case where reference duplication is
-allowed, the search for a splitting plane is much more open - as previously
-mentioned. In fact, the search becomes fundamentally aligned with the search for
-a spatial split as might be found in a KD-Tree implementation. The optimal
-splitting plane is then selected via a comparison of the SAH cost for all
-candidate split planes - spatial or ``traditional''. Secondary heuristics are used
-to limit reference splitting in an effort properly manage the data structure's
-memory footprint. The result of the SBVH is a hierarchy which can be traversed
-just like any other BVH but with significantly reduced sibling volume
-overlaps. The SBVH results consistently show significant improvement over other
-methods, ranging anywhere from (20-100\%) \cite{Stich_2009}.
+candidate split planes are considered, triangles (or geometric primitives) are
+duplicated and contained in both resulting nodes. This grants much more freedom
+when considering how a node should be partitioned. The relatively simple
+application of this method is performed by considering both splits in which
+triangle duplication is prohibited and splits in which it is allowed. In the
+scenario for which triangle duplication is prohibited, the set of candidate
+planes is equivalent to that of a standard BVH building algorithm. Stich applies
+the surface area heuristic for the purpose of his publication. In the case where
+reference duplication is allowed, the search for a splitting plane is much more
+open - as previously mentioned. In fact, the search becomes fundamentally
+aligned with the search for a spatial split as might be found in a KD-Tree
+implementation. The optimal splitting plane is then selected via a comparison of
+the SAH cost for all candidate split planes - spatial or
+``traditional''. Secondary heuristics are used to limit reference splitting in
+an effort properly manage the data structure's memory footprint. The result of
+the SBVH is a hierarchy which can be traversed just like any other BVH but with
+significantly reduced sibling volume overlaps. The SBVH results consistently
+show significant improvement over other methods, ranging anywhere from
+(20-100\%) \cite{Stich_2009}.
 
 In summary, bounding volume hierarchies are favored in the field of ray tracing
 for their lower memory footprints and well-developed parallel building

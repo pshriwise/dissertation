@@ -174,7 +174,6 @@ calculating cross sections under the \textit{acetot\_} subroutine.
   \includegraphics[scale=0.3]{native_fng_cg_coarse.png}
 \end{figure}
 
-
 The combination of the profiling results indicating how much time is spent in
 tracking particles in DAGMC along with the difference in absolute run times
 confirms that the performance bottleneck of DAGMC lies in its ability to quickly
@@ -191,3 +190,47 @@ Monte Carlo radiation transport in a manner that is widely accessible to
 analysts. The result is a compilation of adaptive data structure construction,
 data structure redesign, and alternative methods to reduce simulation times in
 DAGMC.
+
+A background and literature review of CAD-based transport methods and associated
+acceleration techniques is provided in Chapter \ref{ch:background}. First, it
+outlines required capabilities for particle tracking in MCRT. Next it describes
+commonly used geometry representations in MCRT codes followed by a description
+of the CAD-based particle tracking system of interest for this work. Lastly,
+associated acceleration data structures and techniques which enable performant
+computation of transport on CAD models are discussed.
+
+Chapter \ref{ch:preconditioning} presents a novel acceleration method for
+CAD-Based MCRT and its application for each of the relevant geometry query types
+outlined in Chapter \ref{ch:background}. An analytic model is then described to
+guide the application of this method based on simple parameters of the geometry
+and physics of previous or partial simulations. Finally, results of this
+method's application in both contrived and production models are discussed along
+with limitations of the method and the aforementioned analytic model.
+
+The integration of nuclear engineering simulation with state-of-the-art
+computer graphics tools is demonstrated in Chapter \ref{ch:simd_bvh}. Significant
+improvements in performance are demonstrated in both test and production models
+by adapting data structures discussed in Chapter \ref{ch:background} for optimal
+efficiency on modern CPU architectures. Robustness limitations of the computer graphics
+tools for engineering analysis are discussed, and extensions of these tools are
+presented to address those limitations. Critical implementation details and
+algorithmic adjustments of these
+extensions are discussed, and performance comparisons are drawn in terms of the
+raw query speed between all particle tracking implementations. Finally results,
+of the extended, and robust, system are presented for several production models,
+including several of the models used as an initial comparison in Chapter
+\ref{ch:introduction}.
+
+Chapter \ref{ch:high_valence} addresses a long-standing issue in CAD-based
+MCRT. Performance degradation caused by problematic features of the CAD-based
+are characterized using a contrived model for all particle tracking
+implementations found in Chapter \ref{ch:simd_bvh}. A solution using on-the-fly
+detection and adaptation of this feature during construction of particle tracking
+acceleration data structured is presented. Characterization of the response to
+this geometric feature both with and without the adaptive construction
+technique. Finally, results of this technique as applied to the same set of
+production models shown in Chapter \ref{ch:simd_bvh} are presented and discussed.
+
+The conclusion statements in Chapter \ref{ch:conclusion} discuss the
+contributions of this work to MCRT for CAD geometries, its broader impacts, and
+possible future directions for various aspects of the work.

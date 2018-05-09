@@ -1,21 +1,18 @@
 \newcommand{\geomQuery}[3] {
-  \null %emptyline
-  \textbf{\uppercase{#1}} 
-  \begin{adjustwidth}{2.5em}{0pt}
-      \begin{tabular}{p{8cm} p{2cm}}
-    #3
-    &
-    \raisebox{-\totalheight}{\includegraphics[width=0.3\textwidth]{#2}}
-  \end{tabular}
-  \end{adjustwidth}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{#2}
+    \caption{\textbf{#1:} #3}
+    \label{fig:#1}
+  \end{figure}
 }
 
 \chapter{Background}\label{ch:background}
 
 \section{Monte Carlo Geometry Queries}\label{sec:mc-geom-queries}
 
-A Monte Carlo geometry kernel must be able to robustly support the following
-types of geometry queries
+A Monte Carlo geometry kernel must be able to robustly support the geometry
+queries shown in Figures \ref{fig:Point Containment} - \ref{fig:Measure}.
 
 \geomQuery{Point Containment}{plc_query.eps}{
     Given a volume and particle location, determine if the point is inside,

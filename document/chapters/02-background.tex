@@ -32,7 +32,7 @@ the distance, \boldmath$d$, to to the nearest surface, \boldmath$S$, of the
 volume in any direction.
 }
 
-\geomQuery{Next Volume}{sc_query.eps}{
+\geomQuery{Next Volume}{next_vol_query.eps}{
 Given a particle at location, \boldmath$x$, in volume, \boldmath$V_1$,
 traveling in a direction, \boldmath$\Omega$, determine the correct adjacent
 volume, \boldmath$V_2$.
@@ -418,11 +418,10 @@ as a pure querying structure by making modifications to the existing model.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.25]{2d_kd_eg.eps}
-  \caption{Depiction of a two dimensional KD-Tree example adapted from Bently
-    et. al. \cite{Bentley_1975}. Left: Graph representation of the
-    KD-Tree. HISON's are right children. LOSON's are left children. Boxes are
-    leaf nodes. Right: Two dimensional space partitioned in the graph. Boxes represent
-    the range of their respective sub-tree.}
+  \caption{Depiction of a two dimensional KD-Tree. Left: Graph representation of
+    the KD-Tree with boxes representing leaf nodes. Right: Two dimensional space
+    partitioned in the graph. Boxes represent the range of their respective
+    sub-tree. (Adapted from Bently et. al. \cite{Bentley_1975})}
   \label{fig:2D_kd_tree}
 \end{figure}
 

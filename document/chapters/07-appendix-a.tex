@@ -1,45 +1,8 @@
 
-\chapter{Appendix A: Modified-BVH DAGMC Simulation Results}\label{ch:appendix_a}
+\chapter{Appendix C: Signed Distance Field Model Development and Data}\label{ch:appendix-c}
 
-This appendix contains all results for simulations performed using modified or
-replaced ray tracing kernels such as the EmDAG or MPBVH systems.
+\section{Detailed Model Formulation}
 
-\section{EmDAG}
 
-\subsection{Simple Test Cases}
-
-\begin{table}[H]
-  \small
-  \begin{center}
-    \begin{tabular}{lccc}
-      \toprule
-      Value & MCNP & DAG-MCNP & EmDAG-MCNP \\
-      \toprule
-      %%Hist/min & 2.2991E+05 & 1.9877E+04 & 1.3947E+05 \\
-      %%\hline
-      \multicolumn{4}{l}{\textbf{Cell 1 Tallies}} \\
-      \hline
-      Flux  & 5.25725E-03 & 5.25734E-03 & 5.25734E-03 \\
-      Energy  & 3.17869E-03 &  3.17873E-03 &  3.17873E-03 \\
-      \hline
-      \multicolumn{4}{l}{\textbf{Cell 2 Tallies}} \\
-      \hline
-      Flux  & 1.91645E-04 & 1.91644E-04 & 1.91644E-04 \\
-      Energy  & 5.22131E-05 & 5.22137E-05 & 5.22137E-05 \\
-      \hline
-      \multicolumn{4}{l}{\textbf{Cell 3 Tallies}} \\
-      \hline
-      Flux  & 1.18371E-05 & 1.18376E-05 & 1.18410E-05 \\
-      Energy  & 4.96282E-06 & 4.96285E-06 & 4.96285E-06 \\
-      \bottomrule
-                        
-    \end{tabular}
-    \caption{Nested Spheres Tally Results. Flux tally units are
-      $cm^{-2}$. Energy tally units are MeV/g. Note: result comparisons of other
-      test cases can be found in Appendix B.}
-    \label{nestedspheres}
-  \end{center}
-%%\vspace{-0.2cm}
-\end{table}
-
+\section{Signed Distance Field Application in Various Geometries}
 

@@ -2,9 +2,9 @@
 
 \newcommand{\precondQuery}[4] {
   \null %emptyline
-  \textbf{\uppercase{#1}} 
+  \subsection{#1}
   \begin{adjustwidth}{1em}{0pt}
-    \begin{figure}[H]
+    \begin{figure}[h]
       \begin{center}
         \includesvg{../images/#2}{0.65\textwidth}
         \caption{#3}
@@ -125,16 +125,6 @@ value look-up to precondition ray fire calls.
                \ref{fig:closest_surface_sdf} depicts these different cases in a
                2D example.
              }
-
-%% \begin{figure}[ht]
-%%   \center
-%%   \includesvg{../images/preconditioner_ex}{0.35\textwidth}
-%%   \caption{Visualization of ray preconditioning scenarios. The $\epsilon$ here represents
-%%     the associated error of the signed distance value interpolation.}
-%%   \label{fig:precondition_ray}
-%% \end{figure}
-
-\bigskip
              
 Using these methods, signed distance fields can act as a preconditioning tool
 for the relatively expensive ray fire process to accelerated CAD-based MCRT by

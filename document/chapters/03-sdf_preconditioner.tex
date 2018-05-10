@@ -677,27 +677,20 @@ where in this case now $\lambda$ represents the mean free path of the particle i
 
 In simulation, distances are now sampled as
 
-$$ d = -\lambda ln(p) $$
+$$ d = -\lambda ln(c) $$
 
-where p is randomly sampled with a uniform distribution between 0 and 1
+where $c$ is randomly sampled with a uniform distribution between 0 and 1
 
 Inserting this definition for the particle distance into the integrals above
 gives
 
 $$ \frac{dp}{dd} = -\frac{p}{\lambda} $$
-$$ d = 0 \rightarrow p = 1 $$
-$$ d = D \rightarrow p = 0 $$
+$$ d = 0 \rightarrow c = 1 $$
+$$ d = \infty \rightarrow c = 0 $$
 
 $$ \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{0}\int_{0}^{2\pi}\int_{0}^{\pi}
--r^2\sin{\phi} \, \lambda p ln(p)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
+-r^2\sin{\phi} \, \lambda c ln(c)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
 \mathrm{d}\theta \mathrm{d}r $$
-
-This integral can then be evaluated to give the entirety of the geometry space
-for the problem
-
-\begin{center}
-All Query Space = $\frac{4}{3} \lambda \pi^2 R^3$
-\end{center}
 
 To find the portion of utilized space for a given $R$ and $\lambda$ one can
 apply the same methods from the fixed distance case, for each particle position
@@ -717,13 +710,14 @@ $$ d > R-r : \alpha_{min} = \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Big
 ) $$
 
 It is interesting to examine plots of the angular limit with varying distance as
-seen in Figure \label{fig:alpha_min}.
+seen in Figure \ref{fig:alpha_min}.
 
-\begin{figure}[ht] \label{fig:alpha_min}
-\centering
-\includesvg{alpha_r}{1\textwidth}
-\caption{Plot of mininum angle of departure restriction for particles with
-various radial positions between 0 cm and 100 cm and various distanced traveled.}
+\begin{figure}[ht]
+  \centering
+  \includesvg{alpha_r}{1\textwidth}
+  \caption{Plot of mininum angle of departure restriction for particles with
+    various radial positions between 0 cm and 100 cm and various distanced traveled.}
+ \label{fig:alpha_min}
 \end{figure}
 
 The entry point of each curve in the plot represents the minimum distance
@@ -742,7 +736,7 @@ distribution, these values become
 $$ d_{min} = R-r \rightarrow p_{max} = e^{(-\frac{(R-r)}{\lambda})} $$
 $$ d_{max} = R   \rightarrow p_{min} = e^{(-\frac{R}{\lambda})} $$
 
-and our integral becomes
+and the resulting integral becomes
 
 $$ \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{p_{max}}\int_{0}^{2\pi}\int_{0}^{\pi}
 -r^2sin(\phi) \, \lambda p ln(p)^2 sin(\alpha) \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
@@ -763,38 +757,44 @@ distance sampling scenario after the $c=\frac{R}{\lambda}$ replacement is
 \centering
 \includesvg{../images/sdf_sampled_dist_results}{\textwidth}
 \caption{Results of the model for the theoretical utilization limit with the
-  results of the simulation for a fixed distance traveled case.}
+  results of the simulation for a sampled distance traveled case.}
 \label{fig:sdf_sampled_dist}
 \end{figure}
 
-Unfortunately the predictive model for the sampled distance scenario is not
-consistent with the simulation results, and under predicts the utilization of
-the SDF significantly. It is quite possible that utilization in either th interior or exterior
-resion of the sphere is being under represented. Regardless of the cause, examining the contribution to
-utilization from each of these regions (shown in
-Fig. \label{fig:util_region_contributions}) is an interesting endeavor.
+The updated predictive model describes the idealized utilization of the
+preconditioning method very well when the SDF step size is small. As the SDF
+step size is increased, the predictive model becomes increasingly worse at
+evaluating the correct utilization. In application, the SDF step size will
+govern the memory footprint of the data structure. For the predictive model to
+be useful in a production scenario, the relationship of the preconditioning
+method to the SDF step size must be understood.
+
+%% It is quite possible that utilization in either th interior or exterior
+%% resion of the sphere is being under represented. Regardless of the cause, examining the contribution to
+%% utilization from each of these regions (shown in
+%% Fig. \label{fig:util_region_contributions}) is an interesting endeavor.
 
 
-\begin{figure}[ht] 
-\centering
-\includesvg{../images/util_contributions}{\textwidth}
-\caption{A plot of the total predicted utilization along with the contriubtions
-  from the inner region ($d < R-r$) and outer region ($d > R-r$).}
-\label{fig:util_region_contributions}
-\end{figure}
+%% \begin{figure}[ht] 
+%% \centering
+%% \includesvg{../images/util_contributions}{\textwidth}
+%% \caption{A plot of the total predicted utilization along with the contriubtions
+%%   from the inner region ($d < R-r$) and outer region ($d > R-r$).}
+%% \label{fig:util_region_contributions}
+%% \end{figure}
 
-Figure \ref{fig:util_region_contributions} depicts the utilization of the SDF
-data structure for various values of the mean free path, $\lambda$.
-When $\lambda$ is very small, particles' next event locations
-rarely reach the outer region condition of $ d > R - r $. As $\lambda$ increases, particles are
-more likely to enter that region and its contribution increases greatly. Then
-as particles begin to travel distances on the order of the sphere radius the
-utilization decreases. The interior region utilization acts as one would
-expect. When particles travel small distances with respect to the sphere radius,
-there is high utilization, but as the particles begin to travel further its
-utilization rapidly decreases. The contribution from the outer region defines the
-significance of using both the current position signed distance value as well as the
-next event location's signed distance value to precondition ray fire calls in DAGMC.
+%% Figure \ref{fig:util_region_contributions} depicts the utilization of the SDF
+%% data structure for various values of the mean free path, $\lambda$.
+%% When $\lambda$ is very small, particles' next event locations
+%% rarely reach the outer region condition of $ d > R - r $. As $\lambda$ increases, particles are
+%% more likely to enter that region and its contribution increases greatly. Then
+%% as particles begin to travel distances on the order of the sphere radius the
+%% utilization decreases. The interior region utilization acts as one would
+%% expect. When particles travel small distances with respect to the sphere radius,
+%% there is high utilization, but as the particles begin to travel further its
+%% utilization rapidly decreases. The contribution from the outer region defines the
+%% significance of using both the current position signed distance value as well as the
+%% next event location's signed distance value to precondition ray fire calls in DAGMC.
 
 \subsection{Applying SDF Error Evaluation}
 

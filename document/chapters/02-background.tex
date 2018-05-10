@@ -7,6 +7,9 @@
   \end{figure}
 }
 
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+
 \chapter{Background}\label{ch:background}
 
 \section{Monte Carlo Geometry Queries}\label{sec:mc-geom-queries}
@@ -123,18 +126,22 @@ function, $d(\vec{x})$, formally defined as:
 
 \noindent
 
+\setcounter{footnote}{1}
 Implicit surface functions can be modified or selected such that the following
-conditions are met:
+conditions are met:\footnote{The sign convention shown here is opposed to the
+  sign convention commonly used for interior and exterior points in space. This
+  sign convention is arbitrary and has been reversed for clarity in radiation
+  transport where physical phenomenon are simulated in the interior of objects
+  rather than the space between them in rendering applications.}
+
 
 \begin{figure}[H]
   \begin{center}
-    \begin{minipage}{.8\textwidth}
       \begin{itemize}
       \item $ \Omega(\vec{x}) = d(\vec{x}) = 0 $ for all $x$ on the surface boundary
-      \item $ \Omega(\vec{x}) = -d(\vec{x}) $ for all $x$ inside the surface boundary
-      \item $ \Omega(\vec{x}) = d(\vec{x}) $ for all $x$ outside the surface boundary
+      \item $ \Omega(\vec{x}) = d(\vec{x}) $ for all $x$ inside the surface boundary
+      \item $ \Omega(\vec{x}) = -d(\vec{x}) $ for all $x$ outside the surface boundary
       \end{itemize}
-    \end{minipage}
   \end{center}
 \end{figure}
 
@@ -804,23 +811,23 @@ traversal of interior nodes \cite{Watcher_2006}.
 
 \subsection{Signed Distance Fields}
 
-Signed distance fields are commonly derived from implicit surface functions and
-variations on these functions are known as level-set functions. Both offer a
-rich and versatile representation of closed manifolds used for modeling,
-simulation, and rendering. As discussed in Section
-\ref{subsec:implicit_surfaces}, Constructive Solid Geometry (CSG)
-representations seen in native Monte Carlo codes are usually formed from Boolean
-combinations of predefined implicit surfaces at their core. While these
-predefined surfaces do not give the freedom of model creation and manipulation
-found in many CAD systems, important geometric information required for
-visualization and simulation can be readily recovered from these implicit
-surfaces which may be of value in CAD-based radiation transport simulations.
+Signed distance fields (see Figure \ref{fig:preconditioner_datastruct}) are
+commonly derived from implicit surface functions and variations on these
+functions are known as level-set functions. Both offer a rich and versatile
+representation of closed manifolds used for modeling, simulation, and
+rendering. As discussed in Section \ref{subsec:implicit_surfaces}, Constructive
+Solid Geometry (CSG) representations seen in native Monte Carlo codes are
+usually formed from Boolean combinations of predefined implicit surfaces at
+their core. While these predefined surfaces do not give the freedom of model
+creation and manipulation found in many CAD systems, important geometric
+information required for visualization and simulation can be readily recovered
+from these implicit surfaces which may be of value in CAD-based radiation
+transport simulations.
 
 \begin{figure}[H]
   \includesvg{../images/preconditioner_datastruct}{0.5\textwidth}
   \centering
-  \caption{2D visualization of the signed distance field with sign conventions
-    reversed for use in radiation transport.}
+  \caption{2D visualization of the signed distance field.}
   \label{fig:preconditioner_datastruct}
 \end{figure}
 
@@ -854,14 +861,10 @@ field, $SDF(\vec{x})$, meets the following requirements
 for any point $\vec{x}$:
 
 \begin{itemize}
-\item $ SDF(\vec{x}) = 0 $ for all $ \vec{x} $ on the surface boundary,
-\item $ SDF(\vec{x}) < 0 $ for all $\vec{x}$ inside the surface boundary, and
-\item $ SDF(\vec{x}) > 0 $ for all $\vec{x}$ outside the surface boundary.
+\item $ SDF(\vec{x}) = 0 $ for all $\vec{x}$ on the surface boundary,
+\item $ SDF(\vec{x}) > 0 $ for all $\vec{x}$ inside the surface boundary, and
+\item $ SDF(\vec{x}) < 0 $ for all $\vec{x}$ outside the surface boundary.
 \end{itemize}
-
-A two dimension example of a signed distance field can be seen in Figure
-\ref{fig:preconditioner_datastruct}, but with the signs of values reversed for
-reasons addressed in Chapter \ref{ch:preconditioning}.
 
 Implicit surfaces can be naturally extended to represent dynamic geometries by
 including a time dependence in the function, making them powerful tools for

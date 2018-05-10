@@ -2,7 +2,7 @@
 
 \newcommand{\precondQuery}[4] {
   \null %emptyline
-  \subsection{#1}
+  \subsection{#1}\label{subsec:#1}
   \begin{adjustwidth}{1em}{0pt}
     \begin{figure}[h]
       \begin{center}
@@ -39,8 +39,11 @@ Of the geometric queries that DAGMC supports, next surface intersection, point
 containment, and closest to location are most commonly called in simulations.
 At least one ray is fired to satisfy any of these queries in DAGMC with
 $O(logN)$ complexity using MOAB's BVH, but it is hypothesized that these queries
-can be accelerated in many cases by first performing an $O(1)$ signed distance
-value look-up to precondition ray fire calls.
+can be accelerated in many cases. For each of the fundamental Monte Carlo
+geometry queries in Sections \ref{subsec:Point Containment}, \ref{subsec:Next
+  Surface}, and \ref{subsec:Closest Surface}, signed distance values are
+recovered from the signed distance field via interploation of the field values
+and used to precondition ray fire calls in DAGMC.
 
 
 \precondQuery{Point Containment}
@@ -75,17 +78,26 @@ value look-up to precondition ray fire calls.
                Next surface intersection queries are the most common geometry
                query in Monte Carlo simulations. The queries are intiated by
                native Monte Carlo codes to determine if a particle will cross a
-               surface before reaching its next physics event
-               location. Normally in DAGMC a ray is fired each time this query
-               is called. This can be avoided by using the signed distance
-               field to exclude the possibility of a surface crossing without
-               explicitly determining the next surface intersection. If the sum
-               of the signed distance values for both the current particle
-               position and the next physics event location is greater than the
-               distance between the two, then no surface crossing will occur
-               and the particle can safely advance to the next physics event
-               location. Figure \ref{fig:next_surface_sdf} depicts these
-               different cases in 2D space.
+               surface before reaching its next physics event location. Normally
+               in DAGMC a ray is fired each time this query is called. This can
+               be avoided by using the signed distance field to exclude the
+               possibility of a surface crossing without explicitly determining
+               the next surface intersection. If the sum of the signed distance
+               values for both the current particle position and the next
+               physics event location is greater than the distance between the
+               two locations, then it can be guaranteed that there is no surface
+               crossing along the path between those two points. The signed
+               distance value represents the minimum distance to any surface for
+               a given location. The signed distance value of the current
+               location ensures that some portion of the particle's track from
+               the current location to the physics even location is empty
+               space. The signed distance value of the physics event location
+               also ensures that a portion of the particle's track is empty
+               space. If the entire track length can be accounted for, then no
+               surface crossing exists between the two locations. Thus the
+               particle can safely advance to the next physics event location
+               without firing a ray. Figure \ref{fig:next_surface_sdf} depicts
+               these different cases in 2D space.
                
                For robustness, the error for each interpolation should be
                subtracted from the sum of the signed distance values as a
@@ -138,20 +150,28 @@ significantly reduce the runtime of the simulation.
 
 \subsection{SDF Construction}
 
-MOAB provides an interface for construction of structured mesh which stores
+As an initial implementation, one signed distance field is generated for each
+volume in DAGMC with extents matching the axis-aligned bounding box of the
+volume. The signed distance field is represented as a uniform structured mesh
+with a signed distance value at each vertex in the mesh as indicated in Fig.
+\ref{fig:sdf_sphere}.
+
+MOAB provides an interface for construction of structured meshes which stores
 explicit vertex coordinates, hex elements, and entity handles. As with any
 entity stored in MOAB, tag data can be applied to these elements. These vertex
 coordinates and hex elements can be accessed using $<i,j,k>$ indexing, where the
-coordinate $<0,0,0>$ and  $<N_{x}, N_{y}, N_{z}>$ represent the lowest and
-highest corner of the structured mesh in
-parameter space for a mesh containing $N_{x},N_{y},N_{z}$ elements in the x, y,
-and z directions respectively. This representation provides
-a fast path for verification, visualization, and proof of concept in transport
-test cases for demonstration, but is very memory intensive. An implicit version
-of the structured mesh has been implemented which takes advantage of the uniform
-step size in each dimension to store only: the number of elements in the mesh,
-the location of the lowest corner in that mesh, and a flat array of the signed
-distance values associated with the elements of the mesh.
+coordinate $<0,0,0>$ and $<N_{x}, N_{y}, N_{z}>$ represent the lowest and
+highest corner of the structured mesh in parameter space for a mesh containing
+$N_{x},N_{y},N_{z}$ elements in the x, y, and z directions respectively. This
+representation provides a fast path for verification, visualization, and proof
+of concept in transport test cases for demonstration, but is relatiely memory
+intensive due to the dense nature of the data structure and explicit mesh
+element information stored in the database. To reduce this memory consumption,
+an implicit version of the structured mesh has been implemented which takes
+advantage of the uniform step size in each dimension to store only: the number
+of elements in the mesh, the location of the lowest corner in that mesh, and a
+flat array of the signed distance values associated with the elements of the
+mesh.
 %A much less memory intensive implementation in which only a box
 %corner, grid step size, dimensions, and the signed distance value data are
 %stored has now also been implemented.
@@ -162,7 +182,6 @@ cost is negligible in comparison to a ray traverval and memory is of greater
 concern for this spatially dense data structure. This data structure can still
 interact with MOAB's structured mesh interface to generate an explicit mesh for
 visualization and verification if required.
-
 
 %% An initial implementation of the signed distance field employed MOAB's
 %% structured mesh interface and data tagging capabilites for storage of the data
@@ -189,12 +208,6 @@ vertex coordinates and their signed distance values is then used to provide the
 signed distance value for the location of interest. As a result, the complexity
 of a signed distance value lookup from the signed distance field is
 $O(1)$.
-
-As an initial implementation, one signed distance field is generated for each
-volume in DAGMC with extents matching the axis-aligned bounding box of the
-volume. The signed distance field is represented as a uniform structured mesh
-with a signed distance value at each vertex in the mesh as indicated in Fig.
-\ref{fig:sdf_sphere}.
 
 \subsection{SDF Population}
 
@@ -232,15 +245,20 @@ should be applied selectively depending on each volume's geometric and material
 properties for optimal performance and high utilization of the preconditioning
 methods.
 
-Ideally, this method will only be applied to volumes in which the data
-structure is able to precondition ray fire calls often or with high utilization
+Ideally, this method will only be applied to volumes in which the preconditioning 
+method is able to avoid ray fire calls often or with high utilization
 of the data structure. The signed distance field is expected to have the biggest
 impact in performance when preconditioning next surface intersection queries, as
 they are most commonly called in Monte Carlo codes when tracking neutral particles
-through the geometry. As such, this type of query is the focus of utilization
+through the geometry (see Table . As such, this type of query is the focus of utilization
 measurement for the remainder of this section.
 
-PROVIDE PROOF THAT NEXT SURFACE IS MOST CALLED
+\begin{table}[H]
+  \centering
+  \caption{Proportion of geom query calls for each of the simulation time calls in DAGMC.}
+  \label{tab:dagmc_query_proportions}
+\end{table}
+
 
 \begin{equation}
   U = \frac{ \small \text{Rays Avoided w/ SDF} }{ \small \text{Number of Geometry Queries} } 
@@ -312,16 +330,16 @@ simulation tool.
 In order to characterize utilization of a signed distance field as a
 preconditioner for next surface intersection queries in DAGMC, a pseudo Monte
 Carlo simulation tool was developed using DAGMC. This tool was used to simulate
-different transport scenarios within a spherical geometry using an isotropic
-volumetric source and isotropic scattering. Particle histories are terminated
-based on a maximum number of collisions or departure from the problem
-geometry. Particle distance traveled, $d$, can be represented by either a fixed
-distance or by sampling for the standard probability of interaction in a medium
-with mean free path, $\lambda$. The tool allows the value of $\lambda$ to be set
-directly, enabling a relation between the signed distance field and this value
-to be developed with intent for use this relationship as a means for
-characterizing appropriate conditions for application of the signed distance
-field.
+different transport scenarios within a spherical geometry with a radius of 100
+cm. Particles were sourced uniformly inside the volume and scatter
+isotropically. Particle histories are terminated based on a maximum number of
+collisions or departure from the problem geometry. Particle distance traveled,
+$d$, can be represented by either a fixed distance or by sampling for the
+standard probability of interaction in a medium with mean free path,
+$\lambda$. The tool allows the value of $\lambda$ to be set directly, enabling a
+relation between the signed distance field and this value to be developed with
+intent for use this relationship as a means for characterizing appropriate
+conditions for application of the signed distance field.
 
 \begin{figure}[H]
   \centering

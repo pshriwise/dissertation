@@ -527,30 +527,23 @@ preconditioner to be utilized. The examination of this condition as a function
 of the distance traveled for various values of $r$ results in some conclusions
 about how signed distance values are being utilized.
 
-\begin{figure}
-\centering
-\includesvg{../images/alpha_r}{\textwidth}
-\caption{Plot of minimum angle of departure restriction for particles with
-various radial positions, $r$, in a sphere with R = 100 cm and varying distances traveled.}
-\end{figure}
-
 The inequality is undefined until the distance reaches a value $d = R- r$. This
 is because the angular limit only needs to be applied to areas of the query
 space in which the distance traveled is large enough to violate the above
 condition as depicted in Fig. \ref{fig:modeling_cases}. A violation of this
 limit may only occur when a particle travels far enough to reach the geometric
 sphere boundary along the current position vector as if it were moving directly
-toward the boundary of the sphere. An additional interesting feature of this
-plot is the convergence of all the curves on $\pi$ as $d$ approaches $R$. The
-convergence on $\pi$ indicates that as the distance traveled approaches $R$ the
-only direction that the particle can move is back toward the origin along the
-position vector. It also defines a maximum distance a particle can travel in the
-sphere and still be preconditioned using signed distance values. Intuitively
-this makes sense as the maximum chord length of a sphere is $2R$, and once a
-particle travels a distance $R$ the sum of the signed distance values can then
-be no larger than $R$ and the condition for utilization in Eq. \ref{eq:condition} is
-violated. Hence all curves go to zero at $\lambda = 100 cm$ in
-Fig. \ref{fig:sdf_fixed_dist}.
+toward the boundary of the sphere. An additional interesting feature of Figure
+\ref{fig:alpha_min} is the convergence of all the curves on $\pi$ as $d$
+approaches $R$. The convergence on $\pi$ indicates that as the distance traveled
+approaches $R$ the only direction that the particle can move is back toward the
+origin along the position vector. It also defines a maximum distance a particle
+can travel in the sphere and still be preconditioned using signed distance
+values. Intuitively this makes sense as the maximum chord length of a sphere is
+$2R$, and once a particle travels a distance $R$ the sum of the signed distance
+values can then be no larger than $R$ and the condition for utilization in
+Eq. \ref{eq:condition} is violated. Hence all curves go to zero at $\lambda =
+100 cm$ in Fig. \ref{fig:sdf_fixed_dist}.
 
 In order to account for the fact that the form of $\alpha_{min}$ is undefined
 until $d = R-r$, a Heaviside function is applied before applying it as a limit
@@ -727,11 +720,10 @@ It is interesting to examine plots of the angular limit with varying distance as
 seen in Fig. \label{fig:alpha_min}
 
 \begin{figure}[ht] \label{fig:alpha_min}
-
 \centering
 \includesvg{alpha_r}{1\textwidth}
 \caption{Plot of mininum angle of departure restriction for particles with
-various radial positions and varying distances traveled.}
+various radial positions and distances traveled.}
 \end{figure}
 
 The entry point of each curve in the plot represents the minimum distance

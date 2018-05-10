@@ -245,13 +245,13 @@ should be applied selectively depending on each volume's geometric and material
 properties for optimal performance and high utilization of the preconditioning
 methods.
 
-Ideally, this method will only be applied to volumes in which the preconditioning 
-method is able to avoid ray fire calls often or with high utilization
-of the data structure. The signed distance field is expected to have the biggest
-impact in performance when preconditioning next surface intersection queries, as
-they are most commonly called in Monte Carlo codes when tracking neutral particles
-through the geometry (see Table . As such, this type of query is the focus of utilization
-measurement for the remainder of this section.
+Ideally, this method will only be applied to volumes in which the
+preconditioning method is able to avoid ray fire calls often or with high
+utilization. The signed distance field is expected to have the biggest impact in
+performance when preconditioning next surface intersection queries, as they are
+most commonly called in Monte Carlo codes when tracking neutral particles
+through the geometry (see Table . As such, this type of query is the focus of
+utilization measurement for the remainder of this section.
 
 \begin{table}[H]
   \centering
@@ -304,7 +304,7 @@ signed distance field and preconditioning enabled. Fig.
   \label{fig:sphere_hydrogen_density_study_perf}
 \end{figure}
 
-Utilization of the data structure in this study remains high until the hydrogen
+Utilization of the preconditioning method in this study remains high until the hydrogen
 density falls to 0.1 $\frac{g}{cm^3}$ at which point a distinct knee appears and
 the utilization falls off quickly. Even at the lowest density reached in the
 study of 0.01 $\frac{g}{cm^3}$, the utilization of the signed distance field to
@@ -354,7 +354,7 @@ traveled for varying distances and signed distance field step sizes. Run times
 of the simulation are not shown here as the data structure's utilization is the
 main focus of this study. The results of the study are shown in
 Fig. \ref{fig:sdf_fixed_dist}. As the signed distance field mesh step size
-increases, utilization of the data structure decreases due to the increasing
+increases, utilization of the preconditioning method structure decreases due to the increasing
 error associated with the interpolation of signed distance values. Additionally,
 utilization is expected to decrease with increasing distance traveled. This
 decreased utilization is caused by not only the increased distance between the
@@ -388,16 +388,16 @@ space can found in Eq. \ref{eq:util_model}.
 \end{equation}
 
 In this model, the starting location of particles, $\vec{p}(r,\phi,\theta)$, is
-uniformly distributed, $p_p(r)=1$, throughout a sphere of radius, $R$.  The
-location of the next event, $n(d,\alpha,\beta)$, where $d$ is the distance
-traveled by the particle, $\alpha$ is the interior angle between the
-particle's \textit{position} vector and the particle's sampled direction
+uniformly distributed, $p_p(r)=1$, throughout a sphere of radius, $R$, centered
+at the origin.  The location of the next event, $n(d,\alpha,\beta)$, where $d$
+is the distance traveled by the particle, $\alpha$ is the interior angle between
+the particle's \textit{position} vector and the particle's sampled direction
 vector, and $\beta$ represents an azimuthal angle for directions traveled with
-angle of departure, $\alpha$. Fig. \ref{fig:model} depicts these
-variables, $r$, $d$, and $\alpha$ more clearly.
+angle of departure, $\alpha$. Fig. \ref{fig:model} depicts these variables, $r$,
+$d$, and $\alpha$ more clearly.
 
-The outer integral in Eq. \ref{eq:util_model} represents all possible particle positions within the
-geometric sphere and expands to
+The outer integral in Eq. \ref{eq:util_model} represents all possible particle
+positions within the geometric sphere and expands to
 
 \begin{equation}
 \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{V_{track}} r^2\sin{\phi} \, \mathrm{d}\phi

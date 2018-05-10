@@ -250,14 +250,9 @@ preconditioning method is able to avoid ray fire calls often or with high
 utilization. The signed distance field is expected to have the biggest impact in
 performance when preconditioning next surface intersection queries, as they are
 most commonly called in Monte Carlo codes when tracking neutral particles
-through the geometry (see Table . As such, this type of query is the focus of
-utilization measurement for the remainder of this section.
-
-\begin{table}[H]
-  \centering
-  \caption{Proportion of geom query calls for each of the simulation time calls in DAGMC.}
-  \label{tab:dagmc_query_proportions}
-\end{table}
+through the geometry (see Table \ref{tab:geom_query_ratios}). As such, this type
+of query is the focus of utilization measurement for the remainder of this
+section.
 
 
 \begin{equation}
@@ -275,8 +270,6 @@ using debugging tools, such as Valgrind, to determine the number of queries made
 in DAGMC and the number of rays fired inside of the subroutine.  It is expected
 that in the majority of cases, as the utilization of preconditioning methods
 goes up, the performance of the simulation will also improve.
-
-
 
 \begin{figure}[ht]
   \centering
@@ -1029,7 +1022,7 @@ geometry is small relative to the time spent calling physics subroutines.
   molybdenum 99 for use in medical imaging.
 }
 
-\sdfModel{Spallation Neutron Source}{
+\sdfModel{SNS}{
   The Spallation Neutron Source (SNS), located at Oak Ridge National Laboratory,
   in which protons are accelerated to high energies (~1 GeV) and directed into a
   mercury target to produce thermal neutrons for various research applications.
@@ -1054,14 +1047,20 @@ geometry is small relative to the time spent calling physics subroutines.
     \label{tab:sdf_prod_summary}
 \end{sidewaystable}
 
-
+Table \ref{tab:sdf_prod_summary} displays the results of simulations in which
+the SDF was applied. More detailed information on the parameters of the SDFs and
+the volumes they were applied to can be found in Appendix
+\ref{ch:appendix-a}. Improvements in the simulation runtimes varied from
+0-35\%. While differences in the runtimes are significant, they are small in
+comparison to those demonstrated in Section \ref{subsec:utilization_model} for
+the hydrogen-filled sphere tests.
 
 \begin{table}[H]
   \small
   \makebox[\textwidth][c]{
     \begin{tabular}{l c c c c}
       \toprule
-      \textbf{Model} & \textbf{Particle Types}                  \textbf{Next Surface} & \textbf{Closest Surface} & \textbf{Point in Volume} \\
+      \textbf{Model} & \textbf{Particle Types}                  & \textbf{Next Surface} & \textbf{Closest Surface} & \textbf{Point in Volume} \\
       \hline
       SNS            & $\alpha$,p,$\gamma$,$\beta$,$^{3}H$,n... & 99.1\%                & < 0.1\%                  & 0.8\%                    \\
       nTOF           & p,$\gamma$,n                             & 99.4\%                & 0.5\%                    & 0.1\%                    \\
@@ -1075,11 +1074,12 @@ geometry is small relative to the time spent calling physics subroutines.
   \label{tab:geom_query_ratios}
 \end{table}  
 
-
-Despite these various factors diminishing the effects of the data structure, a
-volume in the medical isotope production model from SHINE (shown in Figure
-\ref{fig:shine_sdf}) was determined to be a suitable candidate for SDF
-application.
+Despite the apparent limitations of the data structure, application in the
+medical isotope production model from SHINE (shown in Figure
+\ref{fig:shine_sdf}) is a somewhat successful demonstration of both the
+utilization model's ability to predict volumes with the majority of the
+geometric overhead in DAGMC as well as the preconditioning method's ability to
+reduce simulation runtimes.
 
 \begin{figure}
 \centering
@@ -1177,3 +1177,17 @@ traversal is directly related to this tree depth. While the complexity of a BVH
 search is $O(log\, N_{tri})$, the cost relative to the $O(1)$ look-up of a signed
 distance value in the SDF becomes small as N becomes small, limiting the
 effectiveness of the SDF regardless of the utilization.
+
+\section{Summary}
+
+This chapter presented a novel approach to accelerating CAD-based MCRT through
+use of signed distance fields to precondition relatively expensive ray fire
+calls in the DAGMC geometry kernel. An analytic model was developed to predict the
+utilization of this method based on dimensionless geometric and
+problem-dependent parameters. The model was shown to be accurate in several production
+demonstrations. Though the effectiveness of the preconditioning method overall
+was limited by a variety of factors described in Section
+\ref{sec:sdf_limitations}, the effects on the simulations are not
+negligible. Enhancement of SDF storage and further model development in could
+increase it's impact on these simulations and allow it to be more broadly
+applied in future studies.

@@ -37,7 +37,7 @@ and discussed.
 
 Of the geometric queries that DAGMC supports, next surface intersection, point
 containment, and closest to location are most commonly called in simulations.
-Typically, a ray is fired to satisfy any of these queries in DAGMC with
+At least one ray is fired to satisfy any of these queries in DAGMC with
 $O(logN)$ complexity using MOAB's BVH, but it is hypothesized that these queries
 can be accelerated in many cases by first performing an $O(1)$ signed distance
 value look-up to precondition ray fire calls.

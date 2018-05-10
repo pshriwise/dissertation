@@ -811,18 +811,17 @@ traversal of interior nodes \cite{Watcher_2006}.
 
 \subsection{Signed Distance Fields}
 
-Signed distance fields (see Figure \ref{fig:preconditioner_datastruct}) are
-commonly derived from implicit surface functions and variations on these
-functions are known as level-set functions. Both offer a rich and versatile
-representation of closed manifolds used for modeling, simulation, and
-rendering. As discussed in Section \ref{subsec:implicit_surfaces}, Constructive
-Solid Geometry (CSG) representations seen in native Monte Carlo codes are
-usually formed from Boolean combinations of predefined implicit surfaces at
-their core. While these predefined surfaces do not give the freedom of model
-creation and manipulation found in many CAD systems, important geometric
-information required for visualization and simulation can be readily recovered
-from these implicit surfaces which may be of value in CAD-based radiation
-transport simulations.
+Signed Distance Fields (SDFs) are commonly derived from implicit surface
+functions and variations on these functions are known as level-set
+functions. Both offer a rich and versatile representation of closed manifolds
+used for modeling, simulation, and rendering. As discussed in Section
+\ref{subsec:implicit_surfaces}, Constructive Solid Geometry (CSG)
+representations seen in native Monte Carlo codes are usually formed from Boolean
+combinations of predefined implicit surfaces at their core. While these
+predefined surfaces do not give the freedom of model creation and manipulation
+found in many CAD systems, important geometric information required for
+visualization and simulation can be readily recovered from these implicit
+surfaces which may be of value in CAD-based radiation transport simulations.
 
 \begin{figure}[H]
   \includesvg{../images/preconditioner_datastruct}{0.5\textwidth}
@@ -870,8 +869,23 @@ Implicit surfaces can be naturally extended to represent dynamic geometries by
 including a time dependence in the function, making them powerful tools for
 populating signed distance fields in simulation and rendering of fluids, smoke,
 fire, etc. To simulate these phenomenon, the data structure is populated with
-signed distance values for a given time in the rendering. The signed distance
-field can then be used to determine point containment queries and approximate
-nearest surfaces values. It can also trace rays at any time via a method in
-which the ray length is repeatedly clipped using signed distance values to
-approach a surface in a process called ray marching \cite{Tomczak_2012}.
+signed distance values for a given time in the rendering (see Figure
+\ref{fig:preconditioner_datastruct}). The signed distance field can then be used
+to determine point containment queries and approximate nearest surfaces
+values. It can also trace rays at any time via a method in which the ray length
+is repeatedly clipped using signed distance values to approach a surface in a
+process called ray marching \cite{Tomczak_2012}.
+
+
+\section{Summary}
+
+This discussion of the CAD-based transport workflow and methods in DAGMC,
+hierarchical spatial data structures, and generation of SDFs in this chapter
+provides a basis for the work performed in the remainder of this document. The
+following chapter, Chapter \ref{ch:preconditioning} discusses the implementation
+and application of SDFs in DAGMC's framework. Next, Chapter \ref{ch:simd_bvh}
+presents work on BVHs optimized for use in DAGMC, and extensions
+of those methods to provide robust transport in production DAGMC
+problems. Chapter \ref{ch:high_valence} discusses the effects of splitting
+heuristics and hierarchy construction surrounding particular geometric features
+on the performance of DAGMC simulations.

@@ -152,24 +152,22 @@ evaluate both ray fire systems. The test program itself is agnostic to the
 underlying ray tracing kernel used by DAGMC and two versions of the program were
 compiled. One in which DAGMC uses MOAB's ray tracer and another in which MOAB's
 ray tracing system is subverted by Embree, a.k.a. EmDAG. The two sets of timing
-results can be found in Figure \ref{emdag_timing_compare}.
+results can be found in Figure \ref{fig:rf_test_results}.
 
-\begin{figure}[H]
-  \vspace{-3cm}
+\begin{sidewaysfigure}[]
   \centering
-
-  \begin{minipage}{.5\textwidth}
-    \centering
-    \includegraphics[scale=0.35]{Eig_fix_rf.eps}
-  \end{minipage}%
-  \begin{minipage}{.5\textwidth}
-    \centering
-    \includegraphics[scale=0.35]{embree_rf.eps}
-  \end{minipage}
-  \caption{A comparison of average ray fire times between DAGMC using MOAB's ray
-    tracing and Embree. Please note the difference in time scale.}
-  \label{emdag_timing_compare}
-\end{figure}
+  \includegraphics[scale=0.45]{Eig_fix_rf.eps}
+  \includegraphics[scale=0.45]{embree_rf.eps}
+  \includegraphics[scale=0.45]{mpbvh_rf.eps}
+  \caption{Ray fire test results on three representative DAGMC volumes. Each
+    data point represents the average ray fire time for 600k randomly directed
+    rays from the origin of each volume. Top Left: Results of the tests for
+    MOAB's OBB Tree. Top Right: Results of the tests for DAGMC coupled with
+    Embree, or EmDAG. Bottom: Ray fire test results for DAGMC coupled with the
+    MPBVH. The scale used for the MOAB OBB Tree is 10x greater than in the other
+    two cases due to the slower speed.}
+  \label{fig:rf_test_results}
+\end{sidewaysfigure}
 
 Both MOAB and EmDAG scale relatively well for the HAR cylinder model with
 decreasing faceting tolerance. This indicates that both systems are capable of
@@ -226,13 +224,12 @@ contains an extra volume consisting of the original sphere from the single
 volume model subtracted from a sphere 1cm larger in radius. As the purpose of
 these tests was to test EmDAG's particle tracking between non-zero importance
 cells, the dimensions of the offset between the nested volumes is largely
-irrelevant so long as particles are in fact reaching all of the cells.
+irrelevant so long as particles are in fact reaching all of the cells in the problem.
 
 \begin{table}[H]
   \small
   \begin{center}
-
-      \label{timings}
+    
     \begin{tabular}{lccc}
 
       \toprule
@@ -250,24 +247,24 @@ irrelevant so long as particles are in fact reaching all of the cells.
   \end{center}
   \caption{Runtime comparison native MCNP, DAG-MCNP, and EmDAG-MCNP over four
     transport test problems.}
-  
+      \label{timings}
 \end{table}
 
 The native MCNP runs were generally the fastest among the test problems with the
 exception of the nested cubes case in which EmDAG-MCNP marginally outperformed
-the native code by ~8\%. This is likely due to the fact that very few triangles
-are needed to exactly represent the surfaces of cubic volumes. This creates a
-very simple problem in the area of BVH building and results in a shallow
-tree. The fact that these volumes have multiple surfaces is also of importance
-here. MCNP searches linearly through a given cell's (volume's) surfaces to
-determine the intersection of a particle with the nearest surface whereas both
-DAG-MCNP and EmDAG-MCNP perform this search spatially. In the nested cubes
-model, it is likely that the number of surfaces relative to the number of
-triangles in their representation is high enough to allow EmDAG-MCNP to overtake
-MCNP's CSG calculations. This is a good demonstration of how CSG implementations
-suffer from the lack of a spatial search component when creating volumes from
-Boolean combination of surfaces as mentioned in Section \ref{subsec:csg}.
-
+the native code by ~8\% (see Figure \ref{timings}). This is likely due to the
+fact that very few triangles are needed to exactly represent the surfaces of
+cubic volumes. This creates a very simple problem in the area of BVH building
+and results in a shallow tree. The fact that these volumes have multiple
+surfaces is also of importance here. MCNP searches linearly through a given
+cell's (volume's) surfaces to determine the intersection of a particle with the
+nearest surface whereas both DAG-MCNP and EmDAG-MCNP perform this search
+spatially. In the nested cubes model, it is likely that the number of surfaces
+relative to the number of triangles in their representation is high enough to
+allow EmDAG-MCNP to overtake MCNP's CSG calculations. This is a good
+demonstration of how CSG implementations suffer from the lack of a spatial
+search component when creating volumes from Boolean combination of surfaces as
+mentioned in Section \ref{subsec:csg}.
 
 The results of the single-volume test cases for native MCNP differ slightly from
 the tally results from the DAGMC-based systems, which are the same. This is not
@@ -277,7 +274,7 @@ of this study, only a comparison of the values returned by EmDAG in comparison
 to DAGMC is considered. Differences in the tally results between DAG-MCNP and
 EmDAG-MCNP are present only in the nested spheres transport model. There is a
 small difference in the flux tally for cell 3 as can be seen in Table
-\ref{nestedspheres} of Appendix \ref{ch:appendix_a}. By examining the number of
+\ref{nestedspheres} of Appendix \ref{ch:appendix-c}. By examining the number of
 particle tracks in each cell, it can be determined that this discrepancy is
 caused by a single particle ending in EmDAG-MCNP near a surface of cell 2 while
 in DAG-MCNP the particle crosses into cell 3 before abruptly terminating though
@@ -948,15 +945,8 @@ controlled box extension study in Section \ref{subsubsec:reduced_precision}.
 
 The same set of ray fire performance tests were run as in Section
 \ref{subsubsec:emdag_rf_performance}. As shown in Figure
-\ref{fig:mpbvh_rf_tests}, the MPBVH shows a significant improvement compared to
+\ref{fig:rf_test_results}, the MPBVH shows a significant improvement compared to
 the current implementation in MOAB and comparable to the EmDAG implementation.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[scale=0.33]{mpbvh_rf.eps}
-  \caption{Average ray fire times for the MPBVH for a sphere, slotted sphere, and High Aspect Ratio (HAR) cylinder.}
-  \label{fig:mpbvh_rf_tests}
-\end{figure}
 
 \section{Simplified Particle Tracking}
 
@@ -969,7 +959,8 @@ histories. This tracking algorithm uses structures known as the \textbf{MBRay}
 (shown in Figure \ref{fig:mpbvh_ray_structures}) are critical to the use of the
 MPBVH as a robust particle tracking tool.
 
-\begin{lstlisting}[language=Python,basicstyle=\tiny]
+\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={The method used for \textit{Next Surface} queries.},captionpos=b,label={alg:Next Surface Pseudo Code}]
+  
   def next_surface(current_volume,
                    point,
                    direction,
@@ -1036,8 +1027,6 @@ MPBVH as a robust particle tracking tool.
 
       return
 
-      \caption{The method used for \textit{Next Surface} queries.}
-      \label{alg:Next Surface Pseudo Code}
 \end{lstlisting}
 
 The algorithm in Figure \ref{alg:Next Surface Pseudo Code} avoids many logical
@@ -1086,7 +1075,8 @@ function above. These filter functions can also be used to accumulate ray hits,
 which is critical to implementation of a robust point containment algorithm
 based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
 
-\begin{lstlisting}[language=Python,basicstyle=\tiny]
+\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algoritm for determining point containment within a volume.},
+label={alg:Point Containment Pseudo Code}]
   def point_contained( volume, point, direction, &result):
       # result values : 0 - outside; 1 - inside
 
@@ -1172,8 +1162,6 @@ based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
       aray.num_hit++
 
       return
-      \caption{Algoritm for determining point containment within a volume.}
-      \label{alg:Point Containment Pseudo Code}
 \end{lstlisting}
 
 In this method the ray is intersected with the volume and a hit is evaluated as

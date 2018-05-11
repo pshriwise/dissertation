@@ -310,12 +310,8 @@ DAG-MCNP is found in Table \ref{fngemdag}.
       MCNP5 & 209.92 & 205.99 &  1.00 & 0 \\
       \hline
       DAG-MCNP5 & 1023.04 & 1023.05 & 4.99 & 0  \\
-      \hline
-      DAG-MCNP5 (lt) & 974.99 & 974.75 & 4.73 & 0  \\
       \hline      
       EmDAG-MCNP5 & 303.49 & 303.63 & 1.44 & 255  \\
-      \hline
-      EmDAG-MCNP5 (lt) & 257.49 & 257.60  & 1.25 & 247 \\
       \hline
     \end{tabular} 
     \caption{A comparison of transport on the FNG model using a 14.1 MeV
@@ -324,7 +320,6 @@ DAG-MCNP is found in Table \ref{fngemdag}.
     \label{fngemdag}
   \end{center}
 \end{table}
-
 
 \begin{figure}
   \centering
@@ -337,63 +332,7 @@ DAG-MCNP is found in Table \ref{fngemdag}.
 
 While the performance of EmDAG surpasses that of DAGMC, it does not come
 as close to the performance of native MCNP as it did in the more simple
-transport test models. Upon visually inspecting the faceted FNG model, it was
-seen to contain many high valence regions. As an artifact of the variance
-reduction used in the intended analysis of this model, many planes were inserted
-in the model in order to break up large cells with highly varying particle
-intensities. Where these planes intersect the cylindrical volumes of the model,
-many high valence regions result as can be seen in Figure
-\ref{fng-faceted-models}. As a result it became a curiosity as to whether or
-not the high valence regions were being handled better by EmDAG than they were
-by DAGMC. In order to test this, the same programs used to do the high valence
-vertex study were built using EmDAG and the parameter study of the relative high
-valence area and valency was performed. The results in Section \ref{sec:emdag_hv_study}
-show that EmDAG also struggles with these high valence regions. In the worst
-scenario there is a degradation by two orders of magnitude compared to the best
-case scenario which is similar to what seen in the unmodified MOAB ray
-tracer. Additionally, it shows degraded performance in the same way that DAGMC
-was initially expected to falter - with increasing high valence area and
-valency. This is likely due to the nature of the heuristics used by Embree to
-construct its acceleration data structures.  Unlike MOAB, however, the BVH
-building parameters are not as openly available via Embree's interface.There is,
-however, an option to reduce the size of the high valence regions in the mode
-within the faceting algorithm by defining a length tolerance.
-
-\begin{figure}[H]
-  \small
-  \begin{center}
-    \includegraphics[scale=0.3, trim = 200 0 100 0]{fng_facet_tol.png}
-    \includegraphics[scale=0.25]{fng_len_tol.png}
-    \caption{The FNG faceted model without (left) and with (right) the length
-      tolerance applied.}
-    \label{fng-faceted-models}
-  \end{center}
-\end{figure}
-
-The length tolerance is a maximum length for any facet edge returned by the CAD
-engine's faceting algorithm. Providing this value to the preprocessing tool
-comes at the cost of many more triangles than when supplying only a faceting
-tolerance. The difference in facet structure between these models can be seen in
-Figure \ref{fng-faceted-models}.
-
-By generating a faceted model using the combination of the length and faceting
-tolerances it was hoped that there would be a marked increase in performance
-using the EmDAG system and the performance did indeed improve by ~15\%. Due to
-the increased number of overall triangles on these planar surfaces, there may be
-competing forces at play. As the length tolerance is reduced, the high valence
-areas will also be reduced, but the overall number of triangles will increase -
-resulting in inherently deeper BVH and longer traversals. Conversely, as the
-length tolerance is increased, the number of high valence region areas are
-increase, but the number of redundant triangles is reduced improving the average
-BVH traversal time enough compensate for a few more rays entering high valence
-regions. This observation leads to the idea that length tolerance of the FNG
-model could then be optimized. This optimization study, while interesting, will
-vary model to model and the results will be complex in nature, depending on the
-underlying geometry and geometry adjacent to those regions, etc. In light of the
-high valence study results showing that BVH building parameters can be altered
-to improve performance and accommodate these high valence regions, it seems that
-a better solution is to follow that path over alteration of the mesh globally in
-the model. 
+transport test models.
 
 \subsection{Limitations}\label{sec:emdag_limitations}
 

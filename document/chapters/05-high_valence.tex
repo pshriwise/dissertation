@@ -395,7 +395,6 @@ Figure \ref{fng-faceted-models}.
   \end{center}
 \end{table}
 
-
 By generating a faceted model using the combination of the length and faceting
 tolerances it was hoped that there would be a marked increase in performance
 using the EmDAG system and the performance did indeed improve by ~15\%. Due to
@@ -410,10 +409,15 @@ regions. This observation leads to the idea that length tolerance of the FNG
 model could then be optimized. This optimization study, while interesting, will
 vary model to model and the results will be complex in nature, depending on the
 underlying geometry and geometry adjacent to those regions, etc. In light of the
-high valence study results showing that BVH building parameters can be altered
+high valence study results indicating that BVH building parameters can be altered
 to improve performance and accommodate these high valence regions, it seems that
 a better solution is to follow that path over alteration of the mesh globally in
-the model. 
+the model.
+
+This study indicates that the simulation improves when faceting with a length
+tolerance, but isn't conclusive about the impact of high valence regions on
+EmDAG's ray tracing performance. To better understand this impact, a
+characterization of EmDAG's reponse for high valence regions was conducted.
 
 \subsection{sec:High Valence Characterization}
 
@@ -444,11 +448,13 @@ production-level ray tracing kernels, it is difficult to employ any adaptive
 tree construction techniques. Without access to the underlying mesh
 representation of the triangle surface, it is difficult to detect HV regions as
 implemented in MOAB's OBBTree. This is both a strength and weakness of Embree's
-design in that it can build highly efficient data structures using only primitive
-point and connectivity data, but it has no infrastructure in place to
-interrogate that data deeply. Methods for detecting and adapting to these HV
+design in that it can build highly efficient data structures using only
+primitive point and connectivity data, but it has no infrastructure in place to
+interrogate the mesh more deeply. Methods for detecting and adapting to these HV
 regions are addressed using the MMPBVH, a system with similar characteristics
-but with more access to the mesh interface.
+but with more access to the mesh interface. Due to the similarity in design and
+use of AABBs, the MPBVH will act as something of a surrogate for the EMDAG in
+terms of its response to HV regions.
 
 \section{Mixed Precision Bounding Volume Hierarchy}\label{sec:simd_hv_study}
 

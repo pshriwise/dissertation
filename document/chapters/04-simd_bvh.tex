@@ -286,9 +286,9 @@ difference in tally result is the result of a systematic difference between
 Embree and MOAB's ray fire conventionality rather than being result of the
 double to single floating point conversion of the model that occurs when using
 EmDAG - though this conversion in precision is shown to be problematic in other
-ways in Section \ref{sed:emdag_limitations}.
+ways in Section \ref{sec:emdag_limitations}.
 
-Finally, a full-scale test of EmDAG was conducted on the FNG model using the
+Finally, a production test of EmDAG was conducted on the FNG model using the
 same volumetric source as in the performance benchmarking tests described
 earlier. Initially this model failed quickly due to lost particles. This was
 surprising as the model is expected to have the same watertight fidelity that it
@@ -418,31 +418,33 @@ encountered in the nested volume cases due to the simple nature of their
 geometric topology.
 
 In the DAGMC workflow, a required step for a watertight model is to imprint and
-merge the surfaces within the CAD system before faceting the model. Imprinting
-is the process by which Trelis, the CAD software used to generate DAGMC models,
-makes surfaces and curves that are coincident in space be fully coincident. This
-process is accomplished by splitting entities into their coincident and
-non-coincident parts. The merging process then topologically combines these
-coincident parts into single entities such that the single entities are
-topologically adjacent to all entities bounding the original set of entities
-that were merged into one. The result of these steps is non-manifold model with
-surfaces shared between neighboring volumes \cite{Smith_2011}.
+merge the surfaces in the geometry representation before faceting the
+model. Imprinting is the process by which surfaces and curves that are
+coincident by proximity in space are made the same. This process is accomplished
+by splitting entities into their coincident and non-coincident parts. The
+merging process then topologically combines these coincident parts into single
+entities such that the single entities are topologically adjacent to all
+entities bounding the original set of entities that were merged into one. The
+result of these steps is non-manifold model with surfaces shared between
+neighboring volumes \cite{Smith_2011}.
 
 This imprinting and merging of surfaces allows only one representation of each
 topological entity to be created upon faceting the model. By using the faceted
 curves of the model as a reference for where surfaces meet in space, the
-triangles of a surface are then made to meet at those curves in a topologically
-watertight manner via the \textit{make\_watertight} algorithm. Topologically
-watertight in reference to triangle facets refers to shared connectivity between
-surfaces which is distinctly different than watertight by proximity. This
-topological watertightness of mesh refers to the fact that triangle surfaces
-meshes have connectivity at their interface which share vertex handles inside of
-the MOAB database. These vertex handles will then point to the \textbf{exact
-  same floating point representation} of the vertices no matter which of the
-surfaces is being queried. In this way particles are not lost through gaps in
-surfaces and firing a ray from the logical position inside a volume should always
-result in a triangle intersection. This is not the case however when using
-EmDAG. Particles were somehow being lost in the transport process.
+triangles of a surface are then forced to meet at those curves in a
+topologically watertight manner via the \textit{make\_watertight} algorithm
+\cite{Smith_2011}. Topologically watertight in reference to triangle facets
+refers to shared connectivity of mesh elements between surfaces. This is
+distinctly different than watertight by proximity or by points of triangles
+being ``close enough'' to one another. Topological watertightness of triangles
+refers to the fact that surfaces meshes share connectivity at their
+interface. These triangles reference then share mesh vertices in MOAB whose
+coordinates in virtual space are represented using the exact same floating point
+representation in the database.  In this way particles are cannot be lost
+through gaps in surfaces and firing a ray from any position inside a volume
+should always result in a triangle intersection. Despite the topological
+watertightness of the triangle meshes used in EmDAG, particles were lost in the
+transport process.
 
 \begin{figure}[H]
   \centering
@@ -460,7 +462,7 @@ Some detailed debugging of this problem revealed that this occurs in a
 systematic fashion within the FNG model at intersections of 3 or more
 volumes. The scenario is that a particle moves into the intersection between two
 surfaces. When this occurs, an intersection with either surface connected to
-that interface is a valid hit so long as the surface is part of the volume the
+that interface is a valid hit as the surface is part of the volume the
 particle is current positioned within. The particle will then logically move
 into the volume on the other side of the hit surface. EmDAG handles most of
 these cases well but for the case in which a particle will have a zero track
@@ -779,20 +781,24 @@ than for systems in which the hierarchy and primitives are both stored with the
 same precision.
 
 After these considerations, the cost evaluation for a candidate node can be
-evaluated as seen in Figure \ref{fig:SSAH}.
+evaluated as seen in Equation \ref{eq:simplified_sah}.
 
 \begin{figure}[H]
   \begin{align}
 &C =  \cancel{C_{t} +} \frac{SA_{L}}{SA_{P}} |P_{L}|C_{i} + \frac{SA_{R}}{SA_{P}} |P_{R}|C_{i} \\
 &C_{g} = \frac{SA_{L}}{SA_{P}} |P_{L}| +  \frac{SA_{R}}{SA_{P}}|P_{R}| \\
-&C = C{i}C_{g}
+&C = C_{i}C_{g}
   \end{align}
   \begin{align*}
-    C^{a} = C_{i} C^{a}_{g} \\
-    C^{b} = C_{i} C^{b}_{g} \\
-    C^{a} < C^{b} \\
-    C_{i}C^{a}_{g} < C_{i}C^{b}_{g}
+    C^{L} = C_{i} C^{L}_{g} \\
+    C^{R} = C_{i} C^{R}_{g} \\
+    C^{L} < C^{R} \\
+    C_{i}C^{L}_{g} < C_{i}C^{R}_{g}
   \end{align*}
+  \begin{align}
+    C_{simplified} = C_{g} = \frac{SA_{L}}{SA_{P}} |P_{L}| +  \frac{SA_{R}}{SA_{P}}|P_{R}|
+  \end{align}
+  \label{eq:simplified_sah}
   \begin{align*}
     C_{t} - & \,cost\, of\, traversal\, to\, child\, nodes \\
     C_{i} - & \, cost\, of\, primitive\, intersection\, check\, \\
@@ -801,7 +807,9 @@ evaluated as seen in Figure \ref{fig:SSAH}.
     SA_{R} - & \, surface\, area\, of\, right\, child \\
     P_{R} - & \, primitives\, contained\, by\, the\, right\, child \\
     SA_{P} - & \, parent\, bounding\, volume \\
+    C^{L} \text{,} C^{R} - & \, left \, and \, right \, child \, costs, \, respectively, \, in \, a \, binary \, tree
   \end{align*}
+  
   \caption{A form of the simplified surface area heuristic for a binary tree.}
   \label{fig:SSAH}
 \end{figure}
@@ -814,9 +822,21 @@ is no longer required. This form of the heuristic is purely a weighted geometric
 evaluation without estimation of implementation-based valued which can vary
 based on machine architecture, build settings, etc.
 
-\subsubsection{Set Leaves}
+\subsubsection{Surface Root Nodes}
 
-Tree nodes in both Embree and the MPBVH are represented by node
+In DAGMC, trees are created for each volume and surface in the geometry. Rather
+than duplicate surface trees for each volume they appear in, one tree is created
+for each surface and for each volume the resepective surface trees are joined
+into a single tree. This avoids duplication of tree information and minimizes
+the memory footprint of DAGMC. It is critical to DAGMC that the surface
+intersected is returned as part of the ray's intersection information so that
+particles can be passed from volume to volume correctly. This information is
+maintained in the root nodes of surface trees and updated during the BVH
+traversal process. In order to maintain this functionality without duplicating
+triangle information, a similar scheme was implemented in the MPBVH, but within
+the framework of a BVH design for SIMD traversals.
+
+Tree nodes in both Embree and the MPBVH are represented by a node
 reference construct which stores a single pointer value as an integer
 representation. All stored constructs, namely the bounding nodes and primitive
 references, in the BVH are designed to be 16-byte aligned in memory, leaving the
@@ -825,6 +845,13 @@ are used to encode information about leaf nodes in the tree. When the true
 pointer to either an interior node or leaf node is needed, the pointer value is
 recovered by setting these bits to zero and casting the pointer to the
 appropriate object type.
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/quad_tree_sets}{0.8\textwidth}
+  \caption{A representation of how surface BVHs are joined into a volume BVH.}
+  \label{fig:quad_tree_sets}
+\end{figure}
 
 In a leaf node reference the fourth bit is set to one, indicating it is a leaf
 node and that any pointer value taken from the node reference should be treated
@@ -887,13 +914,6 @@ EmDAG system to track the relative surface-to-volume senses. A MOAB lookup of
 this sense information after returning ray hits is also a viable option, but it
 would be relatively expensive to in comparison to adjusting triangle normals on
 the fly.
-
-\begin{figure}[H]
-  \centering
-  \includesvg{../images/quad_tree_sets}{0.8\textwidth}
-  \caption{A representation of how surface BVHs are joined into a volume BVH.}
-  \label{fig:quad_tree_sets}
-\end{figure}
 
 \subsection{Robustness Testing}
 

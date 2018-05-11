@@ -796,9 +796,11 @@ evaluated as seen in Equation \ref{eq:simplified_sah}.
     C_{i}C^{L}_{g} < C_{i}C^{R}_{g}
   \end{align*}
   \begin{align}
-    C_{simplified} = C_{g} = \frac{SA_{L}}{SA_{P}} |P_{L}| +  \frac{SA_{R}}{SA_{P}}|P_{R}|
+    C_{simplified} = C_{g} = \frac{SA_{L}}{SA_{P}} |P_{L}| +
+    \frac{SA_{R}}{SA_{P}}|P_{R}|
+    \label{eq:simplified_sah}
   \end{align}
-  \label{eq:simplified_sah}
+
   \begin{align*}
     C_{t} - & \,cost\, of\, traversal\, to\, child\, nodes \\
     C_{i} - & \, cost\, of\, primitive\, intersection\, check\, \\
@@ -929,7 +931,7 @@ To meet these criterion the Pl\"{u}cker ray-triangle intersection test used in
 MOAB is also used in the MPBVH \cite{Platis_2003}. Many unit tests are used to
 ensure watertight box intersection using the slab method \cite{Kay_1986} in
 single precision, but the mixed precision scheme is best tested using DAGMC
-models. In MOAB, the Plucker ray triangle intersection method is used to provide
+models. In MOAB, the Pl\"{u}cker ray triangle intersection method is used to provide
 watertight intersections with triangle meshses \cite{Platis_2003}. The same
 algorithm was applied in the MPBVH to ensure that simulation results using both
 the MPBVH and MOAB BVH are consistent. Several unit tests in the kernel fire
@@ -966,8 +968,6 @@ histories. This tracking algorithm uses structures known as the \textbf{MBRay}
 (short for MOAB Ray) and \textbf{MBAccumulatorRay}. Both of these structures
 (shown in Figure \ref{fig:mpbvh_ray_structures}) are critical to the use of the
 MPBVH as a robust particle tracking tool.
-
-The method used for \textit{Next Surface} queries is described below:
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny]
   def next_surface(current_volume,
@@ -1036,19 +1036,21 @@ The method used for \textit{Next Surface} queries is described below:
 
       return
 
+      \caption{The method used for \textit{Next Surface} queries.}
+      \label{alg:Next Surface Pseudo Code}
 \end{lstlisting}
 
-This algorithm avoids many logical checks and the classification of hit
-locations for repeated hits. It also avoids mesh database lookups of adjacent
-triangles for edge and node hits. This used to be necessary due to the ray
-history passed into the \textit{Next Surface} query, causing rays to sometimes
-become stuck in what was referred to as the ``pinwheel'' loop. The ray history
-was as an optimization to avoid repeated intersections with the same
-triangle. By abandoning this construct and relying entirely on the performance
-of the underlying ray tracing kernel, the algorithm can be simplified to always
-return the nearest intersection. Infinite loops in which particles oscillate
-between volumes on a surface boundary are addressed by using exiting
-intersections.
+The algorithm in Figure \ref{alg:Next Surface Pseudo Code} avoids many logical
+checks and the classification of hit locations for repeated hits. It also avoids
+mesh database lookups of adjacent triangles for edge and node hits. This used to
+be necessary due to the ray history passed into the \textit{Next Surface} query,
+causing rays to sometimes become stuck in what was referred to as the
+``pinwheel'' loop. The ray history was as an optimization to avoid repeated
+intersections with the same triangle. By abandoning this construct and relying
+entirely on the performance of the underlying ray tracing kernel, the algorithm
+can be simplified to always return the nearest intersection. Infinite loops in
+which particles oscillate between volumes on a surface boundary are addressed by
+returning exiting intersections only.
 
 \begin{figure}[H]
   \centering
@@ -1065,19 +1067,24 @@ algorithm by B. Smith are as follows \cite{Smith_2011}:
   \item Infinite loops cannot occur
 \end{enumerate}
 
-The algorithm presented here addresses \textbf{a)} by using the watertight Pl\"{u}cker
-intersection test and extending ray boxes to ensure the correct triangle is
-visited for intersection. Part \textbf{b)} is addressed by applying a small
-value to the ray which will be ignored when firing in the negative direction and limiting the
-ray length to the allowed overlap thickness. This prevents particles from
-repeatedly finding zero distance intersections without becoming lost if they are
-logically on the boundary of a surface.
+The algorithm presented here addresses \textbf{a)} by using the watertight
+Pl\"{u}cker intersection test and extending ray boxes to ensure the correct
+triangle is checked for intersection. Part \textbf{b)} is addressed by firing a
+ray in the opposite direction if the initial ray does not find an
+intersection. The scenario here being that the particle is inside a
+self-intersecting or overlapping volume. To avoid a zero-distance hit when
+firing in the opposite direction, a small value is also set as the ray's
+near-side parameter. In traversal, any hits closer than this value will be
+ignored. The ray's length is also set to the allowed overlap thickness. Any
+intersections beyond this distance are ignored as well. Thus an exiting
+intersection in the overlap region can be found and a zero-distance intersection
+will be returned from the \textit{Next Surface} query.
 
 The MPBVH provides the capability to set callback functions used to filter and
 validate ray intersections, as demonstrated by the \textit{backface\_cull}
 function above. These filter functions can also be used to accumulate ray hits,
 which is critical to implementation of a robust point containment algorithm
-based on the MPBVH, shown below:
+based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny]
   def point_contained( volume, point, direction, &result):
@@ -1165,7 +1172,8 @@ based on the MPBVH, shown below:
       aray.num_hit++
 
       return
-          
+      \caption{Algoritm for determining point containment within a volume.}
+      \label{alg:Point Containment Pseudo Code}
 \end{lstlisting}
 
 In this method the ray is intersected with the volume and a hit is evaluated as
@@ -1208,7 +1216,7 @@ expected based on the difference in pure ray fire times from Section
     \begin{tabular}{lccc}
 
       \toprule
-      Test Model & MCNP & DAG-MCNP & EmDAG-MCNP \\
+      Test Model & MCNP & DAG-MCNP & DAG-MCNP (w/ MPBVH) \\
       %%\hline
       & \multicolumn{3}{c}{\textbf{time (min)/ ratio to MCNP}} \\
       \hline

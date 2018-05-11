@@ -1,7 +1,6 @@
 
 \chapter{Mixed Precision Bounding Volume Hierarchy}\label{ch:simd_bvh}
 
-
 \section{Introduction}
 
 As established in Section \ref{sec:problem-statement}, the dominant source of
@@ -271,23 +270,23 @@ Boolean combination of surfaces as mentioned in Section \ref{subsec:csg}.
 
 
 The results of the single-volume test cases for native MCNP differ slightly from
-the agreeing tally results from the DAGMC-based systems. This is not surprising
-as DAGMC is known to report slightly different results from native MCNP. As
-result comparisons of DAGMC to native codes are not the concern of this study,
-only a comparison of the values returned by EmDAG in comparison to DAGMC is
-considered. Differences in the tally results between DAG-MCNP and EmDAG-MCNP are
-present only in the nested spheres transport model. There is a small difference
-in the flux tally for cell 3 as can be seen in Table \ref{nestedspheres} of
-Appendix \ref{ch:appendix_a}. By examining the number of particle tracks in each
-cell, it can be determined that this discrepancy is caused by a single particle
-ending in EmDAG-MCNP near a surface of cell 2 while in DAG-MCNP the particle
-crosses into cell 3 before abruptly terminating though it still contributing
-slightly to the tally in cell 3. It is believed that this difference in tally
-result is the result of a systematic difference between Embree and MOAB's ray
-fire conventionality rather than Embree's a result of the double to single
-floating point conversion of the model that occurs when using EmDAG though this
-difference in precision is suspected to be problematic in other ways as was
-discovered in transport on the FNG model.
+the tally results from the DAGMC-based systems, which are the same. This is not
+surprising as DAGMC is known to report statistically similar results to those of
+native MCNP. As result comparisons of DAGMC to native codes are not the concern
+of this study, only a comparison of the values returned by EmDAG in comparison
+to DAGMC is considered. Differences in the tally results between DAG-MCNP and
+EmDAG-MCNP are present only in the nested spheres transport model. There is a
+small difference in the flux tally for cell 3 as can be seen in Table
+\ref{nestedspheres} of Appendix \ref{ch:appendix_a}. By examining the number of
+particle tracks in each cell, it can be determined that this discrepancy is
+caused by a single particle ending in EmDAG-MCNP near a surface of cell 2 while
+in DAG-MCNP the particle crosses into cell 3 before abruptly terminating though
+it still contributing slightly to the tally in cell 3. It is believed that this
+difference in tally result is the result of a systematic difference between
+Embree and MOAB's ray fire conventionality rather than being result of the
+double to single floating point conversion of the model that occurs when using
+EmDAG - though this conversion in precision is shown to be problematic in other
+ways in Section \ref{sed:emdag_limitations}.
 
 Finally, a full-scale test of EmDAG was conducted on the FNG model using the
 same volumetric source as in the performance benchmarking tests described
@@ -334,7 +333,7 @@ DAG-MCNP is found in Table \ref{fngemdag}.
   \centering
   \includegraphics[scale=0.45]{emdag_fng_cg_fine6.png}
   \caption{Call-graph of the EmDAG run on the FNG model for 1E7
-    histories. (Processes taking $>=$6\% of the runtime are filtered in order to
+    histories. (Processes taking $<=$6\% of the runtime are filtered in order to
     simplify the call-graph.}
   \label{emdag-fng-coarse}  
 \end{figure}

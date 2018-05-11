@@ -1,5 +1,4 @@
 
-
 \chapter{High Valence Vertices}\label{ch:high_valence}
 
 High valence vertices are a mesh feature which cause significant degradation in
@@ -56,10 +55,10 @@ an outer volume of an ITER model, shown in Figure \ref{fig:sj_hv_test_models}.
 In each of these tests, the models are tessellated with an increasingly smaller
 faceting tolerance where the faceting tolerance being defined as the maximum
 distance between the faceted curve or surface and the geometric curve or surface
-it resolves.  By this definition, the number of triangles needed to represent a
-model is inversely proportional to the value of the faceting tolerance. An
-increase in the number of triangles leads to a more complex nature of the
-surface mesh in terms of BVH construction and traversal.
+it resolves. By this definition, the number of triangles needed to represent a
+model scales inversely with the value of the faceting tolerance. An increase in
+the number of triangles leads to a more complex nature of the surface mesh in
+terms of BVH construction and traversal.
 
 Each model used in these tests presents its own challenges with increasing
 faceting tolerance. The sphere is a good control case for an increasing number
@@ -99,11 +98,11 @@ DAGMC performance (see Figure \ref{fig:hv_examples}).
   \end{center}
 \end{figure}
 
-While the sphere model shows good scaling with increasing number of triangles,
-the ITER volume and slotted sphere both have a pronounced increase in average
-ray fire time with decreasing faceting tolerance. Knowing that both of the
-latter models contain high valence regions, it was postulated at the time that
-these regions had a significant effect on the scaling. 
+While the sphere model scales well with a decreasing faceting tolerance, the
+ITER volume and slotted sphere both have a pronounced increase in average ray
+fire time with decreasing faceting tolerance. Knowing that both of the latter
+models contain high valence regions, it was postulated at the time that these
+regions had a significant effect on the scaling.
 
 \section{High Valence Characterization and Testing Framework}
 
@@ -132,14 +131,14 @@ A ray fire test program was used to construct MOAB's BVH and perform ray queries
 using DAGMC's interface. Information on this test program can be found in the
 appendix of this work. This program was used to fire rays with random direction
 from the origin of the high valence test model while biasing the ray directions
-such that they should always find intersections on the modified surface
-containing the high-valence region. A parameter sweep was performed by varying
-the percentage of the surface covered by the high-valence region as well as the
-valence of the region. Specification of the random number seed is allowed within
-the program to giving a more direct comparison of performance with the guarantee
-that the same set of rays is fired in each test case. Each test shown in this
-section varies the valence of the corner vertices from 2 to 50,000 and the
-relative area of the high valence region from 0 to 1.
+such that they are always incident upon the modified surface containing the
+high-valence region. A parameter sweep was performed by varying the percentage
+of the surface covered by the high-valence region as well as the valence of the
+region. Specification of the random number seed is allowed within the program to
+giving a more direct comparison of performance with the guarantee that the same
+set of rays is fired in each test case. Each test shown in this section varies
+the valence of the corner vertices from 2 to 50,000 and the relative area of the
+high valence region from 0 to 1.
 
 \section{MOAB's Oriented Bounding Box BVH}\label{sec:hv_study_MOAB}
 
@@ -305,7 +304,7 @@ time is consistent across both valence and relative area of the HV region.
 
 \subsubsection{Application in Production}
 
-This method was also applied to several DAGMC production models in order to determine
+This method applied to several DAGMC production models in order to determine
 its effect on simulation run times during transport.
 
 \begin{table}[H]
@@ -388,13 +387,13 @@ fails to create a well-structured tree for triangles that are part of the HV are
 
 \subsection{Visualization and Diagnosis}
 
-Visualization of leaf nodes and the entities they contain for the MOAB SIMD BVH
+Visualization of leaf nodes and the entities they contain for the MPBVH
 can be seen in Figure \ref{fig:hv_leaf_simd_bvh}.
 
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{hv_leaf_simd_bvh.png}
-  \caption{MOAB SIMD BVH leaf nodes for the HV test model with area fraction
+  \caption{MPBVH leaf nodes for the HV test model with area fraction
     0.5 and a valence of 100 for the corner vertices.}
   \label{fig:hv_leaf_simd_bvh}
 \end{figure}
@@ -406,9 +405,9 @@ cause of performance degradation, which was true for MOAB's OBB Tree. In the cas
 of Embree and the MBVH, the largest cause of performance degradation is
 overlapping regions of the leaf nodes.
 
-Because both of these implementations use AABBs, bounding of skinny, off-axis
-triangles results in bounding boxes with a considerable amount of empty space in
-them. An example of such a leaf can be seen in Figure
+Because both of these implementations use AABBs, bounding of high aspect ratio,
+off-axis triangles results in bounding boxes with a considerable amount of empty
+space in them. An example of such a leaf can be seen in Figure
 \ref{fig:hv_overlap_simd_bvh}. In high valence regions, this results in the same
 space being occupied by a high number of leaf bounding boxes. If a ray is fired
 into these overlapping leaves, the end result is a large number of leaf nodes,

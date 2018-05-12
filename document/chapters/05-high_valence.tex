@@ -572,8 +572,15 @@ the node objects themselves with little added overhead in the traversal process.
 
 The Mixed MPBVH was applied to the same set of production transport tests as the
 AABB MPBVH in Section \ref{subsec:mpbvh_production_transport}. The results of
-these runs can be found in Figure \ref{fig:mixed_mpbvh_prod_timing}.
+these runs can be found in Figure \ref{fig:hv_parameter_study_simd}.
 
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/hv_parameter_study_simd}{1.0\textwidth}
+  \caption{Variation in runtime for different HV detection parameters on a
+    representative set of DAGMC models.}
+  \label{fig:hv_parameter_study_simd}
+\end{figure}
 
 
 

@@ -911,25 +911,50 @@ geometries, which will be important in assessing the utilization of the SDF in
 more geometrically complex volumes. In order to test the extension of this
 analytic model to other geometries, the pseudo simulation for various path
 lengths was repeated for cylinder and cone geometries. The results of the
-utilization model and simulation results can be found in Appendix
-\ref{ch:appendix-c}. The results of these tests indicate that the utilization
-model can be used to predict the data structure's utilization for other
-geometries as well, though with some limitations.
+utilization model and simulation results can be found in Figures
+\ref{fig:sdf_util_sampled_cylinder} and \ref{fig:sdf_util_sampled_cylinder}. The
+results of these tests indicate that the utilization model can be used to
+predict the data structure's utilization for other geometries as well, though
+with some limitations.
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/sdf_sampled_cylinder}{\textwidth}
+  \caption{Application of the analytic model for preconditioner utilization in a
+    cylinder volume for various mean mean free paths, $\lambda$, and mesh step
+    sizes, $h$.}
+  \label{fig:sdf_util_sampled_cylinder}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/sdf_sampled_cone}{\textwidth}
+  \caption{Application of the analytic model for preconditioner utilization in a
+    cone volume for various mean mean free paths, $\lambda$, and mesh step
+    sizes, $h$.}
+  \label{fig:sdf_util_sampled_cone}
+\end{figure}
 
 For small values of $n$, the utilization model is much closer to the simulated
-result. As the value of $n$ increases, however, the model no longer agrees well
-with the simulated results. The reason for this is that the analytic model
+result. As the value of $n$ increases, however, the model becomes less accurate
+in predicting the utilization. The reason for this is that the analytic model
 breaks down for values of $n$ which are outside of the limits set by the
-$\alpha_{min}$ condition . In the spherical case this occurs when the error
+$\alpha_{min}$ condition. In the spherical case this occurs when the error
 evaluation exceeds $R$, meaning that zero utilization of the data structure is
-expected. 
-
-$$ \epsilon(h) > R $$
-$$  \sqrt{3}h = R $$
+expected.
 
 \begin{equation}
- h = \frac{R}{\sqrt{3}}
-\label{eq:error_condition_sphere}
+  \epsilon(h) > R
+\end{equation}
+
+\begin{equation}
+  \sqrt{3}h = R
+\end{equation}
+
+\begin{equation}
+  h = \frac{R}{\sqrt{3}}
+  \label{eq:error_condition_sphere}
 \end{equation}
 
 For this condition, any evaluation of the error will exceed the maximum distance a
@@ -937,27 +962,37 @@ particle can travel and still be utilized, as described previously in this
 chapter. To extend this limitation to other geometries, the average chord length
 will again be used as a surrogate for the sphere radius in representing the upper
 limit of utilization for an arbitrary geometry. For the spherical case, the
-average chord length is 
-
-$$R_{av} = \frac{4}{3}R $$
-
-$$ R = \frac{3}{4} R_{av} $$
-
-This can then be substituted into Eq. \ref{eq:error_condition_sphere}
-to obtain relationship of the mesh step size to the geometry for an upper limit
-of $h$ when applying this model.
+average chord length is shown in Equation \ref{eq:sphere_acl}.
 
 \begin{equation}
- h < h_{max} =  \frac{3}{4\sqrt{3}} R_{av} 
+  R_{av} = \frac{4}{3}R
+  \labsl{eq:sphere_acl}
+\end{equation}
+
+\begin{equation}
+  R = \frac{3}{4} R_{av}
+\end{equation}
+
+This can then be substituted into Eq. \ref{eq:error_condition_sphere} to obtain
+relationship of the mesh step size to the geometry for an upper limit of $h$
+when applying this model in simulation. This equation can then be normalized to
+place an upper limit on $n$ for a valid use of the utilization model.
+
+\begin{equation}
+ h < h_{max} = \frac{3}{4\sqrt{3}} R_{av}
+\end{equation}
+
+\begin{equation}
+ n < n_{max} = \frac{\sqrt{3}}{4} = 0.433
 \label{eq:sdf_max_h}
 \end{equation}
 
-Eq. \ref{eq:sdf_max_h} provides a value for the maximum allowed step size for
-which the utilization model can be applied in an arbitrary geometry. While
-unlikely that a step size this large would be applied in practice, it is
-important to understand the limitations of this model if it is to be used in an
-automated process for application of the data structure either on-the-fly or as
-a preprocessing step before running particle histories.
+Eq. \ref{eq:sdf_max_h} provides a value for the maximum allowed normalized step
+size for which the utilization model can be applied in an arbitrary
+geometry. While unlikely that a step size this large would be applied in
+practice, it is important to understand the limitations of this model if it is
+to be used in an automated process for application of the data structure either
+on-the-fly or as a preprocessing step before running particle histories.
 
 \section{Application in DAGMC Simulations}
 

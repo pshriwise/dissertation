@@ -260,7 +260,7 @@ section.
 %  \caption{Definition of signed distance field utilization as a ray fire preconditioner in DAGMC.}
 \end{equation}
 
-As shown in Eq. \ref{eq:preconditioner_utilization}, the utilization, $U$, of
+As shown in Equation \ref{eq:preconditioner_utilization}, the utilization, $U$, of
 the signed distance field as a ray fire preconditioner can be described as the
 number of ray fire calls related to the next surface intersection queries that
 are avoided divided by the total number of next surface intersection queries
@@ -372,7 +372,7 @@ $\vec{n}$, after traveling a distance, $d$. The fraction of this probability
 space in which signed distance values can be used to rule out surface crossings
 for next surface intersections is then considered to be the theoretical
 utilization of the signed distance field. An initial form for this probability
-space can found in Eq. \ref{eq:util_model}.
+space can found in Equation \ref{eq:util_model}.
 
 \begin{equation}
   \label{eq:util_model}
@@ -388,7 +388,7 @@ vector, and $\beta$ represents an azimuthal angle for directions traveled with
 angle of departure, $\alpha$. Fig. \ref{fig:model} depicts these variables, $r$,
 $d$, and $\alpha$ more clearly.
 
-The outer integral in Eq. \ref{eq:util_model} represents all possible particle
+The outer integral in Equation \ref{eq:util_model} represents all possible particle
 positions within the geometric sphere and expands to
 
 \begin{equation}
@@ -413,7 +413,7 @@ integration of $p_n(d)$ does not rely on them.
 r^2 \, d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
 \end{equation}
 
-In order to represent particles traveling a fixed distance, the relationship in Eq. \ref{eq:pn_fixed}
+In order to represent particles traveling a fixed distance, the relationship in Equation \ref{eq:pn_fixed}
 is applied.
 
 \begin{equation}
@@ -435,7 +435,7 @@ $R$ and a fixed distance traveled, $\lambda$.
 
 In order to understand what fraction of this query space is able to be
 preconditioned, the condition for avoiding an explicit nearest intersection
-search along a particle direction in Eq. \ref{eq:condition_no_error} will now be
+search along a particle direction in Equation \ref{eq:condition_no_error} will now be
 applied.
 
 \begin{equation}
@@ -493,7 +493,7 @@ R-r + R - \sqrt{r^2 + d^2 + 2rd \cos{\alpha}} > d
 \end{equation}
 
 The inequality has now been reduced to the three variables seen in
-Eq. \ref{eq:A_fixed}:$r$, $d$, and $\alpha$. This inequality can be applied to
+Equation \ref{eq:A_fixed}:$r$, $d$, and $\alpha$. This inequality can be applied to
 construct limits of integration representing boundaries of space in which the
 SDF can be utilized. By rearranging the inequality, a limit on the angle of
 departure, $\alpha$, from the particle's position can be derived.
@@ -534,7 +534,7 @@ can travel in the sphere and still be preconditioned using signed distance
 values. Intuitively this makes sense as the maximum chord length of a sphere is
 $2R$, and once a particle travels a distance $R$ the sum of the signed distance
 values can then be no larger than $R$ and the condition for utilization in
-Eq. \ref{eq:condition} is violated. Hence all curves go to zero at $\lambda =
+Equation \ref{eq:condition} is violated. Hence all curves go to zero at $\lambda =
 100 cm$ in Fig. \ref{fig:sdf_fixed_dist}.
 
 In order to account for the fact that the form of $\alpha_{min}$ is undefined
@@ -554,7 +554,7 @@ larger than $R$.
 
 
 By inserting this condition as a lower limit of the $d\alpha$ integration,
-Eq. \ref{eq:subs_a_cond} will give all utilized space, $US$, in the query space
+Equation \ref{eq:subs_a_cond} will give all utilized space, $US$, in the query space
 of the simulation.
 
 \begin{equation}
@@ -587,7 +587,7 @@ geometries as well.
 %% sampled based on the standard probability for distance to interaction in a
 %% medium with a cross section, $\Sigma$, or mean free path $\lambda
 %% =1/\Sigma$. This results in the probability distribution function shown in
-%% Eq. \ref{eq:pn_sampled} for the particle distance traveled in this scenario.
+%% Equation \ref{eq:pn_sampled} for the particle distance traveled in this scenario.
 
 %% \begin{equation}
 %%   \label{eq:pn_sampled}
@@ -629,9 +629,9 @@ geometries as well.
 %%   \label{tab:inp066_results}
 %% \end{table*}
 
-%% Following the same process as in the fixed distance case by plugging Eq. \ref{eq:pn_sampled} into
-%% Eq. \ref{eq:subs_a_cond}, the utilization form for the sampled distance case is
-%% shown in Eq. \ref{eq:sampled_limit}.
+%% Following the same process as in the fixed distance case by plugging Equation \ref{eq:pn_sampled} into
+%% Equation \ref{eq:subs_a_cond}, the utilization form for the sampled distance case is
+%% shown in Equation \ref{eq:sampled_limit}.
 
 %% \begin{equation}
 %%   \label{eq:sampled_limit}
@@ -819,9 +819,9 @@ of the data structure.
 \end{align*}
 
 
-The expansion of Eq. \ref{eq:condition_no_error} with the error term can be seen
+The expansion of Equation \ref{eq:condition_no_error} with the error term can be seen
 in \ref{eq:condition} and results in a new condition for the minimum angle of
-departure ($\alpha_{min}$) shown in Eq. \ref{eq:min_alpha_w_error}
+departure ($\alpha_{min}$) shown in Equation \ref{eq:min_alpha_w_error}
 
 \begin{equation}
 \small
@@ -833,7 +833,7 @@ departure ($\alpha_{min}$) shown in Eq. \ref{eq:min_alpha_w_error}
 \end{equation}
 
 This formulation of $\alpha_{min}$ can be used directly in the integration described
-in Eq. \ref{eq:subs_a_cond}. The final form of the model after the integration being:
+in Equation \ref{eq:subs_a_cond}. The final form of the model after the integration being:
 
 \begin{equation}
   US_{sampled} = \frac{(R-\epsilon) (\frac{1}{2} \lambda ( R - 2\lambda - \epsilon ) e^{\frac{-R + \epsilon}{\lambda}} + \lambda^{2} - \frac{3}{2}\lambda(R - \epsilon) + (R-\epsilon)^{2})}{R^3}
@@ -973,7 +973,7 @@ average chord length is shown in Equation \ref{eq:sphere_acl}.
   R = \frac{3}{4} R_{av}
 \end{equation}
 
-This can then be substituted into Eq. \ref{eq:error_condition_sphere} to obtain
+This can then be substituted into Equation \ref{eq:error_condition_sphere} to obtain
 relationship of the mesh step size to the geometry for an upper limit of $h$
 when applying this model in simulation. This equation can then be normalized to
 place an upper limit on $n$ for a valid use of the utilization model.
@@ -987,7 +987,7 @@ place an upper limit on $n$ for a valid use of the utilization model.
 \label{eq:sdf_max_h}
 \end{equation}
 
-Eq. \ref{eq:sdf_max_h} provides a value for the maximum allowed normalized step
+Equation \ref{eq:sdf_max_h} provides a value for the maximum allowed normalized step
 size for which the utilization model can be applied in an arbitrary
 geometry. While unlikely that a step size this large would be applied in
 practice, it is important to understand the limitations of this model if it is

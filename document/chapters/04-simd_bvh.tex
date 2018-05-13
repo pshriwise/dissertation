@@ -10,7 +10,10 @@ The focus of the work in this chapter is improvements on the performance of the
 ray tracing process through the application of SIMD-oriented programming in the
 bounding volume hierarchies used in DAGMC. Some preliminary work was performed
 in this area by replacing the ray tracing kernel used in DAGMC (MOAB's oriented
-bounding box tree) with a kernel produced by Intel, called Embree.
+bounding box tree) with a kernel produced by Intel, called Embree. All of the
+simulation and ray fire results presented in this chapter and Chapter
+\ref{ch:high_valence} were performed using a 3.4 GHz Intel Core i7 processor on
+a Haswell desktop with AVX2 vectorization instruction sets.
 
 \section{Linking DAGMC with Intel's Embree}\label{sec:embree}
 

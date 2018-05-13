@@ -578,12 +578,11 @@ resulting in an overall improvement in the runtimes for these regions.
 
 To support a tree containing both AABBs and OBBs, additional encoding of
 interior nodes is required so that the appropriate node intersection methods are
-applied during traversal. The additional encodings for these node types are
-illustrated in Figure \ref{fig:mixed_node_encoding}. This encoding scheme takes
-advantage of the two remaining bit configurations available for node definitions
-by setting the appropriate bits in the node reference objects. These node masks
-are stripped from the node reference's integer value to retrieve the pointer to
-the node objects themselves with little added overhead in the traversal process.
+applied during traversal. Axis-Aligned and Oriented nodes are identiifed using
+the the two remaining bit configurations available for node definitions by
+setting the appropriate bits in the node reference objects. These node masks are
+stripped from the node reference's integer value to retrieve the pointer to the
+node objects themselves with little added overhead in the traversal process.
 
 \section{Transport Testing}
 

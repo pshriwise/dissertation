@@ -1188,7 +1188,7 @@ production models as well.
       FNG           & 2.49 / 1.00 &  9.83  / 3.95  & 6.48 / 2.60 \\
       ATR           & 3.18 / 1.00 &  36.16 / 11.37 & 8.54 / 2.68 \\
       UWNR          & 270  / 1.00 &  7900  / 29.26 & 3645 / 13.5 \\
-      ITER-BLITE    & N/A  / 1.00 &  116   / N/A   & 44   / N/A  \\
+      ITER-BLITE    & N/A  / N/A  &  116   / N/A   & 44   / N/A  \\
       \bottomrule
     \end{tabular}
   \end{center}
@@ -1196,6 +1196,28 @@ production models as well.
     MPBVH over four transport test problems. No lost particles occurred in any of
   these runs and all results match the standard DAGMC implementation exactly.}
   \label{tab:mpbvh_transport_timing_production}
+\end{table}
+
+\begin{table}
+  \small
+  \begin{center}
+    \begin{tabular}{lcc}
+
+      \toprule
+      Test Model & DAG-MCNP & DAG-MCNP MPBVH \\
+      %%\hline
+      & \multicolumn{2}{c}{\textbf{Memory Usage (MB)}} \\
+      \hline
+      FNG           & 198  & 164 \\
+      ATR           & 324  & 260 \\
+      UWNR          & 217  & 168 \\
+      ITER-BLITE    & 4,994  & 3,749  \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \caption{Memory usage of the BVH structures for both DAGMC using MOAB's OBB
+    tree and DAGMC using the MPBVH.}
+  \label{tab:mpbvh_memory}
 \end{table}
 
 \section{Limitations and Future Work}

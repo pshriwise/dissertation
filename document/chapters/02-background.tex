@@ -238,7 +238,19 @@ mesh and the geometric relationships between the mesh entities are stored in the
 Mesh Oriented dAtaBase (MOAB) \cite{Tautges_2004}. These relationships, which
 preserve the geometric topology, are stored in a hierarchical structure within
 MOAB, relating volumes to their surfaces, surfaces to curves, and curves to
-vertices.
+geometric vertices. For the purposes of this work, only the relationship between
+volumes and surfaces are of concern. A depiction of the relationship between
+these entities in the mesh database can be seen in Figure \ref{fig:dagmc_geom_example}.
+
+\begin{sidewaysfigure}
+  \centering
+  \includesvg{../images/moab_geom_fig}{0.45\textwidth}
+  \includesvg{../images/mesh_based_topology}{0.5\textwidth}
+  \caption{Left: Partial representation of a discretized DAGMC geometry. Right:
+    A representation of the mesh-based hierarchy used to maintain topological
+    information about the CAD geometry in MOAB.}
+  \label{fig:dagmc_geom_example}
+\end{sidewaysfigure}
 
 It is important that geometric relationships of the mesh are maintained to
 accelerate certain geometric queries on the surface mesh. For example,

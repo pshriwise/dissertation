@@ -68,8 +68,8 @@ fidelity as the representation in MOAB.
 \begin{figure}
   \centering
   \includegraphics[scale=0.3]{emdag_mapping.png}
-  \caption{Representation of MOAB tracking topological connections while mapped
-    to Embree to perform ray queries.}
+  \caption{Representation of MOAB's topological connections mapped
+    to Embree.}
   \label{emdag_mapping}
 \end{figure}
 
@@ -773,9 +773,19 @@ the memory footprint of DAGMC. It is critical to DAGMC that the surface
 intersected is returned as part of the ray's intersection information so that
 particles can be passed from volume to volume correctly. This information is
 maintained in the root nodes of surface trees and updated during the BVH
-traversal process. In order to maintain this functionality without duplicating
-triangle information, a similar scheme was implemented in the MPBVH, but within
-the framework of a BVH design for SIMD traversals.
+traversal process (see Figure \ref{fig:surface_root_example}). The same
+scheme was implemented in the MPBVH, but within the framework of a BVH design
+for SIMD traversals.
+
+\begin{sidewaysfigure}
+  \centering
+  \includesvg{../images/moab_geom_2d}{0.45\textwidth}
+  \includesvg{../images/moab_tree_topology}{0.5\textwidth}
+  \caption{Left: Representation of a faceted DAGMC geometry. Right: The
+    corresponding BVH structure for that volume. Surface subtrees are shared
+    between volumes to avoid duplicate data.}
+  \label{fig:surface_root_example}
+\end{sidewaysfigure}
 
 Tree nodes in both Embree and the MPBVH are represented by a node
 reference construct which stores a single pointer value as an integer
@@ -1203,9 +1213,7 @@ significant memory savings of 1.2 GB in simulations of the ITER model.
     \begin{tabular}{lc}
 
       \toprule
-      Test Model & DAG-MCNP & DAG-MCNP MPBVH \\
-      %%\hline
-      & \multicolumn{1}{c}{\textbf{Memory Usage Ratio to MOAB OBB Tree}} \\
+      Test Model & Memory Usage Ratio to MOAB OBB Tree \\
       \hline
       FNG           & 0.83 \\
       ATR           & 0.80 \\

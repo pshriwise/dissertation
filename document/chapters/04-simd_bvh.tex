@@ -567,7 +567,7 @@ distances to the surface.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/reduced_precision_scheme}{0.6\textwidth}
+  \includesvg{../images/reduced_precision_scheme}{width=0.6\textwidth}
   \caption{The reduced precision scheme used to accelerate ray traversal while
     returning double precision intersections.}
   \label{fig:reduced_precision_scheme}
@@ -584,7 +584,7 @@ origin and direction are introduced. This effect is illustrated in Figure
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/double_ray_float_ray}{0.5\textwidth}
+  \includesvg{../images/double_ray_float_ray}{width=0.5\textwidth}
   \caption{A representation of the directional change due to conversion of a
     ray's origin and direction from double to single precision. Where capital
     letters indicate double precision values.}
@@ -689,7 +689,7 @@ kernel.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.8]{box_extension_test.eps}
-%  \includesvg{../images/box_extension_test}{0.8\textwidth}
+%  \includesvg{../images/box_extension_test}{width=0.8\textwidth}
   \caption{Study of ray tracing performance and robustness for various values of
     the box extension parameter, $\Delta$. 600,000 rays were fired at each model
     for faceting tolerance values ranging from. Points in the graph represent
@@ -779,8 +779,8 @@ for SIMD traversals.
 
 \begin{sidewaysfigure}
   \centering
-  \includesvg{../images/moab_geom_2d}{0.45\textwidth}
-  \includesvg{../images/moab_tree_topology}{0.5\textwidth}
+  \includesvg{../images/moab_geom_2d}{width=0.45\textwidth,valign=t}
+  \includesvg{../images/moab_tree_topology}{width=0.45\textwidth,valign=t}
   \caption{Left: Representation of a faceted DAGMC geometry. Right: The
     corresponding BVH structure for that volume. Surface subtrees are shared
     between volumes to avoid duplicate data.}
@@ -797,12 +797,12 @@ pointer to either an interior node or leaf node is needed, the pointer value is
 recovered by setting these bits to zero and casting the pointer to the
 appropriate object type.
 
-\begin{figure}[H]
-  \centering
-  \includesvg{../images/quad_tree_sets}{0.8\textwidth}
-  \caption{A representation of how surface BVHs are joined into a volume BVH.}
-  \label{fig:quad_tree_sets}
-\end{figure}
+%% \begin{figure}[H]
+%%   \centering
+%%   \includesvg{../images/quad_tree_sets}{width=0.8\textwidth}
+%%   \caption{A representation of how surface BVHs are joined into a volume BVH.}
+%%   \label{fig:quad_tree_sets}
+%% \end{figure}
 
 In a leaf node reference the fourth bit is set to one, indicating it is a leaf
 node and that any pointer value taken from the node reference should be treated
@@ -813,7 +813,7 @@ this limit will be discussed further in Chapter \ref{ch:high_valence}.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/leaf_encoding}{1.0\textwidth}
+  \includesvg{../images/leaf_encoding}{width=1.0\textwidth}
   \caption{Visual representation of leaf encoding using integer-based
     pointer values in node references.}
   \label{fig:leaf_encoding}
@@ -853,7 +853,7 @@ that surface will be visited before moving on to the next surface, at which
 point the traversal ray information will be updated.
 
 \begin{figure}
-  \includesvg{../images/set_leaf_encoding}{1.0\textwidth}
+  \includesvg{../images/set_leaf_encoding}{width=1.0\textwidth}
   \caption{Visual representation of set leaf encoding using integer-based
     pointer values.}
   \label{fig:set_leaf_encoding}
@@ -994,7 +994,7 @@ returning exiting intersections only.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/mbray_structs}{1.0\textwidth}
+  \includesvg{../images/mbray_structs}{width=1.0\textwidth}
   \caption{Ray structures used to communicate hit information between the MPBVH and DAGMC.}
   \label{fig:mpbvh_ray_structures}  
 \end{figure}

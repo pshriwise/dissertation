@@ -6,7 +6,7 @@
   \begin{adjustwidth}{1em}{0pt}
     \begin{figure}[h]
       \begin{center}
-        \includesvg{../images/#2}{0.65\textwidth}
+        \includesvg{../images/#2}{width=0.65\textwidth}
         \caption{#3}
         \label{fig:#2}
       \end{center}
@@ -272,7 +272,7 @@ goes up, the performance of the simulation will also improve.
 
 \begin{figure}[ht]
   \centering
-  \includesvg{../images/sdf_hydrogen_density_study_util}{\textwidth}
+  \includesvg{../images/sdf_hydrogen_density_study_util}{width=\textwidth}
   \caption{Utilization results for a 5 MeV neutron source at the origin of a 10 cm radius
     sphere. Hydrogen density was varied from 0 to 1 $\frac{g}{cm^3}$.}
   \label{fig:sphere_hydrogen_density_study_util}
@@ -287,7 +287,7 @@ signed distance field and preconditioning enabled. Figure
 
 \begin{figure}[ht]
   \centering
-  \includesvg{../images/sdf_hydrogen_density_study_perf}{\textwidth}
+  \includesvg{../images/sdf_hydrogen_density_study_perf}{width=\textwidth}
   \caption{Performance results for a 5 MeV neutron source at the origin of a 10
     cm radius sphere. Hydrogen density was varied from 0.0 to 1.0
     $\frac{g}{cm^3}$. Simulations of 100M histories at each density were
@@ -335,7 +335,7 @@ conditions for application of the signed distance field.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/sdf_fixed_dist_results}{\textwidth}
+  \includesvg{../images/sdf_fixed_dist_results}{width=\textwidth}
   \caption{Results of the model for the theoretical utilization limit with the
     results of the simulation for a fixed distance traveled case.}
   \label{fig:sdf_fixed_dist}    
@@ -358,7 +358,7 @@ limit will now be discussed.
 
 \begin{figure}[ht]
   \centering
-  \includesvg{../images/alpha}{0.3\textwidth}
+  \includesvg{../images/alpha}{width=0.3\textwidth}
   \caption{Depiction of model variables.}
   \label{fig:model}
 \end{figure}
@@ -504,7 +504,7 @@ departure, $\alpha$, from the particle's position can be derived.
 
 \begin{figure*}[ht]
   \centering
-  \includesvg{../images/model_cases_fixed_distance}{\textwidth}
+  \includesvg{../images/model_cases_fixed_distance}{width=\textwidth}
   \caption{Depiction of modeling cases. Left: an example of a track for which
     $d < R - r$. Middle: an example of a track for which $R-r < d < R$ and can be
     preconditioned.  Right: an example of a track for which $R-r < d < R$ and
@@ -596,7 +596,7 @@ geometries as well.
 
 %% \begin{figure}[ht]
 %% \centering
-%% \includesvg{../images/sdf_sampled_dist_results}{0.5\textwidth}
+%% \includesvg{../images/sdf_sampled_dist_results}{width=0.5\textwidth}
 %% \caption{Results of the model for the theoretical utilization limit with the
 %% results of the simulation for a sampled distance traveled case.}
 %% \label{fig:sdf_sampled_dist}
@@ -706,7 +706,7 @@ seen in Figure \ref{fig:alpha_min}.
 
 \begin{figure}[ht]
   \centering
-  \includesvg{alpha_r}{1\textwidth}
+  \includesvg{alpha_r}{width=1\textwidth}
   \caption{Plot of mininum angle of departure restriction for particles with
     various radial positions between 0 cm and 100 cm and various distanced traveled.}
  \label{fig:alpha_min}
@@ -747,7 +747,7 @@ distance sampling scenario after the $c=\frac{R}{\lambda}$ replacement is
 
 \begin{figure}[ht] 
 \centering
-\includesvg{../images/sdf_sampled_dist_results}{\textwidth}
+\includesvg{../images/sdf_sampled_dist_results}{width=\textwidth}
 \caption{Results of the model for the theoretical utilization limit with the
   results of the simulation for a sampled distance traveled case.}
 \label{fig:sdf_sampled_dist}
@@ -769,7 +769,7 @@ method to the SDF step size must be understood.
 
 %% \begin{figure}[ht] 
 %% \centering
-%% \includesvg{../images/util_contributions}{\textwidth}
+%% \includesvg{../images/util_contributions}{width=\textwidth}
 %% \caption{A plot of the total predicted utilization along with the contriubtions
 %%   from the inner region ($d < R-r$) and outer region ($d > R-r$).}
 %% \label{fig:util_region_contributions}
@@ -863,7 +863,7 @@ discussed in more detail in Section \ref{subsec:sdf_other_geoms}.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/sdf_util_sampled_distance_w_error}{\textwidth}
+  \includesvg{../images/sdf_util_sampled_distance_w_error}{width=\textwidth}
   \caption{Theoretical limits for SDF utilization accounting for error
     evaluation plotted with simulation results for varying mesh step sizes.}
   \label{fig:sdf_util_sampled_distance_w_error}
@@ -919,7 +919,7 @@ with some limitations.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/sdf_sampled_cylinder}{\textwidth}
+  \includesvg{../images/sdf_sampled_cylinder}{width=\textwidth}
   \caption{Application of the analytic model for preconditioner utilization in a
     cylinder volume for various mean mean free paths, $\lambda$, and mesh step
     sizes, $h$.}
@@ -929,7 +929,7 @@ with some limitations.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/sdf_sampled_cone}{\textwidth}
+  \includesvg{../images/sdf_sampled_cone}{width=\textwidth}
   \caption{Application of the analytic model for preconditioner utilization in a
     cone volume for various mean mean free paths, $\lambda$, and mesh step
     sizes, $h$.}

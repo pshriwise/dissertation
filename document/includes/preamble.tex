@@ -20,6 +20,7 @@
 \usepackage{cancel}
 \usepackage{siunitx}
 \usepackage{subcaption}
+\usepackage[export]{adjustbox}
 
 %% You should use natbib
 \IfFileExists{natbib.sty}{%
@@ -41,7 +42,7 @@
   \executeiffilenewer{#1.svg}{#1.pdf}%
                      {inkscape #1.svg %
                        --export-pdf=#1.pdf}%
- \includegraphics[width=#2]{#1.pdf}
+ \includegraphics[#2]{#1.pdf}
 }
 
 %% the spacing in memoir is weird, you'll need to use this
@@ -112,11 +113,11 @@
 
 \usepackage[LY1]{eulervm}
 
-\ifpdf
-\usepackage[pdftex]{graphicx}
-\else
+%\ifpdf
+%\usepackage[pdftex]{graphicx}
+%\else
 \usepackage{graphicx}
-\fi
+%\fi
 
 \usepackage{rotating}
 \usepackage{makeidx}

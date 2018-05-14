@@ -10,8 +10,8 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="10613.317"
-   height="8653.3965"
-   viewBox="0 0 10613.317 8653.3966"
+   height="8901.9209"
+   viewBox="0 0 10613.317 8901.9211"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
@@ -41,9 +41,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.079999999"
-     inkscape:cx="4814.2964"
-     inkscape:cy="3826.3315"
+     inkscape:zoom="0.056568542"
+     inkscape:cx="4475.5995"
+     inkscape:cy="2827.8862"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -72,9 +72,10 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-29435.005,6107.0571)">
+     transform="translate(-29435.005,5998.0278)">
     <g
-       id="g4296">
+       id="g4296"
+       transform="translate(0,357.55339)">
       <path
          sodipodi:nodetypes="cssssssscssc"
          inkscape:connector-curvature="0"
@@ -169,14 +170,25 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:150px;line-height:124.00000095%;font-family:Sans;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="32347.377"
-       y="-5774.6597"
+       x="31663.295"
+       y="-5570.6597"
        id="text4232-9"
        sodipodi:linespacing="124%"><tspan
          sodipodi:role="line"
          id="tspan4234-0"
-         x="32347.377"
-         y="-5774.6597"
-         style="font-size:437.5px">Discretized Geometry</tspan></text>
-  </g>
+         x="31663.295"
+         y="-5570.6597"
+         style="font-size:562.5px">Discretized Geometry</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot5979"
+       style="font-style:normal;font-weight:normal;font-size:150px;line-height:124.00000095%;font-family:Sans;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       transform="translate(29435.005,-6107.0571)"><flowRegion
+         id="flowRegion5981"><rect
+           id="rect5983"
+           width="3588.5669"
+           height="972.27185"
+           x="-565.68542"
+           y="-291.50439" /></flowRegion><flowPara
+         id="flowPara5985"></flowPara></flowRoot>  </g>
 </svg>

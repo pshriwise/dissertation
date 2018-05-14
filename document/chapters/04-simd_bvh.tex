@@ -901,7 +901,7 @@ histories. This tracking algorithm uses structures known as the \textbf{MBRay}
 (shown in Figure \ref{fig:mpbvh_ray_structures}) are critical to the use of the
 MPBVH as a robust particle tracking tool.
 
-\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={The method used for \textit{Next Surface} queries.},captionpos=b,label={alg:Next Surface Pseudo Code}]
+\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algorithm used in \textit{Next Surface} queries.},captionpos=b,label={alg:Next Surface Pseudo Code}]
   
   def next_surface(current_volume,
                    point,
@@ -911,8 +911,7 @@ MPBVH as a robust particle tracking tool.
                    &next_surface_distance):
 
       # create a ray with infinite length
-      ray = MBRay(point,direction)
-      ray.volID = current_volume
+      ray = MBRay(current_volume, point,direction,)
     
       # if the ray orientation is set, ignore
       # hits which opposed the triangle's
@@ -928,18 +927,19 @@ MPBVH as a robust particle tracking tool.
     
       # if the ray missed and overlaps are allowed in the model
       # fire a ray in the opposite direction
-      if ray.surfID == -1 and get_overlap_thickness() != 0.0: {
-        small_val = get_overlap_thickness() * 0.01
+      if ray.missed and overlap_thickness != 0.0: {
+        small_val = overlap_thickness * 0.01
         ray.direction *= -1
         # apply some small space at the beginning of the ray
         # where hits are ignored
         ray.tnear = small_val
         # set the ray distance to the overlap thickness
-        ray.tfar = get_overlap_thickness()
+        ray.tfar = overlap_thickness
     
-        # unset the ray filter regardless of the ray orientation
+        # unset the ray filter regardless of ray orientation
         unset_filter()
-    
+
+        # fire the ray
         fire_ray(ray)
         
         # update ray value to zero for this type of hit
@@ -947,25 +947,24 @@ MPBVH as a robust particle tracking tool.
     
       # if we have a hit at this point, set the returned
       # surface ID and distance
-      if ray.surfID != -1:
-        next_surf = ray.surfID
+      if !ray.missed:
+        next_surf = ray.surface
         next_surf_distance = ray.tfar
-
+        
       # otherwise the particle is lost,
       # set return information accordingly
       else:
         next_surf = 0
         next_surf_distance = ray.tfar
-    
-        return
+
+      return
 
   def backface_cull( &mbray ):
 
       # if the ray direction opposes the hit triangle's
       # normal vector, reject the ray hit
       if dot_product(mbray.dir, mbray.norm) < 0.0:
-          mbray.geomID = -1
-          mbray.primID = -1
+          ray.continue = True
 
       return
 
@@ -1017,22 +1016,17 @@ function above. These filter functions can also be used to accumulate ray hits,
 which is critical to implementation of a robust point containment algorithm
 based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
 
-\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algoritm for determining point containment within a volume.},
-label={alg:Point Containment Pseudo Code}]
-  def point_contained( volume, point, direction, &result):
+\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algorithm for point containment within a volume.},
+    label={alg:Point Containment Pseudo Code},captionpos=b]
+  
+  def point_contained(volume, point, direction):
       # result values : 0 - outside; 1 - inside
 
       # start with an outside value
       result = 0
   
-      # if a direction was not supplied,
-      # generate a random one
-      if not direction:
-          direction = get_random_direction()
-
       # create a ray
-      ray = MBRay(point, direction)
-      ray.volID = volume
+      ray = MBRay(volume, point, direction)
 
       # accept ray hits regardless of
       # orientation w.r.t. triangle normal
@@ -1040,34 +1034,32 @@ label={alg:Point Containment Pseudo Code}]
 
       # fire the ray
       fire_ray(ray)
+      
       # calculate the dot product of
       # ray direction and triangle normal
       dot_prod= dot_product(ray.dir, ray.norm)
       
       # if a hit is found, 
-      if ray.geomID != -1 and dot_prod != 0.0:
+      if not ray.missed and dot_prod not 0.0:
           if dot_prod < 0.0:
-              result = 1
+              return INSIDE
           else:
-              result = 0
-         return
+              return OUTSIDE
 
       # if the ray is tangent, the overlap thickness is
       # non-zero, or it missed - 
       # count hits and sum orientations
-      if dot_prod == 0.0 or get_overlap_thickness() > 0.0:
-         aray = MBAccumulatorRay aray(point, direction)
-         aray.volID = volume
+      if dot_prod is 0.0 or overlap_thickness is not 0.0:
+         aray = MBAccumulatorRay aray(volume, point, direction)
 
+         
          set_filter(count_hits)
-
          fire_ray(ray)
 
          # if no hits were found
          # point is outside
          if aray.num_hit == 0:
-             result = 0
-             return
+             return OUTSIDE
 
          # fire ray in negative direction
          # and reset length
@@ -1079,31 +1071,23 @@ label={alg:Point Containment Pseudo Code}]
          # if no hits were found
          # point is outside
          if aray.num_hit == 0:
-             result = 0
-             return
+             return OUTSIDE
             
          # check the value of the sum
          if 0 > aray.sum:
-            result = 1
+             return INSIDE
          else:
-            result = 0
-            
-      return       
+             return OUTSIDE
 
   def count_hits( &aray ):
-      if dot_product(aray.dir, aray.norm) > 0.0:
-          aray.sum -= 1 # exiting hit
-      else:
-          aray.sum += 1 # entering hit          
-
-      # always reset ray hit values
-      aray.geomID = -1
-      aray.primID = -1
-
       # increment number of hits
       aray.num_hit++
+      # add value based on sign of dot product
+      aray.sum += sign(dot_product(aray.dir, aray.norm))
 
-      return
+      # always reset ray hit values
+      aray.continue = True
+
 \end{lstlisting}
 
 In this method the ray is intersected with the volume and a hit is evaluated as

@@ -30,6 +30,8 @@
 \end{acks}
 
 % CONTENTS, TABLES, FIGURES
+
+
 \setcounter{tocdepth}{4}
 \setcounter{secnumdepth}{4}
 \renewcommand{\printtoctitle}[1]{\chapter*{#1}}
@@ -64,13 +66,22 @@
 % \renewcommand{\listfigurename}{list of figures}
 % \renewcommand{\listtablename}{list of tables}
 
+\renewcommand{\lstlistingname}{Algorithm}% Listing -> Algorithm
+\renewcommand{\lstlistlistingname}{List of \lstlistingname s}% List of Listings -> List of Algorithms
+
+
 \tableofcontents
+
 
 \clearpage
 \listoftables
 
 \clearpage
 \listoffigures
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{\lstlistlistingname}{\lstlistoflistings}
 
 \clearpage
 % NOMENCLATURE

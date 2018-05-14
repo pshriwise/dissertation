@@ -1182,20 +1182,35 @@ production models as well.
   \label{tab:mpbvh_transport_timing_production}
 \end{table}
 
+A simple analysis of memory usage for each of the production models was
+conducted as well. While not the focus of this work, it is expected that the
+single precision values and compact node form of the MPBVH will result in a
+lower memory footprint in DAGMC's acceleration data structures. The results of
+this study shown in Table \ref{tab:mpbvh_memory} verify that this is the
+case. One might expect that the memory savings is closer to a factor of two for
+the conversion from double to single precision values, but there are competing
+factors at work in this analysis. The use of AABBs rather than OBBs results in
+deeper trees for these models due to the AABBs limited ability to conform to
+arbitrary shapes. While still preferable due to the fast computation of ray-box
+intersections, the use of AABBs results in more total nodes in the trees, and
+may accout for the higher than expected memory usage of the MPBVH. Regardless,
+the MPBVH consistently has a lower memory footpring by 20-25\%, resulting in a
+significant memory savings of 1.2 GB in simulations of the ITER model.
+
 \begin{table}
   \small
   \begin{center}
-    \begin{tabular}{lcc}
+    \begin{tabular}{lc}
 
       \toprule
       Test Model & DAG-MCNP & DAG-MCNP MPBVH \\
       %%\hline
-      & \multicolumn{2}{c}{\textbf{Memory Usage (MB)}} \\
+      & \multicolumn{2}{c}{\textbf{Memory Usage Ratio to MOAB OBB Tree}} \\
       \hline
-      FNG           & 198  & 164 \\
-      ATR           & 324  & 260 \\
-      UWNR          & 217  & 168 \\
-      ITER-BLITE    & 4,994  & 3,749  \\
+      FNG           & 0.83 \\
+      ATR           & 0.80 \\
+      UWNR          & 0.77 \\
+      ITER-BLITE    & 0.75 \\
       \bottomrule
     \end{tabular}
   \end{center}
@@ -1205,8 +1220,6 @@ production models as well.
 \end{table}
 
 \section{Limitations and Future Work}
-
-%\subsection{Closest to Location}
 
 \subsection{Large Models}
 

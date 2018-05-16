@@ -148,7 +148,7 @@ significantly reduce the runtime of the simulation.
 
 \section{Implementation}
 
-\subsection{SDF Construction}
+\subsection{Construction}
 
 As an initial implementation, one signed distance field is generated for each
 volume in DAGMC with extents matching the axis-aligned bounding box of the
@@ -208,7 +208,7 @@ signed distance value for the location of interest. As a result, the complexity
 of a signed distance value lookup from the signed distance field is
 $O(1)$.
 
-\subsection{SDF Population}
+\subsection{Population}
 
 Signed distance fields are typically generated using an implicit, analytic
 representation, but a suitable data structure for populating the structured mesh
@@ -318,7 +318,7 @@ histories.  In order to have more control over a simulation's physical
 parameters, subsequent experiments were performed using a pseudo Monte Carlo
 simulation tool.
 
-\subsection{Signed Distance Field Utilization Modeling}
+\subsection{Utilization Modeling}
 
 In order to characterize utilization of a signed distance field as a
 preconditioner for next surface intersection queries in DAGMC, a pseudo Monte

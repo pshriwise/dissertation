@@ -467,7 +467,7 @@ improvements to DAGMC's ray tracing kernel for particle tracking will need to
 maintain use of double precision representations for mesh elements for robust
 coupling of numerical and logical particle positions and directions.
 
-\section{A Mixed Precision BVH}
+\section{Mixed Precision Bounding Volume Hierarchy}
 
 As described in Section \ref{sec:emdag_limitations} a SIMD-oriented ray tracing
 kernel was successfully implemented and applied in DAGMC. Unfortunately, this
@@ -1157,7 +1157,7 @@ expected based on the difference in pure ray fire times from Section
   \label{tab:mpbvh_transport_timing_simple}
 \end{table}
 
-\subsubsection{Production Simulations}\label{subsec:mpbvh_production_transport}
+\section{Production Simulations}\label{subsec:mpbvh_production_transport}
 
 After verifying that no particles were lost in the simple test cases, the MPBVH
 implementation of DAGMC was applied to the same FNG model as EmDAG. The results

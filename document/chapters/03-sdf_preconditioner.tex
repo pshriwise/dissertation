@@ -303,8 +303,9 @@ study of 0.01 $\frac{g}{cm^3}$, the utilization of the signed distance field to
 avoid ray fire calls is 0.54.
 
 
-Figure \ref{fig:sphere_hydrogen_density_study_perf} provides an impression of the
-performance of these three implementations converge as the density of the
+Figure \ref{fig:sphere_hydrogen_density_study_perf} provides some insight into the
+impact of the precontitioning method on the simulation. The runtimes
+of three implementations  converge as the density of the
 hydrogen is varied. As the hydrogen density approaches 1.0 $\frac{g}{cm^3}$, a
 factor of ~3.5 improvement in runtime is seen in the simulation where the SDF is
 applied as a preconditioner. The application of the signed distance field allows

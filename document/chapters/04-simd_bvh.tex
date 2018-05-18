@@ -1062,7 +1062,6 @@ based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
       if dot_prod is 0.0 or overlap_thickness is not 0.0:
          aray = MBAccumulatorRay aray(volume, point, direction)
 
-         
          set_filter(count_hits)
          fire_ray(ray)
 
@@ -1213,7 +1212,7 @@ significant memory savings of 1.2 GB in simulations of the ITER model.
     \begin{tabular}{lc}
 
       \toprule
-      Test Model & Memory Usage Ratio to MOAB OBB Tree \\
+      \textbf{Test Model} & \textbf{\thead{Memory Usage Ratio \\ to MOAB OBB Tree}} \\
       \hline
       FNG           & 0.83 \\
       ATR           & 0.80 \\

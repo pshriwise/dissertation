@@ -821,7 +821,7 @@ this limit will be discussed further in Chapter \ref{ch:high_valence}.
 
 In DAGMC, a BVH is created for each set of triangles representing a
 surface. These surface trees are then joined into a single tree that represents
-a volume as depicted in Figure \ref{fig:quad_tree_sets}. This avoids duplication
+a volume as depicted in Figure \ref{fig:surface_root_example}. This avoids duplication
 of surface trees for each volume. It also allows the return of which surface is
 intersected, allowing for optimized transport of a particle to the volume on the
 other side of that surface via the topology represented by the mesh hierarchy

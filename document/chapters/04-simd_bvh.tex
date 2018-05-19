@@ -359,7 +359,7 @@ due to the simple nature of their geometric topology.
 
 In the DAGMC workflow, a required step for a watertight model is to imprint and
 merge the surfaces in the geometry representation before faceting the
-model. Imprinting (shown in in Figure \ref{fig:imprit_ex} is the process by which
+model. Imprinting (shown in in Figure \ref{imprint_ex}) is the process by which
 surfaces and curves that are coincident by proximity in space are made the
 same. This process is accomplished by splitting entities into their coincident
 and non-coincident parts. The merging process then topologically combines these
@@ -720,7 +720,7 @@ enough to cause minimal overlap in the bounding boxes and a negligible effect on
 the BVH performance, as seen in Figure \ref{fig:box_bump_tests}. For all results
 discussed in this work $\Delta$ was set to $5 \, \text{x} \, 10 ^{-3}$.
 
-\subsubsection{Simplified Surface Area Heuristic}
+\subsubsection{Simplified Surface Area Heuristic}\label{sec:ssah}
 
 The MPBVH employs a modified version of the Surface Area Heuristic,
 discussed in Chapter \ref{ch:background}, which was developed by the

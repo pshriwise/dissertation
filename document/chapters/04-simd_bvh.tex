@@ -1,14 +1,14 @@
 
-\chapter{Mixed Precision Bounding Volume Hierarchy}\label{ch:simd_bvh}
+\chapter{A Mixed Precision Bounding Volume Hierarchy}\label{ch:simd_bvh}
 
 \section{Introduction}
 
 As established in Section \ref{sec:problem-statement}, the dominant source of
 additional runtime in DAGMC is spent in the ray tracing process used to satisfy
-the Monte Carlo geometry queries outlined in Section \ref{sec:mc-geom-queries}.
+the set of Monte Carlo geometry queries outlined in Section \ref{sec:mc-geom-queries}.
 The focus of the work in this chapter is improvements on the performance of the
-ray tracing process through the application of SIMD-oriented programming in the
-bounding volume hierarchies used in DAGMC. Some preliminary work was performed
+ray tracing process through the application of SIMD-oriented programming for the
+bounding volume hierarchies in DAGMC. Some preliminary work was performed
 in this area by replacing the ray tracing kernel used in DAGMC (MOAB's oriented
 bounding box tree) with a kernel produced by Intel, called Embree. All of the
 simulation and ray fire results presented in this chapter and Chapter
@@ -19,16 +19,16 @@ a Haswell desktop with AVX2 vectorization instruction sets.
 
 Embree is the result of a an effort to produce a performant CPU-based ray tracer
 as a demonstration of the expanding capabilities of modern CPU architectures
-\cite{Wald_2014}. In both construction and traversal of BVHs, Embree takes
+\cite{Wald_2014}. In both construction and traversal of its BVHs, Embree takes
 advantage of many of the latest developments in BVH research by using modern
-chipset architecture capabilities via vectorization at an implementation level
-as described in Section \ref{subsec:arch} of this work. The combination of these
-effects leads to a very powerful ray tracing tool in terms of performance, as
-demonstrated by the many projects which have incorporated Embree as their
-production ray tracing kernel such as Corona, Autodesk, FluidRay, and
-Brighter3D. As a result of its success in other areas, Embree was selected to be
-applied in DAGMC to satisfy geometric queries for MCNP. The resulting
-combination of these tools will be referred to as EmDAG.
+chipset architecture capabilities via vectorization at an implementation level.
+Such work was alluded to in Section \ref{subsec:arch} of this work. The
+combination of these effects leads to a very powerful ray tracing tool in terms
+of performance, as demonstrated by the many projects which have incorporated
+Embree as their production ray tracing kernel such as Corona, Autodesk,
+FluidRay, and Brighter3D. As a result of its success in other areas, Embree was
+selected for application in DAGMC to satisfy geometric queries for MCNP. The
+resulting combination of Embree and DAGMC will be referred to as EmDAG.
 
 \subsection{Implementation and Model Transfer}\label{sec:emdag_transfer}
 
@@ -37,92 +37,88 @@ equivalent representation of the MOAB mesh in Embree. In comparison to MOAB,
 Embree is limited in its ability to represent the underlying topological
 structure of a model. This topology is necessary and used advantageously during
 particle tracking in DAGMC by reducing the set of triangles queried to those of
-the particle's current volume and thus reducing the number of point containment
-queries. However, a method was discovered to represent enough of the topology to
-meet the requirements of DAGMC transport. The highest level representation in
-Embree is referred to as a scene. Each scene may contain one or more geometries
-or triangle surface meshes. Fortunately, this system is enough to create a
-workable representation of DAGMC meshes in which MOAB volumes are the equivalent
-of Embree scenes and MOAB surfaces are represented in their respective scenes as
-surfaces. This method provides a one-to-one mapping of MOAB volumes and surfaces
-to their corresponding entities in Embree and allows all topology-based
-operations to proceed inside of DAGMC in their usual manner. In this way, the
-requirement for topological information in DAGMC at the surface and volume level
-is met. Next, transfer of the primitive mesh data is considered.
+the particle's current volume. However, a method was discovered to represent
+enough of the topology to meet the requirements of DAGMC transport. The highest
+level representation in Embree is referred to as a scene. Each scene may contain
+many geometries or triangle surface meshes. Fortunately, this system is enough
+to create a functional representation of DAGMC geometries in which MOAB volumes
+are the equivalent of Embree scenes and MOAB surfaces are represented in their
+respective scenes as surfaces. This mapping is more clearly illustrated in Figure
+\ref{fig:emdag_mapping} This method provides a one-to-one mapping of MOAB
+volumes and surfaces to their corresponding entities in Embree and allows all
+topology-based operations to proceed inside of DAGMC in their usual manner. In
+this way, the requirement for topological information in DAGMC at the surface
+and volume level is met. Next, transfer of the primitive mesh data is
+considered.
 
-Scenes do not share mesh data as volumes are able to do in MOAB, so the triangle
-connectivity of each surface is reproduced in each scene they belong
-to. Fortunately, Embree does allow the sharing of vertices between scenes. In
-order to take advantage of this feature, all of the vertices in the MOAB mesh
-are provided in the Embree instance as a global vertex buffer. Surfaces from all
-scenes can then be defined by a connectivity of vertices from this global pool
-of points. This method guarantees that the each surface can be represented by
-the same set of stored vertices in each scene it belongs to giving the exact
-same representation in each scene. It greatly simplifies particle tracking by
-guaranteeing that the same surfaces will not overlap each other in the different
-scenes they are a part of by doing the conversion of points from the MOAB
-database to Embree only once. Additionally, this method will maintain
-watertightness at the boundaries between surfaces ensuring the same model
-fidelity as the representation in MOAB.
+Scenes do not share mesh data in the same way volume sets are able to in MOAB,
+so the triangle connectivity of each surface is reproduced for each scene they
+belong to. Fortunately, Embree does allow the sharing of vertices between
+scenes. In order to take advantage of this feature, all of the vertices in the
+MOAB mesh are provided to the Embree instance as a global vertex buffer. Surface
+triangles from all scenes can then be defined by a connectivity of vertices from
+this global pool of points. This method guarantees that each surface can be
+represented by the same set of stored vertices regardless of scene ownership,
+giving the exact same representation in each scene. It greatly simplifies
+particle tracking by guaranteeing that the same surfaces will not numerically
+overlap as a result of the conversion from double to single
+precision. Additionally, this method will maintain topological watertightness at
+the boundaries between surfaces ensuring the same model fidelity as the
+representation in MOAB.
 
 \begin{figure}
   \centering
   \includegraphics[scale=0.3]{emdag_mapping.png}
   \caption{Representation of MOAB's topological connections mapped
     to Embree.}
-  \label{emdag_mapping}
+  \label{fig:emdag_mapping}
 \end{figure}
 
-The representation of triangle normals are important to the DAGMC particle
+The representation of triangle normals is critical to the DAGMC particle
 tracking algorithm established by Smith et. al. in 2011 \cite{Smith_2011}. In
 DAGMC, particles on or just outside the surface of a volume are handled by
-ignoring the near-surface intersection upon being established in a new
-volume. This is done to maintain tracking of particles based on their logical
-position in the model rather than solely their numerical position which can
-cause ambiguities regarding point containment and cause lost particles or
-trapped particles between surfaces with infinite histories. Logical particle
+ignoring the near-surface intersection upon being placed in a new volume. This
+is done to maintain tracking of particles based on their logical position in the
+model rather than solely their numerical position which can cause ambiguities
+regarding point containment and cause lost particles or trap particles between
+surfaces, resulting in infinite or near-infinite histories. Logical particle
 tracking is implemented using the convention that triangle normals will always
 point outward from the center of the volume they belong to. Triangles hit by the
 ray are ignored if the normal of the triangle opposes the ray direction via a
 dot product calculation to ensure only exiting ray intersections are
-considered. While this has historically been handled inside of DAGMC, this is
-accomplished in EmDAG via the use of Embree's filter functions. Filter functions
-allow for a user-defined callback method which allows users to validate a ray
-hit inside of Embree before returning a final result. Embree will return its
-most recent intersection with the scene to the filter function (the hit
-triangle's unnormalized vector included) and allow a method to either accept the
-hit or instruct Embree to continue tracing the ray path based on the outcome of
-the filter function. In MOAB, triangle normals are set in a global manner and
-adjusted using stored information within MOAB based on what volume is being
-queried at the moment. This is referred to as the surface's sense with respect
-to that volume. Because we are forced to duplicate surfaces in Embree, the
-triangle normals are pre-oriented based on this surface's sense for the scene it
-is being created in upon initialization of the model within the Embree
-instance. This saves steps in gathering this information upon traversal when the
-triangle normal is needed to determine a particle's logical position within the
-model. Though the connectivity of triangles is duplicated using this approach,
-the overall memory footprint of EmDAG after duplicating the DAGMC geometry in
-Embree is not much greater thanks to the single precision values for vertex
-locations used in Embree which will be addressed in a later section of this
-chapter.  By meeting DAGMC's requirements in the areas of topology, watertight
-representation, and hit acceptance/rejection based on triangle normals, Embree
-provides DAGMC with all the information needed to perform geometric operations
-required by the various Monte Carlo codes it supports, but in an agnostic manner
-to the ray tracing kernel being used.
+considered.
+
+While this has historically been handled inside of DAGMC, this is accomplished
+in EmDAG via the use of Embree's filter functions. Filter functions allow for a
+user-defined callback method which allows users to validate a ray hit inside of
+Embree before returning a final result. Embree will return its most recent
+intersection with the scene to the filter function (the triangle's unnormalized
+vector included) and allow a method to either accept the hit or instruct Embree
+to continue tracing the ray path based on the outcome of the filter function. In
+MOAB, triangle normals are set in a global manner and adjusted using stored
+information within MOAB based on what volume is being queried at the
+moment. This is referred to as the surface's sense with respect to that
+volume. Because surface triangle connectivity is duplicated when transferring
+mesh entities to Embree, triangle normals are pre-oriented depending its sense
+with respect to the volume is being transferred to Embree at load time. This
+saves steps in gathering this information upon traversal. By matching DAGMC's
+data model in the areas of topology, watertight representation, and hit
+acceptance/rejection based on triangle normals, Embree provides DAGMC with all
+the information needed to perform geometric operations needed for Monte Carlo
+simulations.
 
 \subsection{Ray Fire Performance}\label{subsubsec:emdag_rf_performance}
 
-Using the same DAGMC-based ray fire test program, the performance of DAGMC's ray
-fire ability was compared to that of EmDAG's for three models. These models
-include a simple sphere, a notched sphere, and a high aspect ratio (HAR)
+Using a DAGMC-based ray fire test program, the performance of DAGMC's ray fire
+ability was compared to that of EmDAG's for three representative models. These
+models include a simple sphere, a notched sphere, and a high aspect ratio (HAR)
 cylinder. In each of these tests, the models are tessellated with an
-increasingly smaller faceting tolerance in a higher number of triangles and more
-complex nature of the surface mesh in terms of BVH construction and
-traversal. The faceting tolerance is defined as the maximum distance between the
-faceted curve or surface and the geometric curve or surface which it
-resolves. 600k rays are then fired from the center of the volume isotropically
-using the same random number seed so that the same set of rays is fired in each
-ray tracing system.
+increasingly smaller faceting tolerance to vary the number of triangles
+generated when discretizing the models. The faceting tolerance is defined as the
+maximum distance between the faceted curve or surface and the geometric curve or
+surface which it resolves. 600k rays are then fired from the center of the
+volume isotropically using the same random number seed so that the same set of
+rays is fired in each ray tracing system.
 
 \begin{figure}[H]
   \begin{center}
@@ -132,81 +128,84 @@ ray tracing system.
       \includegraphics[scale=0.15]{larcyl.eps} \\
     \end{tabular}
     \caption{CAD representations of the sphere, slotted sphere, and high aspect
-      ratio cylinder test models used for ray fire timings of DAGMC and
-      EmDAGMC. (left to right) \label{models}}
+      ratio cylinder (left to right) test models used for ray fire timings of DAGMC and
+      EmDAGMC. \label{models}}
   \end{center}
 \end{figure} 
 
-The sphere and slotted sphere models present specialized challenges to the BVH
-data structure as described in Section \ref{sec:hv_study_MOAB}. Due to memory constraints
-of the system used for testing EmDAG's performance against DAGMC, the ITER
-volume was removed and replaced with a high aspect ratio cylinder. The faceting
-of the cylinder contains many long, thin triangles running along the barrel of
-the cylinder. In similar fashion to the spherical model, the number of these
-triangles will increase with decreasing faceting tolerance resulting in an
-increasing triangle density as well. The low aspect ratio nature of these
-triangles can cause difficulty in the calculations of tightly fitting OBBs
-within MOAB's BVH builder. This test model is used to the ray tracing systems
-robustness of the BVH generation algorithms to objects with surface meshes of
-this nature.
-
-The standard DAGMC ray fire test program (included in appendix A) was used to
-evaluate both ray fire systems. The test program itself is agnostic to the
-underlying ray tracing kernel used by DAGMC and two versions of the program were
-compiled. One in which DAGMC uses MOAB's ray tracer and another in which MOAB's
-ray tracing system is subverted by Embree, a.k.a. EmDAG. The two sets of timing
-results can be found in Figure \ref{fig:rf_test_results}.
+Each geometry used in these tests presents its own challenges with increasing
+faceting tolerance. The sphere is a good control case for an increasing number
+of triangles without change in complexity or exacerbation of pathological mesh
+features. The number of triangles generated in the spherical case will tend
+toward a maximum value with decreasing faceting tolerance, but the general
+nature of the triangulated surface (triangle density, structure, etc.)  will
+remain the same. This is not true of geometries with planar surfaces which may
+be able to be resolved exactly using some finite number of triangles making the
+sphere a valuable test model in that regard. In the case of the notched sphere,
+high-valence regions are generated by the faceting engine as a result of its
+underlying algorithms for planar surfaces meeting curves surfaces. The high
+triangle density of high valence regions causes overlaps in bounding volumes
+which become larger as the faceting tolerance decreases. This results in
+inefficient hierarchy traversal. Additionally, and perhaps more importantly than
+the presence of high valence regions, rays being fired with a point of origin at
+the center of the model causes them to travel either exactly along or very near
+to the surfaces of the planar slots in the sphere. Such a ray query will visit
+many internal nodes of the hierarchy during traversal, creating what is referred
+to as a very wide traversal through the BVH as opposed to a narrow traversal in
+which fewer branches and fewer nodes of the tree are visited. In this way, the
+slotted sphere provides a good measure for the performance of a wide traversal
+through the hierarchy in a situation for which many of the internal nodes are
+required to be visited. The two sets of timing results can be found in Figure
+\ref{fig:rf_test_results}.
 
 \begin{sidewaysfigure}[]
   \centering
   \includegraphics[scale=0.45]{Eig_fix_rf.eps}
   \includegraphics[scale=0.45]{embree_rf.eps}
   \includegraphics[scale=0.45]{mpbvh_rf.eps}
-  \caption{Ray fire test results on three representative DAGMC volumes. Each
+  \caption{Ray fire test results on three representative DAGMC volumes shown in Figure \ref{models}. Each
     data point represents the average ray fire time for 600k randomly directed
     rays from the origin of each volume. Top Left: Results of the tests for
     MOAB's OBB Tree. Top Right: Results of the tests for DAGMC coupled with
     Embree, or EmDAG. Bottom: Ray fire test results for DAGMC coupled with the
     MPBVH. The scale used for the MOAB OBB Tree is 10x greater than in the other
-    two cases due to the slower speed.}
+    two cases due its lower performance.}
   \label{fig:rf_test_results}
 \end{sidewaysfigure}
 
 Both MOAB and EmDAG scale relatively well for the HAR cylinder model with
 decreasing faceting tolerance. This indicates that both systems are capable of
-building bounding volumes well for a model with long, skinny triangles. The
-scaling of the spherical case with increasing triangles is slightly worse than
-the HAR cylinder most likely because the BVH tree is unavoidably going to
-become gradually deeper as more and more triangles exist in the model. Finally,
-the slotted sphere contains many high valence regions and as expected it scales
-the worst with decreasing faceting tolerance as the valence of these regions
-increases. It is very apparent that there is nearly an order of magnitude
-difference in the ray fire timings MOAB and Embree. Due to the very similar
-scaling of each test model, it can be stated that the majority of the
-discrepancy in the ray fire timings between the two systems occurs in the
-traversal methods employed by both systems and isn't likely due to a significant
-difference in the structure of the BVH being built by either system. Changes in
-the way the BVH is built typically accounts for anywhere from 30-40\% difference
-in ray fire timings whereas the discrepancy seen here between MOAB and Embree is
-on average \textbf{an order of magnitude better} when using Embree. In large
-part, this has to do with Embree's freedom of design without the restriction of
-a ray tracing implementation inside the context of another application. MOAB's
-flexibility in core design allows for the robust implementation of an oriented
-bounding box tree within this context, but comes with the overhead of database
-calls to retrieve stored information which can be undesirable for a
-high-performance system and doesn't allow MOAB to take advantage of some
-implementation optimization that Embree does. The vectorization of Embree's
-traversal through its BVH contributes greatly to its speed. This can be also
-considered a part of the design freedom allowed when designing an independent
-ray tracing system that cannot not be afforded using only MOAB's database
-interface. However, a property unique to MOAB may allow for an implementation
-such as this as will be discussed near the end of this work.
+building efficient BVHs for a model with long, skinny triangles. The scaling of
+the spherical case with increasing triangles is slightly worse than the HAR
+cylinder most likely because the BVH tree is unavoidably going to become
+gradually deeper as more and more triangles exist in the model. Finally, the
+slotted sphere contains many high valence regions and as expected it scales the
+worst with decreasing faceting tolerance as the valence of these regions
+increases. Due to the very similar scaling of each test model, it can be stated
+that the majority of the discrepancy in the ray fire timings between the two
+systems occurs in the traversal methods employed by both systems and isn't
+likely due to a significant difference in the quality of the BVH being built
+by either system. Changes in the way the BVH is built typically accounts for
+anywhere from 30-40\% difference in ray fire timings whereas the discrepancy
+seen here between MOAB and Embree is on average \textbf{an order of magnitude
+  better} when using Embree. To some degree, this has to do with Embree's freedom
+of design without the restriction of a ray tracing implementation inside the
+context of another application. The flexibility of MOAB's core design allows for the
+robust implementation of an oriented bounding box tree within this context, but
+comes with the overhead of database calls to retrieve stored information which
+can be undesirable for a high-performance system and doesn't allow MOAB to take
+advantage of some implementation optimization available in Embree. The
+vectorization of Embree's traversal through its BVH contributes greatly to its
+speed. This can be also considered a part of the design freedom allowed when
+designing an independent ray tracing system that cannot not be afforded using
+only MOAB's database interface. However, a property unique to MOAB may allow for
+an implementation with performance comparable to Embree's.
 
 \subsection{Transport Tests}
 \label{subsec:emdag_transport}
 
 As an extension of these pure ray fire tests, the effect of an improved ray
-tracing system on particle transport was studied as well. These tests begin with
+tracing system in particle transport was studied as well. These tests begin with
 several simple models and end with the application of EmDAG to one of the models
 used for DAGMC performance benchmarking in Chapter \ref{ch:introduction}, FNG.
 
@@ -215,19 +214,19 @@ filled with a dense hydrogen material for high collisionality in the problem
 resulting in a large number of ray queries in the transport run. Each of these
 models' principal dimension is 10 cm. The source for these models is a 5 MeV
 neutron isotropic point source at the center of the volume. One million
-particles were simulated in each test. All of the test models were preprocessed
+particles were simulated in each test. All of the test models were generated
 using a faceting tolerance of $10^{-4}$cm. Moving upward in complexity, another
 set of tests were run using a set of nested cubes and nested spheres. Each of
 the nested volume models contained three cells: the inner volume, a shell
 volume, and the graveyard volume. The purpose of these tests was to ensure that
-particles could in fact be tracked through multiple volumes robustly. The nested
-cubes model contains an extra volume which consists of the original single cube
-subtracted from a cube 1cm larger in each dimension. The nested sphere model
-contains an extra volume consisting of the original sphere from the single
-volume model subtracted from a sphere 1cm larger in radius. As the purpose of
-these tests was to test EmDAG's particle tracking between non-zero importance
-cells, the dimensions of the offset between the nested volumes is largely
-irrelevant so long as particles are in fact reaching all of the cells in the problem.
+particles could in fact be tracked through multiple volumes correctly. The
+nested cubes model contains an extra volume which consists of the original
+single cube subtracted from a cube 1cm larger in each dimension. The nested
+sphere model contains an extra volume consisting of the original sphere from the
+single volume model subtracted from a sphere 1cm larger in radius. As the
+purpose of these tests was to test EmDAG's particle tracking between volumes, the
+dimensions of the offset between the nested volumes is largely irrelevant so
+long as particles reach all of the volumes in the model.
 
 \begin{table}[H]
   \small
@@ -248,7 +247,7 @@ irrelevant so long as particles are in fact reaching all of the cells in the pro
       
     \end{tabular}
   \end{center}
-  \caption{Runtime comparison native MCNP, DAG-MCNP, and EmDAG-MCNP over four
+  \caption{Runtime comparison native MCNP, DAG-MCNP, and EmDAG-MCNP over four contrived
     transport test problems.}
       \label{timings}
 \end{table}
@@ -256,11 +255,12 @@ irrelevant so long as particles are in fact reaching all of the cells in the pro
 The native MCNP runs were generally the fastest among the test problems with the
 exception of the nested cubes case in which EmDAG-MCNP marginally outperformed
 the native code by ~8\% (see Figure \ref{timings}). This is likely due to the
-fact that very few triangles are needed to exactly represent the surfaces of
-cubic volumes. This creates a very simple problem in the area of BVH building
-and results in a shallow tree. The fact that these volumes have multiple
-surfaces is also of importance here. MCNP searches linearly through a given
-cell's (volume's) surfaces to determine the intersection of a particle with the
+fact that very few triangles are needed to represent the surfaces of
+parallel-piped volumes. Exactly two triangles are needed to represent each face
+of the box. The resulting BVHs of these structures are very simple, often
+composed entirely of leaf nodes.  The fact that these volumes have multiple
+surfaces is also of importance. MCNP searches linearly through a given
+volume's surfaces to determine the intersection of a particle with the
 nearest surface whereas both DAG-MCNP and EmDAG-MCNP perform this search
 spatially. In the nested cubes model, it is likely that the number of surfaces
 relative to the number of triangles in their representation is high enough to
@@ -272,21 +272,21 @@ mentioned in Section \ref{subsec:csg}.
 The results of the single-volume test cases for native MCNP differ slightly from
 the tally results from the DAGMC-based systems, which are the same. This is not
 surprising as DAGMC is known to report statistically similar results to those of
-native MCNP. As result comparisons of DAGMC to native codes are not the concern
-of this study, only a comparison of the values returned by EmDAG in comparison
-to DAGMC is considered. Differences in the tally results between DAG-MCNP and
-EmDAG-MCNP are present only in the nested spheres transport model. There is a
-small difference in the flux tally for cell 3 as can be seen in Table
+native MCNP. Comparisons of DAGMC to native codes are not the concern of this
+study, only a comparison of the values returned by EmDAG in comparison to DAGMC
+is considered. Differences in the tally results between DAG-MCNP and EmDAG-MCNP
+are present only in the nested spheres transport model. There is a small
+difference in the flux tally for the outermost volume as can be seen in Table
 \ref{nestedspheres} of Appendix \ref{ch:appendix-c}. By examining the number of
-particle tracks in each cell, it can be determined that this discrepancy is
-caused by a single particle ending in EmDAG-MCNP near a surface of cell 2 while
-in DAG-MCNP the particle crosses into cell 3 before abruptly terminating though
-it still contributing slightly to the tally in cell 3. It is believed that this
-difference in tally result is the result of a systematic difference between
-Embree and MOAB's ray fire conventionality rather than being result of the
-double to single floating point conversion of the model that occurs when using
-EmDAG - though this conversion in precision is shown to be problematic in other
-ways in Section \ref{sec:emdag_limitations}.
+particle tracks in each cell, it was determined via debugging values that this
+discrepancy is caused by a single particle ending in EmDAG-MCNP near a surface
+of cell 2 while in DAG-MCNP the particle crosses into cell 3 before abruptly
+terminating though it still contributing slightly to the tally in cell 3. It is
+believed that this difference in tally result is the result of a systematic
+difference between Embree and MOAB's ray fire conventionality rather than being
+result of the double to single floating point conversion of the model that
+occurs when using EmDAG - though this conversion in precision is shown to be
+problematic in other ways in Section \ref{sec:emdag_limitations}.
 
 Finally, a production test of EmDAG was conducted on the FNG model using the
 same volumetric source as in the performance benchmarking tests described
@@ -294,7 +294,7 @@ earlier. Initially this model failed quickly due to lost particles. This was
 surprising as the model is expected to have the same watertight fidelity that it
 does when using DAGMC. In order to allow the run to complete, the number of
 allowed lost particles was increased to the number of the sources particles
-being run (1e8). The justification for this allowance being that if the lost
+being run. The justification for this allowance being that if the lost
 particle rate is small enough, overall performance and results of the run would
 still provide a viable comparison of the two systems. In the end, the model lost
 255 particles in 100 million histories. While this is concerning in terms of
@@ -327,15 +327,17 @@ DAG-MCNP is found in Table \ref{fngemdag}.
 \begin{figure}
   \centering
   \includegraphics[scale=0.45]{emdag_fng_cg_fine6.png}
-  \caption{Call-graph of the EmDAG run on the FNG model for 1E7
-    histories. (Processes taking $<=$6\% of the runtime are filtered in order to
+  \caption{Call-graph of the EmDAG run on the FNG model for \num{1E7}
+    histories. Processes taking $<=$6\% of the runtime are filtered in order to
     simplify the call-graph.}
   \label{emdag-fng-coarse}  
 \end{figure}
 
-While the performance of EmDAG surpasses that of DAGMC, it does not come
-as close to the performance of native MCNP as it did in the more simple
-transport test models.
+Again, significant gains in performance are seen using EmDAG in comparison to
+DAGMC and less than a factor of two is found in the ratio of the FNG runtime
+compared to native DAGMC. Several particles were lost in the EmDAG simulation,
+however. The cause of these lost particles is discussed further in Section
+\ref{sec:emdag_limitations}.
 
 \subsection{Limitations}\label{sec:emdag_limitations}
 
@@ -345,29 +347,28 @@ encountered during the process. This is not surprising when re-purposing a ray
 tracing kernel for an unintended application.
 
 One of these problems is the presence of lost particles in a watertight
-model. The FNG model EmDAG was tested on is a fully sealed model via the
-make\_watertight algorithm. A fully sealed model is one in which every volume is
-topologically sealed such that there are no gaps between surfaces or adjacent
-volumes. As a result, DAGMC is able to robustly track particles through such a
-model with no lost particles. While the lost particle rate for the EmDAG FNG
-test relatively low, they in theory should not occur at all as was shown by the
-DAGMC runs. After a considerable amount of investigation as to the nature of
-these lost particles, their cause was determined to be systematic problem not
-encountered in the nested volume cases due to the simple nature of their
-geometric topology.
+model. The FNG model EmDAG was tested on is a fully sealed model. A fully sealed
+model is one in which every volume is topologically sealed such that there are
+no gaps between surfaces or adjacent volumes. As a result, DAGMC is able to
+robustly track particles through such a model with no lost particles. While the
+lost particle rate for the EmDAG FNG test relatively low, they in theory should
+not occur at all as was shown by the DAGMC runs. After a considerable amount of
+investigation as to the nature of these lost particles, their cause was
+determined to be systematic problem not encountered in the nested volume cases
+due to the simple nature of their geometric topology.
 
 In the DAGMC workflow, a required step for a watertight model is to imprint and
 merge the surfaces in the geometry representation before faceting the
-model. Imprinting is the process by which surfaces and curves that are
-coincident by proximity in space are made the same. This process is accomplished
-by splitting entities into their coincident and non-coincident parts. The
-merging process then topologically combines these coincident parts into single
-entities such that the single entities are topologically adjacent to all
-entities bounding the original set of entities that were merged into one. The
+model. Imprinting (shown in in Figure \ref{fig:imprit_ex} is the process by which
+surfaces and curves that are coincident by proximity in space are made the
+same. This process is accomplished by splitting entities into their coincident
+and non-coincident parts. The merging process then topologically combines these
+coincident parts into single entities such that the single entities are
+topologically adjacent to all entities adjacent to both of the originals. The
 result of these steps is non-manifold model with surfaces shared between
 neighboring volumes \cite{Smith_2011}.
 
-This imprinting and merging of surfaces allows only one representation of each
+The imprinting and merging of surfaces allows only one representation of each
 topological entity to be created upon faceting the model. By using the faceted
 curves of the model as a reference for where surfaces meet in space, the
 triangles of a surface are then forced to meet at those curves in a
@@ -376,14 +377,14 @@ topologically watertight manner via the \textit{make\_watertight} algorithm
 refers to shared connectivity of mesh elements between surfaces. This is
 distinctly different than watertight by proximity or by points of triangles
 being ``close enough'' to one another. Topological watertightness of triangles
-refers to the fact that surfaces meshes share connectivity at their
-interface. These triangles reference then share mesh vertices in MOAB whose
+refers to surfaces meshes which share vertex connectivity at their boundary with
+other surfaces. These triangles reference then share mesh vertices in MOAB whose
 coordinates in virtual space are represented using the exact same floating point
-representation in the database.  In this way particles are cannot be lost
-through gaps in surfaces and firing a ray from any position inside a volume
-should always result in a triangle intersection. Despite the topological
-watertightness of the triangle meshes used in EmDAG, particles were lost in the
-transport process.
+representation in the database.  In this way particles cannot be lost through
+gaps in surfaces and firing a ray from any position inside a topologically
+watertight volume should always result in a triangle intersection. Despite the
+topological watertightness of the triangle meshes used in EmDAG, particles were
+lost in the transport process.
 
 \begin{figure}[H]
   \centering
@@ -401,27 +402,27 @@ Some detailed debugging of this problem revealed that this occurs in a
 systematic fashion within the FNG model at intersections of 3 or more
 volumes. The scenario is that a particle moves into the intersection between two
 surfaces. When this occurs, an intersection with either surface connected to
-that interface is a valid hit as the surface is part of the volume the
-particle is current positioned within. The particle will then logically move
-into the volume on the other side of the hit surface. EmDAG handles most of
-these cases well but for the case in which a particle will have a zero track
+that interface is valid. The particle will then logically move into the volume
+on the other side of the hit surface. EmDAG handles most of these cases well
+with the exclusion of scenarios in which a particle will have a zero track
 length inside one of the volumes. A zero track length in this case meaning that
 the particles trajectory is such that it will only glance a volume without
-having any appreciable track length inside of it. In this case, the EmDAG system
-may be unable to find a hit whereas DAGMC's tracking is robust enough to find
-the triangle intersection on this volume and move on.
+having any appreciable track length inside of it. An example of this particle
+tracking pathology can be found i Figure \ref{emdag-lost-particles}. In this
+case, the EmDAG system may be unable to find a hit whereas DAGMC's tracking is
+robust enough to find the triangle intersection on this volume and move on.
 
 \begin{figure}[h!]
   \begin{centering}
     \includegraphics[scale=0.7]{emdag_lost.png}
-    \caption{\textbf{A)} The initial scenario of the lost particle. The
+    \caption{\textbf{A)} The initial state of the lost particle. The
       particle's trajectory is such that it intersects with the boundary between
       surfaces A and B. The correct continuation of the particle into volume C
       is depicted as a dashed line. \textbf{B)} An intersection with surface A
       is found though either surface A or B are equally valid. The particles
       position is then updated to its intersection with the boundary of surfaces
       A and B. The particle then logically moves into volume B. \textbf{C)} Upon
-      establishment of the particle in volume B the Monte Carlo code requests
+      placement of the particle in volume B the Monte Carlo code requests
       the distance to next surface intersection. The particles position and
       direction are converted from double to single precision. The small change
       in the particle's position places it outside of volume B and the
@@ -439,9 +440,9 @@ DAGMC's ray fire systems. The cause of this discrepancy is believed to have to
 do with the necessary conversion between double and single floating point
 precision in the EmDAG system.
 
-As mentioned before, EmDAG uses single floating point representation in its ray
+As previously mentioned, EmDAG uses single floating point representation in its ray
 tracing kernel while DAGMC uses a double precision representation of the
-geometry and particle information as does MCNP. In order to accommodate Embree's
+geometry and particle information. In order to accommodate Embree's
 representation, properties of the particle location and direction are converted
 to single precision for ray tracing queries in Embree and back to double
 precision when in DAGMC. When changing the floating point representation,
@@ -457,24 +458,25 @@ Monte Carlo Radiation Transport'' \cite{Smith_2011} there is a detailed
 description of the different pathologies encountered in tracking particles
 through a surface mesh representation of a geometric model. Briefly mentioned in
 this chapter is the possibility of a lost particle due to numerical error in the
-particle's position perpendicular to the particle's trajectory. Lost particles
+particle's position orthogonal to the particle's trajectory. Lost particles
 caused by this pathology are not covered however as the double floating point
 representation does not allow the particle position to change enough for this
-case to occur in practice. In EmDAG, however, this particular pathology is now
-vulnerable due to the constant conversion from single to double precision values
-between DAGMC and Embree. In order to avoid this problem moving forward, any
-improvements to DAGMC's ray tracing kernel for particle tracking will need to
-maintain use of double precision representations for mesh elements for robust
-coupling of numerical and logical particle positions and directions.
+case to occur in practice. EmDAG is vulnerable to this particular pathology due
+to the constant conversion from single to double precision values between DAGMC
+and Embree. In order to avoid this problem moving forward, any improvements to
+DAGMC's ray tracing kernel for particle tracking will need to maintain use of
+double precision representations for mesh elements for robust coupling of
+numerical and logical particle positions and directions along with unmodified
+tally results in simulation.
 
 \section{Mixed Precision Bounding Volume Hierarchy}
 
-As described in Section \ref{sec:emdag_limitations} a SIMD-oriented ray tracing
-kernel was successfully implemented and applied in DAGMC. Unfortunately, this
-system was inherently limited by conversion from single to double precision
-values. The use of double precision intersections is required for DAGMC to
-successfully interface with any of the Monte Carlo it supports. As a result,
-reduction of the triangle primitives to single precision is not an option.
+A SIMD-oriented version of DAGMC, EmDAG, was implemented and tested in
+DAGMC. Unfortunately, this system was inherently limited by conversion from
+single to double precision values. The use of double precision intersections is
+required for DAGMC to successfully interface with any of the Monte Carlo codes it
+supports. As a result, reduction of the triangle primitives to single precision
+is not an option.
 
 This section outlines an approach to using single precision bounding volumes
 around double precision geometric primitives. Because the majority of the
@@ -489,62 +491,57 @@ Hierarchy (MPBVH).
 The MPBVH was created by the author as an independent project which draws on
 design elements from Embree while interfacing with MOAB to optimize CPU-based
 ray tracing for the application of CAD-based Monte Carlo Radiation
-Transport. Several such design elements found in both the Embree and the MPBVH
+Transport. The details of these features can be found in Embree's documentation
+\cite{Embree}. Several such design elements found in both the Embree and the MPBVH
 include:
 
 \begin{itemize}
   \item single-precision bounding entities
-  \item bit-encoding of node types
-  \item type-agnostic vectors to support SIMD instruction sets
-  \item memory pre-fetching of node memory added to the traversal stack
+  \item bit-encoding of BVH node types
+  \item type-agnostic vectors for support of SIMD instruction sets
+  \item memory pre-fetching of node memory during traversal
   \item pre-computation of near and far box boundaries
   \item vectorized node intersection
 \end{itemize}
 
-The details of these features can be found in Embree's documentation
-\cite{Embree}.
 
-The kernel created by the author is a lightweight version of the
-Embree kernel focused on static triangle meshses and access to an external mesh
-database used for engineering analysis. This allowed for several improvements in
-both robustness and memory usage in comparison to the EmDAG system. The
-remainder of this section will address some of these features and design
-changes.
+The kernel created by the author is a lightweight version of the Embree kernel
+focused on static triangle meshses and access to an external mesh database used
+in engineering analysis. This allowed for several improvements in robustness in
+comparison to the EmDAG system. The remainder of this section will address some
+of these features and design alterations.
 
 \subsubsection{MOAB Direct Access}
 
 MOAB provides a rich interface used to create, modify, and query both structured
-and unstructured mesh representations. It supports many meta-data types as well as
-the arbitrary grouping of mesh entities into sets to represent boundary
+and unstructured mesh representations. It supports many meta-data types as well
+as the arbitrary grouping of mesh entities into sets to represent boundary
 conditions, material types, etc. MOAB also allows direct access to memory which
-is normally protected through its standard interface. This allows for rapid look
-ups data and allows other applications access to the memory as well. This
-capability can be extremely useful in data transfer or query based operations,
-such as ray tracing.
+is normally protected through its standard interface. This allows for direct
+look-ups of mesh data and allows other applications access to the memory as
+well. MOAB's direct access capability can be extremely useful in data transfer
+or query based operations, such as ray tracing.
 
-The MPBVH uses these methods to populate references to triangles in
-the BVH without needing to duplicate their coordinate values or
-connectivity. Access to these locations in memory is handled by a direct access
-manager object which protects the mesh information from modification during the
-building and traversal of the BVH. All coordinate and connectivity information
-accessed through this manager, which protects against modification of MOAB's
-memory.
+The MPBVH uses these methods to populate references to triangles in the BVH
+without duplication of their coordinate values or connectivity. Access to these
+locations in memory is handled by a direct access manager object which protects
+the mesh information from modification during the building and traversal of the
+BVH. All coordinate and connectivity information accessed through this manager,
+which protects against accidental modification of values in MOAB's memory space.
 
-Information is looked up via offset values using handles for triangle and vertex
-entities. This allows coordinates values for triangle intersections to be
-gathered optimally from the database. Bypassing the MOAB interface in this way
-requires that there are no gaps or ``holes'' in the set of handles representing
-entities, that the set of entity handles in the database is contiguous.
-
-Fortunately, files loaded into MOAB have a contiguous entity handle space
-regardless of the contiguity at the time the file was written to disk. This
-guarantees that the set of entity handles representing DAGMC geometries will be
-contiguous when loading a geometry for simulation. If the mesh data is modified,
-in particular if entities are deleted, then this requirement will be broken and
-it may not be possible to use the direct access methods robustly. DAGMC does not
-modify mesh data once the file has been loaded for simulation. MOAB provides
-tools for collapsing or modifying the entity handle space if this becomes
-necessary in future applications of DAGMC.
+Mesh information is retrieved via offset values using indices for triangle and
+vertex entities. This later allows coordinates values for triangle intersections
+to be gathered optimally from the database during BVH traversal. Bypassing the
+MOAB interface in this way requires that the set of entity handles in the
+database is contiguous. Fortunately, files loaded into MOAB have a contiguous
+entity handle space regardless of the contiguity at the time the file was
+written to disk. This guarantees that the set of entity handles representing
+DAGMC geometries will be contiguous when loading a geometry for simulation. If
+the mesh data is modified, in particular if entities are deleted, then this
+requirement will be broken and it may not be possible to use the direct access
+methods robustly. DAGMC does not modify mesh data once the file has been loaded
+for simulation. MOAB provides tools for collapsing or modifying the entity
+handle space if this becomes necessary in future applications of this design in DAGMC.
 
 \subsubsection{Reduced-Precision Ray Tracing}\label{subsubsec:reduced_precision}
 
@@ -555,19 +552,19 @@ intersections with triangle primitives are necessary for robust radiation
 transport in CAD geometries.
 
 Using double precision ray values to intersect with single precision boxes is
-possible due to IEEE standards used to truncate double precision values to single
-precision values, but costly due to the conversion of the ray origin and
+possible due to IEEE standards used to truncate double precision values to
+single precision values, but costly due to the conversion of the ray origin and
 direction for each box intersection \cite{IEEE_STD_2008}. Instead, a method was
 applied in which a traversal ray data structure is used represent the ray origin
-and direction in single precision. This greatly accelerates the traversal
-process moving through the hierarchy of bounding boxes. Once leaf nodes are
-reached in the tree, the original double precision values of the ray and double
-precision triangle coordinates are used to calculate intersections and return
-distances to the surface.
+and direction in single precision alongside the double precision ray. This
+greatly accelerates the traversal process moving through the hierarchy of
+bounding boxes. Once leaf nodes are reached in the tree, the original double
+precision values of the ray and double precision triangle coordinates are used
+to calculate intersections and return more precise distances to the surface.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/reduced_precision_scheme}{width=0.6\textwidth}
+  \includesvg{../images/reduced_precision_scheme}{width=0.7\textwidth}
   \caption{The reduced precision scheme used to accelerate ray traversal while
     returning double precision intersections.}
   \label{fig:reduced_precision_scheme}
@@ -576,10 +573,10 @@ distances to the surface.
 This method removes the need for conversion of single precision intersection
 distances which caused lost particles in the EmDAG implementation, but there are
 other robustness concerns which must be addressed. In order to return the
-correct intersection distance, the leaf node containing the triangle which
-intersects with the ray at that distance must be visited. Upon converting ray
-origins and directions from double to single precision, small changes in the ray
-origin and direction are introduced. This effect is illustrated in Figure
+correct intersection distance, the leaf node containing the triangle with the
+nearest intersection must be visited. Upon converting ray origins and directions
+from double to single precision, small changes in the ray origin and direction
+are introduced. This effect is illustrated in Figure
 \ref{fig:double_to_single_ray}.
 
 \begin{figure}[H]
@@ -594,43 +591,57 @@ origin and direction are introduced. This effect is illustrated in Figure
 To ensure that node visits which would occur in double precision will also occur
 in single precision, the bounding boxes are artificially enlarged by a small
 amount to ensure that this is true. When determining how much the boxes need to
-be enlarged, it is important to understand the difference in the intersection
+be enlarged, it is important to understand the difference in the box intersection
 locations caused by this change.
 
 Let the original, double precision, ray be $\vec{R}$ where its direction is
 
-$$ \vec{D} = < R_{u}, R_{v}, R_{w} > $$
+\begin{equation}
+  \vec{D} = < R_{u}, R_{v}, R_{w} >
+\end{equation}
+
 
 and the traversal ray, in single precision, be $\vec{r}$ where its direction is
 
-$$ \vec{d} = < r_{u}, r_{v}, r_{w} > $$
+\begin{equation}
+  \vec{d} = < r_{u}, r_{v}, r_{w} >
+\end{equation}
+
 
 Where the distance between these two vectors at their unit length
-can be described as.
+can be described as
 
-$$ \Delta = \sqrt{ (R_{u} - r_{u})^{2} + (R_{v} - r_{v})^{2} + (R_{w} -
-  r_{w})^{2} } $$
+\begin{equation}
+  \Delta = \sqrt{ (R_{u} - r_{u})^{2} + (R_{v} - r_{v})^{2} + (R_{w} -
+    r_{w})^{2} }
+\end{equation}
 
-Because the difference between the vectors in each dimension is representative
+Because the difference between these vectors in each dimension is representative
 of the truncation of double precision values to single precision, they can be
-set equal to a value $\delta$.
+set equal to a value $\delta$. By substituting this value, $\Delta$ becomes
 
-$$ \delta = R_{u} - r_{u} = R_{v} - r_{v} = R_{w} -  r_{w} $$
+\begin{equation}
+  \delta = R_{u} - r_{u} = R_{v} - r_{v} = R_{w} -  r_{w}
+\end{equation}
 
-By substituting this value, $\Delta$ becomes
-
-$$ \Delta = \sqrt{3} \delta $$
+\begin{equation}
+  \Delta = \sqrt{3} \delta
+\end{equation}
 
 Extending this to a ray traveling a parametric distance, $t$, along the
 respective single and double precision ray directions, the value of $\Delta$
-becomes
 
-$$ \Delta = \sqrt{ (tR_{u} - tr_{u})^{2} + (tR_{v} - tr_{v})^{2} + (tR_{w} -
-  tr_{w})^{2} } $$
+\begin{equation}
+  \Delta = \sqrt{ (tR_{u} - tr_{u})^{2} + (tR_{v} - tr_{v})^{2} + (tR_{w} -
+    tr_{w})^{2} }
+\end{equation}
 
-$$ \Delta = \sqrt{3} t \delta $$
+\begin{equation}
+  \Delta = \sqrt{3} t \delta
+  \label{eq:box_ext_max}
+\end{equation}
 
-This equation indicates that boxes will need to be expanded an amount $\Delta$
+Equation \ref{eq:box_ext_max} indicates that boxes will need to be expanded an amount $\Delta$
 in order to ensure that $\vec{r}$ will intersect any box $\vec{R}$ does. One
 concern with this expansion is that artificially extending the bounding boxes
 causes more overlap and raises the average number of nodes visited per traversal
@@ -643,16 +654,18 @@ particle might travel through the geometry. This can be evaluated as the longest
 possible diagonal of the problem's global bounding box using it's largest
 dimension, $l_{max}$.
 
-$$ t_{max} = \sqrt{3} l_{max} $$
+\begin{equation}
+  t_{max} = \sqrt{3} l_{max}
+\end{equation}
 
-Given this value, the truncation will be, in the worst case, $10^{7}$ on modern
+Given this value, the truncation will be in the seventh digit on modern
 CPU systems. This value can be considered to be relative to the overall
 geometric scale of the problem, represented by $t_{max}$. Using this analysis,
 the value of $\Delta_{max}$ can be written as 
 
 \begin{equation}
   \centering
-  \Delta_{max} = 3 x 10^{-7} l_{max}
+  \Delta_{max} = 3 x 10^{-7} \, l_{max}
   \label{eq:box_extension_limit}
 \end{equation}
 
@@ -674,26 +687,28 @@ representative value in Figure \ref{fig:box_bump_tests} to described the
 performance for each model. Performance of the MPBVH kernel isn't strongly
 effected below $\Delta$ values of \num{1E-2}. Above this value, the performance
 degrades rapidly as box overlaps become large and the false positive
-intersections of the ray with nodes in the tree dominates the run time. When the
+intersections of the ray with nodes in the tree dominate the run time. When the
 extension of the boxes becomes large enough, the runtimes plateau - indicating
 that every node in the tree is being visited for each ray fire. Below a value of
 \num{1e-6}, missed rays begin to appear in the runs. The threshold for this
-region can be predicted using the model in Equation
+region is accurately predicted using the model in Equation
 \ref{eq:box_extension_limit}. The longest dimension for any of the models ranges
-from 10 to 50 units in size. Inserting this into Equation
+from 10 to 50 cm in size. Inserting this into Equation
 \ref{eq:box_extension_limit} indicates that missed rays will start occur at
-values of $\Delta$ = ~\num{3E-6}. These boundaries leave a significant room for
-box extension values which do not affect performance or robustness of the
-kernel.
+values of $\Delta$ = ~\num{3E-6}. The lower limit of the box extension value and
+upper limit, the point at which performance begins to suffer, provide a window
+of several orders of magnitude for this value. This window will shrink as models
+become larger and the value of $\Delta_{max}$ increases, but these are scales
+rarely seen in radiation transport.
 
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.8]{box_extension_test.eps}
 %  \includesvg{../images/box_extension_test}{width=0.8\textwidth}
-  \caption{Study of ray tracing performance and robustness for various values of
-    the box extension parameter, $\Delta$. 600,000 rays were fired at each model
-    for faceting tolerance values ranging from. Points in the graph represent
-    the average over all faceting tolerances used.}
+  \caption{A study of ray tracing performance and robustness for various values of
+    the box extension parameter, $\Delta$. For varying faceting tolerances,
+    600,000 rays were fired at each model. Points in the graph represent the
+    average over all faceting tolerances used.}
   \label{fig:box_bump_tests}
 \end{figure}
 
@@ -715,12 +730,10 @@ traversal step and a primitive intersection.
 
 This version of the heuristic considers the cost of traversal, $C_{t}$, to be
 small compared to the cost of a triangle primitive intersection, $C_{i}$. This
-assumption is stronger due to the mixed precision nature of the implementation
-than for systems in which the hierarchy and primitives are both stored with the
-same precision.
-
-After these considerations, the cost evaluation for a candidate node can be
-evaluated as seen in Equation \ref{eq:simplified_sah}.
+assumption is presumably stronger in the MPBVH due to the mixed precision nature
+of the implementation than for systems in which the hierarchy and primitives are
+both stored with the same precision. The cost evaluation for a candidate node
+can be evaluated as seen in Equation \ref{eq:simplified_sah}.
 
 \begin{figure}[H]
   \begin{align}
@@ -759,15 +772,16 @@ By neglecting the traversal cost, the cost of the node can be broken into two
 components, the cost of the intersection, $C_{i}$ and the geometric cost,
 $C_{g}$. Because these values are used in a purely relative manner to compare
 the costs of candidate splits, the constant factor of the primitive intersection
-is no longer required. This form of the heuristic is purely a weighted geometric
-evaluation without estimation of implementation-based valued which can vary
-based on machine architecture, build settings, etc.
+is can be ignored during evaluation of the cost. This form of the heuristic is
+purely a weighted geometric evaluation without estimation of
+implementation-based valued which can vary based on machine architecture, build
+settings, etc.
 
 \subsubsection{Surface Root Nodes}
 
-In DAGMC, trees are created for each volume and surface in the geometry. Rather
+In DAGMC, trees exist for each volume and surface in the geometry. Rather
 than duplicate surface trees for each volume they appear in, one tree is created
-for each surface and for each volume the resepective surface trees are joined
+for each surface. For each volume, its surface trees are joined
 into a single tree. This avoids duplication of tree information and minimizes
 the memory footprint of DAGMC. It is critical to DAGMC that the surface
 intersected is returned as part of the ray's intersection information so that
@@ -782,19 +796,19 @@ for SIMD traversals.
   \includesvg{../images/moab_geom_2d}{width=0.45\textwidth,valign=t}
   \includesvg{../images/moab_tree_topology}{width=0.45\textwidth,valign=t}
   \caption{Left: Representation of a faceted DAGMC geometry. Right: The
-    corresponding BVH structure for that volume. Surface subtrees are shared
+    corresponding BVH structure for that volume. Surface sub-trees are shared
     between volumes to avoid duplicate data.}
   \label{fig:surface_root_example}
 \end{sidewaysfigure}
 
-Tree nodes in both Embree and the MPBVH are represented by a node
+BVH nodes in both Embree and the MPBVH are represented by a node
 reference construct which stores a single pointer value as an integer
-representation. All stored constructs, namely the bounding nodes and primitive
+representation. All BVH constructs, namely the bounding nodes and primitive
 references, in the BVH are designed to be 16-byte aligned in memory, leaving the
 4 least significant bits of the integer-stored pointer value unused. These bits
-are used to encode information about leaf nodes in the tree. When the true
+are used to encode information about leaf nodes in the tree. When the
 pointer to either an interior node or leaf node is needed, the pointer value is
-recovered by setting these bits to zero and casting the pointer to the
+recovered by masking out these bits to zero and casting the pointer to the
 appropriate object type.
 
 %% \begin{figure}[H]
@@ -804,10 +818,10 @@ appropriate object type.
 %%   \label{fig:quad_tree_sets}
 %% \end{figure}
 
-In a leaf node reference the fourth bit is set to one, indicating it is a leaf
+For a leaf node structure the fourth bit is set to one, indicating it is a leaf
 node and that any pointer value taken from the node reference should be treated
 as a pointer to a primitive reference. The remaining three bits in the integer are
-combined to indicate the number of primitives in that leaf node. This places a
+combined to denote the number of primitives in that leaf node. This places a
 limit of eight on the number of entities stored in a leaf node. The impact of
 this limit will be discussed further in Chapter \ref{ch:high_valence}.
 
@@ -819,35 +833,35 @@ this limit will be discussed further in Chapter \ref{ch:high_valence}.
   \label{fig:leaf_encoding}
 \end{figure}
 
-In DAGMC, a BVH is created for each set of triangles representing a
-surface. These surface trees are then joined into a single tree that represents
-a volume as depicted in Figure \ref{fig:surface_root_example}. This avoids duplication
-of surface trees for each volume. It also allows the return of which surface is
-intersected, allowing for optimized transport of a particle to the volume on the
-other side of that surface via the topology represented by the mesh hierarchy
-described in Section \ref{sec:emdag_transfer}. Embree allows for a similar model
-in which surfaces are represented as ``geometries'' rather than surfaces. Those
-geometries can be grouped into ``scenes'' rather than surfaces.  The creation of
-a special node to represent the root of a surface tree was implemented to
-provide this information. This node type is an extended node reference which
-contains additional information about the surface the tree is constructed
-around. In particular, this node stores the id of the surface and its sense
-information relative to the volumes on either side of the surface. This sense
-information is used to automatically adjust the returned triangle normals for
-any intersections with that surface, and avoids the duplication of triangle
-connectivity that was necessary in the EmDAG implementation.
+To address surface id tracking during traversal, a specialized BVH node is used
+to mark the root of surface trees under volume trees. A BVH is created for each
+set of triangles representing a surface. These surface trees are then joined
+into a single tree that represents a volume as depicted in Figure
+\ref{fig:surface_root_example}. This avoids duplication of surface trees for
+each volume. It also allows the return of which surface is intersected, allowing
+for optimized transport of a particle to the volume on the other side of that
+surface via the topology represented by the mesh hierarchy described in Section
+\ref{sec:emdag_transfer}. Embree allows for a similar model in which surfaces
+are represented as ``geometries'' rather than surfaces. Those geometries can be
+grouped into ``scenes'' rather than surfaces.  The creation of a special node to
+represent the root of a surface tree was implemented to provide this
+information. This node type is an extended node reference which contains
+additional information about the surface the tree is constructed around. In
+particular, this node stores the id of the surface and its sense information
+relative to the volumes on either side of the surface. This sense information is
+used to automatically adjust the returned triangle normals for any intersections
+with that surface, and avoids the duplication of triangle connectivity that was
+necessary in the EmDAG implementation.
 
 The set leaf node reference is identified by toggling the least significant bit in
-the reference's integer value. Because only the first bit is altered, this node
+the reference's integer value. Because only this first bit is altered, the node
 is not recognized as a leaf containing primitives but rather a leaf of the
 volume tree. Information about the current surface being visited and the sense
 information is updated on the traversal ray and used to set any hit information
 on the returned ray. The pointer value stored by the node reference is a pointer
 to the node reference for the bounding element at the top of the
 surface tree. This node is pushed onto the stack and the traversal continues
-uninterrupted.
-
-The depth-first traversal of the hierarchy protects against
+uninterrupted. The depth-first traversal of the hierarchy protects against
 any invalid surface information being set on the ray as the all nodes underneath
 that surface will be visited before moving on to the next surface, at which
 point the traversal ray information will be updated.
@@ -861,14 +875,14 @@ point the traversal ray information will be updated.
 
 This node type also provides the ability to avoid duplication of triangle
 connectivity to represent sense-adjusted triangle normals as was required in the
-EmDAG system to track the relative surface-to-volume senses. A MOAB lookup of
-this sense information after returning ray hits is also a viable option, but it
-would be relatively expensive to in comparison to adjusting triangle normals on
-the fly.
+EmDAG system. A MOAB look-up of this sense information after returning ray hits
+is also a viable option, but it would be relatively expensive to in comparison
+to adjusting triangle normals on the fly.
 
-\subsection{Robustness Testing}
+\subsection{Robustness Criterion}
 
-The the criterion for a robust ray tracing kernel are as follows:
+The the criterion for a robust ray tracing kernel as a replacement for MOAB's
+OBB tree are as follows:
 
 \begin{itemize}
   \item every ray query should return the \textbf{same triangle id} as MOAB's BVH
@@ -876,20 +890,17 @@ The the criterion for a robust ray tracing kernel are as follows:
   \item every ray query should return the \textbf{same intersection distance} as MOAB's BVH
 \end{itemize}
 
-To meet these criterion the Pl\"{u}cker ray-triangle intersection test used in
-MOAB is also used in the MPBVH \cite{Platis_2003}. Many unit tests are used to
-ensure watertight box intersection using the slab method \cite{Kay_1986} in
-single precision, but the mixed precision scheme is best tested using DAGMC
-models. In MOAB, the Pl\"{u}cker ray triangle intersection method is used to provide
-watertight intersections with triangle meshses \cite{Platis_2003}. The same
-algorithm was applied in the MPBVH to ensure that simulation results using both
-the MPBVH and MOAB BVH are consistent. Several unit tests in the kernel fire
-rays from the center of single-volume DAGMC models with rays directed at
-the vertices, edges, and center of each triangle in the model. These tests
-ensure that the same triangle is hit and \textit{exactly} the same intersection
-distance is returned in either system.
-
-Missed rays and lost particles are also monitored in testing the ray fire
+Many unit tests are used to ensure watertight box intersection using the slab
+method \cite{Kay_1986} in single precision, but the mixed precision scheme is
+best tested using DAGMC models. In MOAB, the Pl\"{u}cker ray triangle
+intersection method is used to provide watertight intersections with triangle
+meshses \cite{Platis_2003}. The same algorithm was applied in the MPBVH to
+ensure that simulation results using both the MPBVH and MOAB BVH are
+consistent. Several tests in the kernel fire rays from the center of
+single-volume DAGMC models with rays directed at the vertices, edges, and center
+of each triangle in the model. These tests ensure that the same triangle is hit
+and the same intersection distance is returned in either
+system. Missed rays and lost particles are also monitored in testing the ray fire
 performance and in particle transport, though none were found outside of the
 controlled box extension study in Section \ref{subsubsec:reduced_precision}.
 
@@ -898,17 +909,21 @@ controlled box extension study in Section \ref{subsubsec:reduced_precision}.
 The same set of ray fire performance tests were run as in Section
 \ref{subsubsec:emdag_rf_performance}. As shown in Figure
 \ref{fig:rf_test_results}, the MPBVH shows a significant improvement compared to
-the current implementation in MOAB and comparable to the EmDAG implementation.
+the current implementation in MOAB. In addition, the timings are comparable to
+EmDAG's performance, despite returning double, rather than single, precision
+intersections. This indicates that attempts at providing accelerated ray tracing
+for engineering analysis by traversing an expanded, reduced precision BVH were
+quite successful.
 
 \section{Simplified Particle Tracking}
 
-The MPBVH kernel has been implemented in DAGMC as a numerically based particle
+The MPBVH kernel has been coupled to DAGMC as a numerically based particle
 tracking tool using a simple algorithm for determining \textit{Next Surface}
 queries and \textit{Point Containment} queries. Previously, additional logical
 work was used to avoid lost particles and infinite loops in particle
 histories. This tracking algorithm uses structures known as the \textbf{MBRay}
 (short for MOAB Ray) and \textbf{MBAccumulatorRay}. Both of these structures
-(shown in Figure \ref{fig:mpbvh_ray_structures}) are critical to the use of the
+(depicted in Figure \ref{fig:mpbvh_ray_structures}) are critical to the use of the
 MPBVH as a robust particle tracking tool.
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algorithm used in \textit{Next Surface} queries.},captionpos=b,label={alg:Next Surface Pseudo Code}]
@@ -981,11 +996,11 @@ MPBVH as a robust particle tracking tool.
 \end{lstlisting}
 
 The algorithm in Figure \ref{alg:Next Surface Pseudo Code} avoids many logical
-checks and the classification of hit locations for repeated hits. It also avoids
-mesh database lookups of adjacent triangles for edge and node hits. This used to
-be necessary due to the ray history passed into the \textit{Next Surface} query,
-causing rays to sometimes become stuck in what was referred to as the
-``pinwheel'' loop. The ray history was as an optimization to avoid repeated
+checks and the classification of hit locations i the current DAGMC algorithm. It
+also avoids mesh database look-ups of adjacent triangles for edge and node
+hits. This used to be necessary due to the ray history passed into the
+\textit{Next Surface} query, causing rays to sometimes become stuck in infinite
+or near-infinite loops. The ray history is as an optimization to avoid repeated
 intersections with the same triangle. By abandoning this construct and relying
 entirely on the performance of the underlying ray tracing kernel, the algorithm
 can be simplified to always return the nearest intersection. Infinite loops in
@@ -995,16 +1010,21 @@ returning exiting intersections only.
 \begin{figure}[H]
   \centering
   \includesvg{../images/mbray_structs}{width=1.0\textwidth}
-  \caption{Ray structures used to communicate hit information between the MPBVH and DAGMC.}
+  \caption{Ray structures used to communicate hit information between the MPBVH
+    and DAGMC. The MBAccumulatorRay adds additional attributes to the MBRay for
+    tracking of hit counts and orientations with respect to triangle normals.}
   \label{fig:mpbvh_ray_structures}  
 \end{figure}
 
 The conditions laid out for a robust tracking
 algorithm by B. Smith are as follows \cite{Smith_2011}:
 
-\begin{enumerate}[a]
-  \item Particles cannot become lost
-  \item Infinite loops cannot occur
+\begin{enumerate}[{a)}]
+  \bfseries
+  \item \normalfont Particles cannot become lost
+  \bfseries
+\item \normalfont Infinite loops cannot occur
+  \normalfont
 \end{enumerate}
 
 The algorithm presented here addresses \textbf{a)} by using the watertight
@@ -1101,7 +1121,7 @@ based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
 
 In this method the ray is intersected with the volume and a hit is evaluated as
 either entering or exiting based on the dot product calculation with the
-sense-adjusted triangle normal. If the ray finds no intersection and any of the
+triangle normal. If the first ray fire finds no intersection and any of the
 following conditions are true:
 
 \begin{itemize}
@@ -1117,10 +1137,9 @@ normal (see the \textit{count\_hits} function). If no hits are found, then the
 point is outside of the volume. If hits are found, the sign of the summation
 value indicates whether more exiting or entering hits were found. If more
 exiting than entering hits are found, then the particle is considered to be
-inside the volume. Otherwise it is considered to be outside of the volume.
-
-This algorithm was applied to all of the simulation results presented in this
-chapter without lost particles or causing infinite loops.
+inside the volume. Otherwise it is considered to be outside of the volume. This
+algorithm was applied to all of the simulation results presented in this chapter
+without lost particles or causing infinite loops.
 
 \subsection{Simulation Results}
 
@@ -1151,22 +1170,24 @@ expected based on the difference in pure ray fire times from Section
     \end{tabular}
   \end{center}
   \caption{Runtime comparison native MCNP, DAG-MCNP, and DAG-MCNP using the
-    MPBVH over four transport test problems. No lost particles occurred in any of
-  these runs and all results match the standard DAGMC implementation exactly.}
+    MPBVH over four transport test problems. No lost particles occurred in any
+    of these runs and all results (see Appendix \ref{ch:appendix-c}) match the
+    standard DAGMC implementation exactly.}
   \label{tab:mpbvh_transport_timing_simple}
 \end{table}
 
 \section{Production Simulations}\label{subsec:mpbvh_production_transport}
 
-After verifying that no particles were lost in the simple test cases, the MPBVH
-implementation of DAGMC was applied to the same FNG model as EmDAG. The results
-of this simulation can be seen in Table
+After verifying that no particles were lost in the contrived test cases, the
+MPBVH implementation of DAGMC was applied to the same FNG model as EmDAG. The
+results of this simulation can be seen in Table
 \ref{tab:mpbvh_transport_timing_production}. In contrast to the EmDAG system, no
 lost particles were found in the FNG simulation with a volumetric source and all
 tally results matched the standard DAGMC implementation with reduction in the
-runtime by over a factor of two. Due to the success of the DAGMC MPBVH
+runtime by nearly a factor of two. Due to the success of the DAGMC MPBVH
 implementation for the FNG model, this system was applied to several other
-production models as well.
+production models as well. No particles were lost in any of these geometries,
+and the results are unchanged between versions of DAGMC.
 
 \begin{table}[H]
   \small
@@ -1191,20 +1212,20 @@ production models as well.
   \label{tab:mpbvh_transport_timing_production}
 \end{table}
 
-A simple analysis of memory usage for each of the production models was
-conducted as well. While not the focus of this work, it is expected that the
-single precision values and compact node form of the MPBVH will result in a
+A simple analysis of memory usage for each of the production models was also
+conducted. While not the focus of this work, it is expected that the
+single precision values and compact node form of the MPBVH node result in a
 lower memory footprint in DAGMC's acceleration data structures. The results of
 this study shown in Table \ref{tab:mpbvh_memory} verify that this is the
 case. One might expect that the memory savings is closer to a factor of two for
 the conversion from double to single precision values, but there are competing
-factors at work in this analysis. The use of AABBs rather than OBBs results in
+factors at play. The use of AABBs rather than OBBs results in
 deeper trees for these models due to the AABBs limited ability to conform to
 arbitrary shapes. While still preferable due to the fast computation of ray-box
 intersections, the use of AABBs results in more total nodes in the trees, and
-may accout for the higher than expected memory usage of the MPBVH. Regardless,
-the MPBVH consistently has a lower memory footpring by 20-25\%, resulting in a
-significant memory savings of 1.2 GB in simulations of the ITER model.
+may account for the higher than initially expected memory usage of the MPBVH. Regardless,
+the MPBVH consistently has a lower memory footprint by 20-25\%, resulting in a
+significant memory savings of ~1.2 GB in simulations of the ITER model.
 
 \begin{table}
   \small
@@ -1221,8 +1242,8 @@ significant memory savings of 1.2 GB in simulations of the ITER model.
       \bottomrule
     \end{tabular}
   \end{center}
-  \caption{Memory usage of the BVH structures for both DAGMC using MOAB's OBB
-    tree and DAGMC using the MPBVH.}
+  \caption{Memory usage of the BVH structures using both MOAB's OBB
+    tree and the MPBVH.}
   \label{tab:mpbvh_memory}
 \end{table}
 
@@ -1245,12 +1266,12 @@ degradation for models of a large global scale with small, local volumes.
 Though this work does not address such applications, time-dependent simulations
 could update this extension value on-the-fly when updating bounding boxes,
 though the additional cost of ensuring that all parent bounding boxes are
-updated appropriately is unclear.
+updated appropriately is unclear \cite{Vaidyanathan_2016}.
 
 \section{Summary}
 
 The MPBVH implementation provides a means of exploiting the performance
-capabilities of CPUs for single precision values while providing the higher
+capabilities of CPUs for single precision values while providing the double
 precision intersection values required for robust engineering analysis tools
 such as DAGMC. The demonstration of this capability is enabled by the direct
 access methods available in MOAB, but the methods described in this work could

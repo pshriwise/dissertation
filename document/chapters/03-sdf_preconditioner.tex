@@ -473,7 +473,7 @@ traveled, $d$, and the magnitude of $\vec{p}$ can be represented
 by the variable $r$.
 
 \begin{equation}
- R-r + R - |n(d,\alpha,\beta)| > d
+ R-r + R - |\vec{n}(d,\alpha,\beta)| > d
 \end{equation}
 
 Reducing the next event location, $\vec{n}(d,\alpha,\beta)$, into an expression
@@ -503,7 +503,7 @@ departure, $\alpha$, from the particle's position can be derived.
 \alpha_{min} > \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg )
 \end{equation}
 
-\begin{figure*}[ht]
+\begin{figure}[ht]
   \centering
   \includesvg{../images/model_cases_fixed_distance}{width=\textwidth}
   \caption{Depiction of modeling cases. Left: an example of a track for which
@@ -511,7 +511,7 @@ departure, $\alpha$, from the particle's position can be derived.
     preconditioned.  Right: an example of a track for which $R-r < d < R$ and
     cannot be preconditioned.}
   \label{fig:modeling_cases}
-\end{figure*}
+\end{figure}
 
 This condition on alpha can be interpreted as a minimum interior angle that the
 particle's trajectory must take relative to the particle's position vector,
@@ -664,26 +664,42 @@ the current simulation scenario is to move from a fixed distance distance to a
 sampled distance based on the standard probability for distance to interaction
 in a medium given a cross section, $\Sigma$.
 
-$$ p = e^{-\Sigma d} = e^{-\frac{d}{\lambda}} $$
+\begin{equation}
+  p = e^{-\Sigma d} = e^{-\frac{d}{\lambda}}
+\end{equation}
 
 where in this case now $\lambda$ represents the mean free path of the particle in the medium
 
 In simulation, distances are now sampled as
 
-$$ d = -\lambda ln(c) $$
+\begin{equation}
+  d = -\lambda ln(c)
+\end{equation}
 
 where $c$ is randomly sampled with a uniform distribution between 0 and 1
 
 Inserting this definition for the particle distance into the integrals above
 gives
 
-$$ \frac{dp}{dd} = -\frac{p}{\lambda} $$
-$$ d = 0 \rightarrow c = 1 $$
-$$ d = \infty \rightarrow c = 0 $$
+\begin{equation}
+  \frac{dp}{dd} = -\frac{p}{\lambda}
+\end{equation}
 
-$$ \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{0}\int_{0}^{2\pi}\int_{0}^{\pi}
+\begin{equation}
+  d = 0 \rightarrow c = 1
+\end{equation}
+
+\begin{equation}
+  d = \infty \rightarrow c = 0
+\end{equation}
+
+
+\begin{equation}
+  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{0}\int_{0}^{2\pi}\int_{0}^{\pi}
 -r^2\sin{\phi} \, \lambda c ln(c)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
-\mathrm{d}\theta \mathrm{d}r $$
+\mathrm{d}\theta \mathrm{d}r
+\end{equation}
+
 
 To find the portion of utilized space for a given $R$ and $\lambda$ one can
 apply the same methods from the fixed distance case, for each particle position
@@ -698,9 +714,15 @@ distance is to define these same categories based on the distance traveled. Now
 rather than defining how the angular condition is applied based on position, the
 angular condition will be applied based on the distance the particle travels.
 
-$$ d < R-r : \alpha_{min} = 0 $$
-$$ d > R-r : \alpha_{min} = \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg
-) $$
+\begin{equation}
+  d < R-r : \alpha_{min} = 0
+\end{equation}
+
+\begin{equation}
+  d > R-r : \alpha_{min} = \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg
+  )
+\end{equation}
+
 
 It is interesting to examine plots of the angular limit with varying distance as
 seen in Figure \ref{fig:alpha_min}.
@@ -726,25 +748,37 @@ the model, this integral must be separated into two pieces, one with limits of $
 to $R-r$ and another with limits $R-r$ to $R$. Based on the distance sampling
 distribution, these values become
 
-$$ d_{min} = R-r \rightarrow p_{max} = e^{(-\frac{(R-r)}{\lambda})} $$
-$$ d_{max} = R   \rightarrow p_{min} = e^{(-\frac{R}{\lambda})} $$
+\begin{equation}
+  d_{min} = R-r \rightarrow p_{max} = e^{(-\frac{(R-r)}{\lambda})}
+\end{equation}
+
+\begin{equation}
+  d_{max} = R   \rightarrow p_{min} = e^{(-\frac{R}{\lambda})}
+\end{equation}
+
 
 and the resulting integral becomes
 
-$$ \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{p_{max}}\int_{0}^{2\pi}\int_{0}^{\pi}
+\begin{equation}
+  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{p_{max}}\int_{0}^{2\pi}\int_{0}^{\pi}
 -r^2sin(\phi) \, \lambda p ln(p)^2 sin(\alpha) \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
-\mathrm{d}\theta \mathrm{d}r + $$
-$$ \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{p_{max}}^{p_{min}}\int_{0}^{2\pi}\int_{alpha_{min}}^{\pi}
+\mathrm{d}\theta \mathrm{d}r +
+\end{equation}
+
+\begin{equation}
+  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{p_{max}}^{p_{min}}\int_{0}^{2\pi}\int_{alpha_{min}}^{\pi}
 -r^2\sin{\phi} \, \lambda p ln(p)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
-\mathrm{d}\theta \mathrm{d}r $$
+\mathrm{d}\theta \mathrm{d}r
+\end{equation}
+
 
 The evaluation of this integral divided by the full geometry query space for the
 distance sampling scenario after the $c=\frac{R}{\lambda}$ replacement is
 
-\begin{align*}
+\begin{align}
   U(c) = &\frac{1}{4c^{2}} \Big{[} (4 c^2-6) c^2e^{-2c} - (c^3-c^2-\frac{3}{2} c+3)4ce^{-2c} \\
     &+ (-2 c^3+2c^2+9c-6) e^{-2c}+4c^2-9 c+6 \Big{]}
-\end{align*}
+\end{align}
 
 \begin{figure}[ht] 
 \centering

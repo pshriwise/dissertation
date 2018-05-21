@@ -390,33 +390,8 @@ vector, and $\beta$ represents an azimuthal angle for directions traveled with
 angle of departure, $\alpha$.  Figure \ref{fig:model} depicts these variables, $r$,
 $d$, and $\alpha$ more clearly.
 
-The outer integral in Equation \ref{eq:util_model} represents all possible particle
-positions within the geometric sphere and expands to
-
-\begin{equation}
-\int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{V_{track}} r^2\sin{\phi} \, \mathrm{d}\phi
-\mathrm{d}\theta \mathrm{d}r \,  p_n(d) \mathrm{d}V_{track}
-\end{equation}
-
-The inner integral over $V_{track}$ then expands to
-
-\begin{equation}
-\small \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{0}^{\infty}\int_{0}^{2\pi}\int_{0}^{\pi}
-r^2\sin{\phi} \, p_n(d) d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}d \, \mathrm{d}\phi
-\mathrm{d}\theta \mathrm{d}r
-\end{equation}
-
-Integration of $\phi$, $\theta$, and $\beta$ can now be performed with
-the knowledge that they are symmetric with respect to the problem and
-integration of $p_n(d)$ does not rely on them.
-
-\begin{equation}
-\small 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{0}^{\pi} p_n(d) \,
-r^2 \, d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
-\end{equation}
-
-In order to represent particles traveling a fixed distance, the relationship in Equation \ref{eq:pn_fixed}
-is applied.
+In order to represent particles traveling a fixed distance, the relationship in
+Equation \ref{eq:pn_fixed} is applied.
 
 \begin{equation}
   \label{eq:pn_fixed}
@@ -466,40 +441,6 @@ SDV(\vec{x}) =  R-|\vec{x}|
 Making these substitutions into the inequality gives
 
 \begin{equation}
-R-|\vec{p}| + R - |\vec{n}| >   |\vec{p}-\vec{n}|
-\end{equation}
-The right hand side of this inequality can be described as the distance
-traveled, $d$, and the magnitude of $\vec{p}$ can be represented
-by the variable $r$.
-
-\begin{equation}
- R-r + R - |\vec{n}(d,\alpha,\beta)| > d
-\end{equation}
-
-Reducing the next event location, $\vec{n}(d,\alpha,\beta)$, into an expression
-in terms of $r$, $d$, and $\alpha$ requires further examination of the
-problem. Because the coordinates of $n$ depend on the current particle position,
-the magnitude of $n$ with respect to the geometry origin must be obtained to get
-a correct form for the signed distance value. Again,  Figure \ref{fig:model} depicts the
-value of $n$ graphically for reference. The magnitude of n can then be described
-using the law of cosines as
-
-\begin{equation}
-|n(d,\alpha,\beta)| = \sqrt{r^2 + d^2 - 2rd \cos{\pi-\alpha}}
-\end{equation}
-inserting this into the inequality gives
-
-\begin{equation}
-R-r + R - \sqrt{r^2 + d^2 + 2rd \cos{\alpha}} > d
-\end{equation}
-
-The inequality has now been reduced to the three variables seen in
-Equation \ref{eq:A_fixed}:$r$, $d$, and $\alpha$. This inequality can be applied to
-construct limits of integration representing boundaries of space in which the
-SDF can be utilized. By rearranging the inequality, a limit on the angle of
-departure, $\alpha$, from the particle's position can be derived.
-
-\begin{equation}
   d < R-r : \alpha_{min} = 0
 \end{equation}
 
@@ -542,26 +483,6 @@ values can then be no larger than $R$ and the condition for utilization in
 Equation \ref{eq:condition} is violated. Hence all curves go to zero at $\lambda =
 100 cm$ in  Figure \ref{fig:sdf_fixed_dist}.
 
-In order to account for the fact that the form of $\alpha_{min}$ is undefined
-until $d = R-r$, a Heaviside function is applied before applying it as a limit
-on the particle's angle of departure from the position vector. Similarly,
-because the $\alpha_{min}$ condition is undefined after $d=R$ a Heaviside
-function is used to limit the condition to $\pi$ for any distances traveled
-larger than $R$.
-
-\begin{equation}
-  \small
-  \begin{split}
-  \alpha_{min} =& (H(d-(R-r))-H(d-R)) \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg ) \\
-  &+ \pi \, H(d-R)
-  \end{split}
-\end{equation}
-
-
-By inserting this condition as a lower limit of the $d\alpha$ integration,
-Equation \ref{eq:subs_a_cond} will give all utilized space, $US$, in the query space
-of the simulation.
-
 \begin{equation}
 \small US = 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{\boldsymbol{\alpha_{min}}}^{\pi} \delta(d-\lambda) \,
 r^2 \, d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
@@ -585,6 +506,14 @@ here. Section \ref{sec:sdf_other_geoms} will include the comparison of this
 utilization limit to other single-volume geometries using dimensionless
 parameters to determine if the model above can be used to predict signed
 distance field utilization in other geometries as well.
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/alpha_r}{width=1\textwidth}
+  \caption{Plot of mininum angle of departure restriction for particles with
+    various radial positions between 0 cm and 100 cm and various distanced traveled.}
+ \label{fig:alpha_min}
+\end{figure}
 
 %% After the agreement of the simulation results and analytic model for signed
 %% distance field utilization for the fixed distance traveled case, the simulation
@@ -680,20 +609,7 @@ In simulation, distances are now sampled as
 \end{equation}
 
 where $c$ is randomly sampled with a uniform distribution between 0 and
-1. Inserting this definition for the particle distance into the integrals above
-gives
-
-\begin{equation}
-  \frac{dp}{dd} = -\frac{p}{\lambda}
-\end{equation}
-
-\begin{equation}
-  d = 0 \rightarrow c = 1
-\end{equation}
-
-\begin{equation}
-  d = \infty \rightarrow c = 0
-\end{equation}
+1. Applying this distribution to Equation \ref{eq:util_model} gives
 
 \begin{equation}
   \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{0}\int_{0}^{2\pi}\int_{0}^{\pi}
@@ -747,36 +663,6 @@ sampled distances is found in Equation \ref{eq:sdf_model_sampled}.
 %% back towrd the origin along the sphere's larges chord with length $2R$ and,
 %% again,the maximum distance a particle can travel before the SDF can no longer be
 %% utilized.
-
-Now that the distance traveled is being used to construct these two regions in
-the model, this integral must be separated into two pieces, one with limits of $0$
-to $R-r$ and another with limits $R-r$ to $R$. Based on the distance sampling
-distribution, these values become
-
-\begin{equation}
-  d_{min} = R-r \rightarrow p_{max} = e^{(-\frac{(R-r)}{\lambda})}
-\end{equation}
-
-\begin{equation}
-  d_{max} = R   \rightarrow p_{min} = e^{(-\frac{R}{\lambda})}
-\end{equation}
-
-and the resulting integral becomes
-
-\begin{equation}
-  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{p_{max}}\int_{0}^{2\pi}\int_{0}^{\pi}
--r^2sin(\phi) \, \lambda p ln(p)^2 sin(\alpha) \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
-\mathrm{d}\theta \mathrm{d}r +
-\end{equation}
-
-\begin{equation}
-  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{p_{max}}^{p_{min}}\int_{0}^{2\pi}\int_{alpha_{min}}^{\pi}
--r^2\sin{\phi} \, \lambda p ln(p)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
-\mathrm{d}\theta \mathrm{d}r
-\end{equation}
-
-The evaluation of this integral divided by the full geometry query space for the
-distance sampling scenario is
 
 \begin{equation}
   \begin{split}
@@ -865,7 +751,7 @@ avoided during simulation.
     \epsilon - & \, error \\
   \end{align*}
   \caption{Taylor expansion of 2D interpolation equation as an estimate for the error of a function sampled onto a structured cartesian mesh.}
-  \label{interpolation_err_2d}
+  \label{fig:interpolation_err_2d}
 \end{figure}
 
 As seen in Figure \ref{fig:sdf_sampled_dist}, the step size of the mesh can
@@ -887,7 +773,7 @@ of the data structure.
  &\vec{p} - \, particle's \, current \, position \\
  &\vec{n} - \, particle's \, next \, event \, location \\
  &h - \, mesh \, step \, size \\
- &\varepsilon(h) - \, error \, evaluation \, for \, signed \, distance \, values \\
+ &\varepsilon(h) - \, error \, evaluation \, for \, signed \, distance \, \, values \\
 \end{align*}
 
 The expansion of Equation \ref{eq:condition_no_error} with the error term can be seen
@@ -930,7 +816,7 @@ $n$ and $c$ as formulated by normalizing the mean free path, $\lambda$ and the
 mesh step size, $h$ using the average chord length of the sphere,
 $R_{av}$. These dimensionless parameters are useful for describing the
 utilization in terms which are largely agnostic to the geometry. This is
-discussed in more detail in Section \ref{subsec:sdf_other_geoms}.
+discussed in more detail in Section \ref{sec:sdf_other_geoms}.
 
 \begin{figure}[H]
   \centering
@@ -949,7 +835,7 @@ however. Knowing that the SDF will not only be applied to spheres in practice,
 it is necessary to understand the predictive model's behavior for other
 geometries as well.
 
-\subsection{Extension to other geometries}\label{subsec:sdf_other_geoms}
+\subsection{Extension to other geometries}\label{sec:sdf_other_geoms}
 
 To apply this model to other geometries, the mean free path and mesh step size
 were normalized using a measure of the free space in a volume compared to its

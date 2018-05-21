@@ -4,3 +4,552 @@
 \section{Detailed Model Formulation}
 
 
+The utilization of the signed distance field as a preconditioner for ray tracing
+operations can be modeled as an evaluation of the combined probability space for
+particles with a current position, $\vec{p}$, and a next physics event location,
+$\vec{n}$, after traveling a distance, $d$. The fraction of this probability
+space in which signed distance values can be used to rule out surface crossings
+for next surface intersections is then considered to be the theoretical
+utilization of the signed distance field. An initial form for this probability
+space can found in Equation \ref{eq:util_model}.
+
+\begin{equation}
+  \label{eq:util_model}
+\int_{V_{sphere}}\int_{V_{track}} p_p(r) p_n(d) \, \mathrm{d}V_{sphere}\mathrm{d}V_{track}
+\end{equation}
+
+In this model, the starting location of particles, $\vec{p_p}(r,\phi,\theta)$, is
+uniformly distributed, $p_p(r)=1$, throughout a sphere of radius, $R$, centered
+at the origin.  The location of the next event, $n(d,\alpha,\beta)$, where $d$
+is the distance traveled by the particle, $\alpha$ is the interior angle between
+the particle's \textit{position} vector and the particle's sampled direction
+vector, and $\beta$ represents an azimuthal angle for directions traveled with
+angle of departure, $\alpha$.  Figure \ref{fig:model} depicts these variables, $r$,
+$d$, and $\alpha$ more clearly.
+
+The outer integral in Equation \ref{eq:util_model} represents all possible particle
+positions within the geometric sphere and expands to
+
+\begin{equation}
+\int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{V_{track}} r^2\sin{\phi} \, \mathrm{d}\phi
+\mathrm{d}\theta \mathrm{d}r \,  p_n(d) \mathrm{d}V_{track}
+\end{equation}
+
+The inner integral over $V_{track}$ then expands to
+
+\begin{equation}
+\small \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{0}^{\infty}\int_{0}^{2\pi}\int_{0}^{\pi}
+r^2\sin{\phi} \, p_n(d) d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}d \, \mathrm{d}\phi
+\mathrm{d}\theta \mathrm{d}r
+\end{equation}
+
+Integration of $\phi$, $\theta$, and $\beta$ can now be performed with
+the knowledge that they are symmetric with respect to the problem and
+integration of $p_n(d)$ does not rely on them.
+
+\begin{equation}
+\small 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{0}^{\pi} p_n(d) \,
+r^2 \, d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
+\end{equation}
+
+In order to represent particles traveling a fixed distance, the relationship in Equation \ref{eq:pn_fixed}
+is applied.
+
+\begin{equation}
+  \label{eq:pn_fixed}
+  p_n(d) = \frac{\delta(d-\lambda)}{d^{2}}
+\end{equation}
+
+The evaluation of this integral then gives a representation of all the query
+space available to the problem
+
+\begin{equation}
+  \label{eq:A_fixed}
+\small A = 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{0}^{\pi} \delta(d-\lambda) \,
+r^2 \, \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
+\end{equation}
+
+and represents all geometric query space, labeled $A$, for a sphere of radius,
+$R$ and a fixed distance traveled, $\lambda$.
+
+In order to understand what fraction of this query space is able to be
+preconditioned, the condition for avoiding an explicit nearest intersection
+search along a particle direction in Equation \ref{eq:condition_no_error} will now be
+applied.
+
+\begin{equation}
+  SDV(\vec{p}) + SDV(\vec{n}) > |\vec{p}-\vec{n}| + 2\varepsilon(h)
+  \label{eq:condition_no_error}
+\end{equation}
+\begin{align*}
+ &SDV - \, signed \, distance \, value \, function \\
+ &\vec{p} - \, particle's \, current \, position \\
+ &\vec{n} - \, particle's \, next \, event \, location \\
+ &h - \, mesh \, step \, size \\
+ &\varepsilon(h) - \, error \, evaluation \, for \, signed \, distance \, values \\
+\end{align*}
+
+This condition establishes that the nearest location to intersection for both
+points must be greater than the distance between the two points plus any error
+associated with their signed distance values as previously discussed. This
+condition is true for some fraction of the next surface queries in a Monte Carlo
+simulation, but not all.  This model does not account for error, making it an
+idealized model representing the largest utilization possible for any given
+pseudo simulation.
+
+\begin{equation}
+SDV(\vec{x}) =  R-|\vec{x}|
+\end{equation}
+
+Making these substitutions into the inequality gives
+
+\begin{equation}
+R-|\vec{p}| + R - |\vec{n}| >   |\vec{p}-\vec{n}|
+\end{equation}
+The right hand side of this inequality can be described as the distance
+traveled, $d$, and the magnitude of $\vec{p}$ can be represented
+by the variable $r$.
+
+\begin{equation}
+ R-r + R - |\vec{n}(d,\alpha,\beta)| > d
+\end{equation}
+
+Reducing the next event location, $\vec{n}(d,\alpha,\beta)$, into an expression
+in terms of $r$, $d$, and $\alpha$ requires further examination of the
+problem. Because the coordinates of $n$ depend on the current particle position,
+the magnitude of $n$ with respect to the geometry origin must be obtained to get
+a correct form for the signed distance value. Again,  Figure \ref{fig:model} depicts the
+value of $n$ graphically for reference. The magnitude of n can then be described
+using the law of cosines as
+
+\begin{equation}
+|n(d,\alpha,\beta)| = \sqrt{r^2 + d^2 - 2rd \cos{\pi-\alpha}}
+\end{equation}
+inserting this into the inequality gives
+
+\begin{equation}
+R-r + R - \sqrt{r^2 + d^2 + 2rd \cos{\alpha}} > d
+\end{equation}
+
+The inequality has now been reduced to the three variables seen in
+Equation \ref{eq:A_fixed}:$r$, $d$, and $\alpha$. This inequality can be applied to
+construct limits of integration representing boundaries of space in which the
+SDF can be utilized. By rearranging the inequality, a limit on the angle of
+departure, $\alpha$, from the particle's position can be derived.
+
+\begin{equation}
+\alpha_{min} > \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg )
+\end{equation}
+
+\begin{figure}[ht]
+  \centering
+  \includesvg{../images/model_cases_fixed_distance}{width=\textwidth}
+  \caption{Depiction of modeling cases. Left: an example of a track for which
+    $d < R - r$. Middle: an example of a track for which $R-r < d < R$ and can be
+    preconditioned.  Right: an example of a track for which $R-r < d < R$ and
+    cannot be preconditioned.}
+  \label{fig:modeling_cases}
+\end{figure}
+
+This condition on alpha can be interpreted as a minimum interior angle that the
+particle's trajectory must take relative to the particle's position vector,
+$\vec{p}$, for a distance traveled, $d$, for a ray fire to be avoided and the
+preconditioner to be utilized. The examination of this condition as a function
+of the distance traveled for various values of $r$ results in some conclusions
+about how signed distance values are being utilized.
+
+The inequality is undefined until the distance reaches a value $d = R- r$. This
+is because the angular limit only needs to be applied to areas of the query
+space in which the distance traveled is large enough to violate the above
+condition as depicted in  Figure \ref{fig:modeling_cases}. A violation of this
+limit may only occur when a particle travels far enough to reach the geometric
+sphere boundary along the current position vector as if it were moving directly
+toward the boundary of the sphere. An additional interesting feature of Figure
+\ref{fig:alpha_min} is the convergence of all the curves on $\pi$ as $d$
+approaches $R$. The convergence on $\pi$ indicates that as the distance traveled
+approaches $R$ the only direction that the particle can move is back toward the
+origin along the position vector. It also defines a maximum distance a particle
+can travel in the sphere and still be preconditioned using signed distance
+values. Intuitively this makes sense as the maximum chord length of a sphere is
+$2R$, and once a particle travels a distance $R$ the sum of the signed distance
+values can then be no larger than $R$ and the condition for utilization in
+Equation \ref{eq:condition} is violated. Hence all curves go to zero at $\lambda =
+100 cm$ in  Figure \ref{fig:sdf_fixed_dist}.
+
+In order to account for the fact that the form of $\alpha_{min}$ is undefined
+until $d = R-r$, a Heaviside function is applied before applying it as a limit
+on the particle's angle of departure from the position vector. Similarly,
+because the $\alpha_{min}$ condition is undefined after $d=R$ a Heaviside
+function is used to limit the condition to $\pi$ for any distances traveled
+larger than $R$.
+
+\begin{equation}
+  \small
+  \begin{split}
+  \alpha_{min} =& (H(d-(R-r))-H(d-R)) \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg ) \\
+  &+ \pi \, H(d-R)
+  \end{split}
+\end{equation}
+
+
+By inserting this condition as a lower limit of the $d\alpha$ integration,
+Equation \ref{eq:subs_a_cond} will give all utilized space, $US$, in the query space
+of the simulation.
+
+\begin{equation}
+\small US = 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{\boldsymbol{\alpha_{min}}}^{\pi} \delta(d-\lambda) \,
+r^2 \, d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
+\label{eq:subs_a_cond}
+\end{equation}
+
+Evaluating this integral and dividing by all query space gives the
+following form for the theoretical limit of signed distance field utilization as a
+preconditioner for ray firing
+
+\begin{equation}
+U_{theoretical} = \frac{US}{A} =  \frac{(1-H(\lambda-R))(2R-\lambda)(R-\lambda)}{2R^2}
+\end{equation}
+
+It can be seen in  Figure \ref{fig:sdf_fixed_dist} that this utilization limit
+works well as an upper limit for the simulation results using various signed
+distance field mesh resolutions. As the step size of the mesh approaches zero,
+so does the evaluation of the error, resulting in the same utilization curve
+with varying distance traveled, $\lambda$, as in the analytic form developed
+here. Future work will include the comparison of this utilization limit to other
+single-volume geometries using dimensionless parameters to determine if the
+model above can be used to predict signed distance field utilization in other
+geometries as well.
+
+%% After the agreement of the simulation results and analytic model for signed
+%% distance field utilization for the fixed distance traveled case, the simulation
+%% was used to produce a similar set of results in which the distance is
+%% sampled based on the standard probability for distance to interaction in a
+%% medium with a cross section, $\Sigma$, or mean free path $\lambda
+%% =1/\Sigma$. This results in the probability distribution function shown in
+%% Equation \ref{eq:pn_sampled} for the particle distance traveled in this scenario.
+
+%% \begin{equation}
+%%   \label{eq:pn_sampled}
+%% p_n(d) \propto \frac{e^{-\Sigma d}}{d^{2}} = \frac{e^{-\frac{d}{\lambda}}}{d^{2}}
+%% \end{equation}
+
+%% \begin{figure}[ht]
+%% \centering
+%% \includesvg{../images/sdf_sampled_dist_results}{width=0.5\textwidth}
+%% \caption{Results of the model for the theoretical utilization limit with the
+%% results of the simulation for a sampled distance traveled case.}
+%% \label{fig:sdf_sampled_dist}
+%% \end{figure}
+
+%% %has to be in this section for latex reasons. grumble grumble...
+%% \begin{table*}[!h]
+%%   \centering
+%%   \begin{tabular}{lcccc}
+%%           \multicolumn{5}{l}{\textbf{\textit{Source Location:}} <0,0,-1>} \\
+%%           \textbf{Implementation} & \textbf{ctme (min)} & \textbf{wall time
+%%             (min)} & \textbf{time ratio} & \textbf{precond. utilization}\\
+%%           \hline
+%%           MCNP6 & 0.17 & 0.14 & 1 & N/A \\
+%%           DAG-MCNP6 & 1841.33 & 1841.33 & ~11,000 & N/A \\
+%%           DAG-MCNP6 w/ SDF & 0.48 & 0.46 & 2.82 & 0.94\\
+%%           \multicolumn{5}{l}{} \\
+%%           \multicolumn{5}{l}{\textbf{\textit{Source Location:}} <0,0,10>} \\
+%%           \textbf{Implementation} & \textbf{ctme (min)} & \textbf{wall time
+%%             (min)} & \textbf{time ratio} & \textbf{precond. utilization}\\
+%%           \hline
+%%           MCNP6 & 0.18 & 0.18 & 1 & N/A \\
+%%           DAG-MCNP6 & 11.12 & 11.16 & 62 & N/A \\
+%%           DAG-MCNP6 w/ SDF & 0.50 & 0.52 & 2.89 & 0.96 \\
+          
+%%   \end{tabular}
+%%   \caption{Performance results for an MCNP6 test case involving electron
+%%     transport of a 1 keV-100 keV photon source incident on an Fe/W target. 5,000
+%%     histories were run in this test problem.}
+%%   \label{tab:inp066_results}
+%% \end{table*}
+
+%% Following the same process as in the fixed distance case by plugging Equation \ref{eq:pn_sampled} into
+%% Equation \ref{eq:subs_a_cond}, the utilization form for the sampled distance case is
+%% shown in Equation \ref{eq:sampled_limit}.
+
+%% \begin{equation}
+%%   \label{eq:sampled_limit}
+%%   U_{theoretical} = \frac{US}{A} = \frac{ \frac{1}{2} \lambda(R - 2 \lambda) e^{\frac{-R}{\lambda}} + \lambda^2 - \frac{3}{2} R \lambda + R^2 }{R^2}
+%% \end{equation}
+
+%% The results of this set of simulations can be seen in
+%%  Figure \ref{fig:sdf_sampled_dist}. In this scenario, it is not expected that the
+%% utilization will approach zero when $\lambda = 100\, cm$, as the actual distance
+%% sampled may be considerably less than the provided mean free path for the
+%% simulation. Overall utilization values in this scenario for $\lambda$ from 0 to
+%% 100 cm remain higher than the corresponding fixed distance simulation cases as
+%% is expected in a sampled distance case. Utilization values remain high for
+%% relatively large increases in mesh step size, $h$. This is important to
+%% application of the data structure given concerns regarding its potentially high
+%% memory footprint for large volumes. For example if the utilization of the signed
+%% distance field drops $~20\%$ when going from a step size of 1 cm to 6.21 cm, but
+%% the memory footprint of the data structure will have decreased by a factor of
+%% $6.21^3$ or $239.5$ as well. The optimization of the mesh step size with respect
+%% to its effect on utilization will also need to be included in future models of
+%% the utilization.
+
+
+The fixed distance traveled scenario provides a nice baseline for agreement
+between the computational results and the model, but a more realistic scenario
+is required before attempting to apply the model as a predicitive utility for
+application of the SDF in true Monte Carlo codes. The most useful alteration of
+the current simulation scenario is to move from a fixed distance distance to a
+sampled distance based on the standard probability for distance to interaction
+in a medium given a cross section, $\Sigma$.
+
+\begin{equation}
+  p = e^{-\Sigma d} = e^{-\frac{d}{\lambda}}
+\end{equation}
+
+where in this case now $\lambda$ represents the mean free path of the particle in the medium
+
+In simulation, distances are now sampled as
+
+\begin{equation}
+  d = -\lambda ln(c)
+\end{equation}
+
+where $c$ is randomly sampled with a uniform distribution between 0 and 1
+
+Inserting this definition for the particle distance into the integrals above
+gives
+
+\begin{equation}
+  \frac{dp}{dd} = -\frac{p}{\lambda}
+\end{equation}
+
+\begin{equation}
+  d = 0 \rightarrow c = 1
+\end{equation}
+
+\begin{equation}
+  d = \infty \rightarrow c = 0
+\end{equation}
+
+
+\begin{equation}
+  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{0}\int_{0}^{2\pi}\int_{0}^{\pi}
+-r^2\sin{\phi} \, \lambda c ln(c)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
+\mathrm{d}\theta \mathrm{d}r
+\end{equation}
+
+
+To find the portion of utilized space for a given $R$ and $\lambda$ one can
+apply the same methods from the fixed distance case, for each particle position
+within the sphere there will still be two scenarios - one in which the distance
+traveled exceeds $R-d$ and another in which it is less than $R-d$. The difference
+now is d has become a distrubution rather than a constanct value, so as the
+distance traveled changes the queries will fall into either category for a
+single particle position.
+
+Another way of viewing of viewing this condition in the case of a varying
+distance is to define these same categories based on the distance traveled. Now
+rather than defining how the angular condition is applied based on position, the
+angular condition will be applied based on the distance the particle travels.
+
+\begin{equation}
+  d < R-r : \alpha_{min} = 0
+\end{equation}
+
+\begin{equation}
+  d > R-r : \alpha_{min} = \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg
+  )
+\end{equation}
+
+
+It is interesting to examine plots of the angular limit with varying distance as
+seen in Figure \ref{fig:alpha_min}.
+
+\begin{figure}[ht]
+  \centering
+  \includesvg{../images/alpha_r}{width=1\textwidth}
+  \caption{Plot of mininum angle of departure restriction for particles with
+    various radial positions between 0 cm and 100 cm and various distanced traveled.}
+ \label{fig:alpha_min}
+\end{figure}
+
+The entry point of each curve in the plot represents the minimum distance
+necessary to enter the $d > R-r$ region and begins to apply an agular
+restriction. Note that each of these approach a mininmum angle of $\pi$ as the
+distance traveled approaches $R$ (100cm). This represents a particle traveling
+back towrd the origin along the sphere's larges chord with length $2R$ and,
+again,the maximum distance a particle can travel before the SDF can no longer be
+utilized.
+
+Now that the distance traveled is being used to construct these two regions in
+the model, this integral must be separated into two pieces, one with limits of $0$
+to $R-r$ and another with limits $R-r$ to $R$. Based on the distance sampling
+distribution, these values become
+
+\begin{equation}
+  d_{min} = R-r \rightarrow p_{max} = e^{(-\frac{(R-r)}{\lambda})}
+\end{equation}
+
+\begin{equation}
+  d_{max} = R   \rightarrow p_{min} = e^{(-\frac{R}{\lambda})}
+\end{equation}
+
+
+and the resulting integral becomes
+
+\begin{equation}
+  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{p_{max}}\int_{0}^{2\pi}\int_{0}^{\pi}
+-r^2sin(\phi) \, \lambda p ln(p)^2 sin(\alpha) \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
+\mathrm{d}\theta \mathrm{d}r +
+\end{equation}
+
+\begin{equation}
+  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{p_{max}}^{p_{min}}\int_{0}^{2\pi}\int_{alpha_{min}}^{\pi}
+-r^2\sin{\phi} \, \lambda p ln(p)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
+\mathrm{d}\theta \mathrm{d}r
+\end{equation}
+
+
+The evaluation of this integral divided by the full geometry query space for the
+distance sampling scenario after the $c=\frac{R}{\lambda}$ replacement is
+
+\begin{align}
+    \begin{split}
+    U_{sampled} = \frac{\frac{1}{2} \lambda (R - 2 \lambda) e^{-\frac{R}{\lambda}} + \lambda^{2} - \frac{3}{2} R \lambda + R^{2} }{R^{2}}
+  \end{split}
+\end{align}
+
+\begin{figure}[ht] 
+\centering
+\includesvg{../images/sdf_sampled_dist_results}{width=\textwidth}
+\caption{Results of the model for the theoretical utilization limit with the
+  results of the simulation for a sampled distance traveled case.}
+\label{fig:sdf_sampled_dist}
+\end{figure}
+
+The updated predictive model describes the idealized utilization of the
+preconditioning method very well when the SDF step size is small. As the SDF
+step size is increased, the predictive model becomes increasingly worse at
+evaluating the correct utilization. In application, the SDF step size will
+govern the memory footprint of the data structure. For the predictive model to
+be useful in a production scenario, the relationship of the preconditioning
+method to the SDF step size must be understood.
+
+%% It is quite possible that utilization in either th interior or exterior
+%% resion of the sphere is being under represented. Regardless of the cause, examining the contribution to
+%% utilization from each of these regions (shown in
+%%  Figure \label{fig:util_region_contributions}) is an interesting endeavor.
+
+
+%% \begin{figure}[ht] 
+%% \centering
+%% \includesvg{../images/util_contributions}{width=\textwidth}
+%% \caption{A plot of the total predicted utilization along with the contriubtions
+%%   from the inner region ($d < R-r$) and outer region ($d > R-r$).}
+%% \label{fig:util_region_contributions}
+%% \end{figure}
+
+%% Figure \ref{fig:util_region_contributions} depicts the utilization of the SDF
+%% data structure for various values of the mean free path, $\lambda$.
+%% When $\lambda$ is very small, particles' next event locations
+%% rarely reach the outer region condition of $ d > R - r $. As $\lambda$ increases, particles are
+%% more likely to enter that region and its contribution increases greatly. Then
+%% as particles begin to travel distances on the order of the sphere radius the
+%% utilization decreases. The interior region utilization acts as one would
+%% expect. When particles travel small distances with respect to the sphere radius,
+%% there is high utilization, but as the particles begin to travel further its
+%% utilization rapidly decreases. The contribution from the outer region defines the
+%% significance of using both the current position signed distance value as well as the
+%% next event location's signed distance value to precondition ray fire calls in DAGMC.
+
+\subsection{Applying SDF Error Evaluation}
+
+Thus far, the error associated with the tri-linear interpolation used to recover
+signed distance values from the signed distance field has been ignored. In
+order to optimize step size of the uniform mesh making up the signed distance
+field, it is important to take this error into account when predicting the
+utilization of the data structure.
+
+As seen in Figure \ref{fig:sdf_sampled_dist}, the step size of the mesh can
+significantly impact the utilization of the data structure and in turn the
+overall performance of the simulation. It is important to use a step size which
+will not artificially limit the effect of the data structure, but the signed
+distance field is a dense data structure and uses a considerable amount of
+memory. The memory usage of the signed distance field is inversely proportional
+to the cube of the mesh step size ($\alpha \frac{1}{h^{3}}$). Therefore it is
+important to consider the impact that this error will have on the utilization
+of the data structure.
+
+\begin{equation}
+  SDV(\vec{p}) + SDV(\vec{n}) > |\vec{p}-\vec{n}| + 2\varepsilon(h)
+  \label{eq:condition}
+\end{equation}
+\begin{align*}
+ &SDV - \, signed \, distance \, value \, function \\
+ &\vec{p} - \, particle's \, current \, position \\
+ &\vec{n} - \, particle's \, next \, event \, location \\
+ &h - \, mesh \, step \, size \\
+ &\varepsilon(h) - \, error \, evaluation \, for \, signed \, distance \, values \\
+\end{align*}
+
+
+The expansion of Equation \ref{eq:condition_no_error} with the error term can be seen
+in \ref{eq:condition} and results in a new condition for the minimum angle of
+departure ($\alpha_{min}$) shown in Equation \ref{eq:min_alpha_w_error}
+
+\begin{equation}
+\small
+\begin{split}
+\alpha_{min} =& \arccos\Bigg ( \frac{(2R-r-d-2\epsilon)^2-d^2-r^2}{2 d r} \Bigg )[H(d-(R-r-\epsilon))-H(d-(R-\epsilon))]  \\
+&+ \pi \, H(d-(R-\epsilon))
+\end{split}
+\label{eq:min_alpha_w_error}
+\end{equation}
+
+This formulation of $\alpha_{min}$ can be used directly in the integration described
+in Equation \ref{eq:subs_a_cond}. The final form of the model after the integration being:
+
+\begin{equation}
+  US_{sampled} = \frac{(R-\epsilon) (\frac{1}{2} \lambda ( R - 2\lambda - \epsilon ) e^{\frac{-R + \epsilon}{\lambda}} + \lambda^{2} - \frac{3}{2}\lambda(R - \epsilon) + (R-\epsilon)^{2})}{R^3}
+  \label{eq:sdf_util_sampled_w_error}
+\end{equation}
+
+%% For a direct evaluation of the utilization based on
+%% the mesh step size, $h$, the formula for the error can be substituted for
+%% $\epsilon$ to give
+
+%% \begin{equation}
+%% \small
+%% \begin{split}
+%% \alpha_{min} =& (H(d-(R-r-\sqrt{3}h))-H(d-(R-\sqrt{3}h))) \arccos\Bigg ( \frac{(2R-r-d-2\sqrt{3}h)^2-d^2-r^2}{2 d r} \Bigg ) \\
+%% &+ \pi \, H(d-(R-\sqrt{3}h))
+%% \end{split}
+%% \end{equation}
+
+This updated model was then compared to pseudo-simulations using sampled
+distances for the next physics event location. The result of this can be seen in
+Figure \ref{fig:sdf_util_sampled_distance_w_error}. The dimensionless parameters
+$n$ and $c$ as formulated by normalizing the mean free path, $\lambda$ and the
+mesh step size, $h$ using the average chord length of the sphere,
+$R_{av}$. These dimensionless parameters are useful for describing the
+utilization in terms which are largely agnostic to the geometry. This is
+discussed in more detail in Section \ref{sec:sdf_other_geoms}.
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/sdf_util_sampled_distance_w_error}{width=\textwidth}
+  \caption{Theoretical limits for SDF utilization accounting for error
+    evaluation plotted with simulation results for varying mesh step sizes.}
+  \label{fig:sdf_util_sampled_distance_w_error}
+\end{figure}
+
+The model presented in Equation \ref{eq:sdf_util_sampled_w_error} agrees very well
+with the simulated results for small values of $n$. As the value of $n$
+increases, the model begins to overpredict the utilization of the
+preconditioning method slightly for low relative mean free path values. The
+utilization values in this regime are so low that they are not concern,
+however. Knowing that the SDF will not only be applied to spheres in practice,
+it is necessary to understand the predictive model's behavior for other
+geometries as well.
+
+

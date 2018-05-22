@@ -233,7 +233,7 @@ outward from the volume they represent. In the rare cases for which the dot
 product of these vectors is ambiguous, or zero, DAGMC's point containment
 algorithm is used to disambiguate the value's sign.
 
-\section{Utilization Modeling}\label{sec:preconditioner_utilization}
+\section{Preconditioner Utilization}\label{sec:preconditioner_utilization}
 
 In effect, the preconditioner is attempting to check whether or not the particle
 will actually cross a surface before explicitly searching for the particle's
@@ -247,9 +247,9 @@ volume's geometric and material properties for optimal performance and high
 utilization of the preconditioning methods. Ideally, this method will only be
 applied to volumes in which the preconditioning method is able to avoid ray fire
 calls often or with high utilization. The signed distance field is expected to
-have the biggest impact in performance when preconditioning next surface
+have the biggest impact in performance when preconditioning \textit{Next Surface}
 intersection queries, as they are most commonly called in Monte Carlo codes when
-tracking neutral particles through the geometry (see Table
+tracking  particles through the geometry (see Table
 \ref{tab:geom_query_ratios}). As such, this type of query is the focus of
 utilization measurement for the remainder of this section.
 
@@ -260,16 +260,15 @@ utilization measurement for the remainder of this section.
 %  \caption{Definition of signed distance field utilization as a ray fire preconditioner in DAGMC.}
 \end{equation}
 
-As shown in Equation \ref{eq:preconditioner_utilization}, the utilization, $U$,
-of the signed distance field as a ray fire preconditioner can be described as
-the number of ray fire calls related to the \textit{Next Surface} intersection
-queries that are avoided divided by the total number of next surface
-intersection queries made by the Monte Carlo code. This value can be quantified
-using this definition using debugging tools, such as Valgrind \cite{Pena_2016},
-to determine the number of queries made in DAGMC and the number of rays fired
-inside of the subroutine.  It is expected that in the majority of cases, as the
-utilization of preconditioning methods goes up, the performance of the
-simulation will also improve.
+The utilization of the SDF preconditioning method, conceptually defined in
+Equation \ref{eq:preconditioner_utilization}, can be described as the number of
+ray fire calls related to the \textit{Next Surface} intersection queries that
+are avoided divided by the total number of next surface intersection queries
+made by the Monte Carlo code. This value can be quantified using this definition
+using debugging tools, such as Valgrind \cite{Pena_2016}, to determine the
+number of queries made in DAGMC and the number of rays fired inside of the
+subroutine.  It is expected that, as the utilization of preconditioning methods
+goes up, the performance of the simulation will also improve.
 
 \begin{figure}[ht]
   \centering
@@ -280,11 +279,13 @@ simulation will also improve.
 \end{figure}
 
 To understand this utilization more deeply with respect to material parameters,
-the hydrogen density was varied from 0 to 1 $\frac{g}{cm^3}$ in the single-volume
-sphere test problem with a 5 MeV neutron point source. For each density, one
-simulation was performed without the signed distance field and another with the
-signed distance field and preconditioning enabled. Figure
-\ref{fig:sphere_hydrogen_density_study_util} shows the utiilzation results of this study. 
+a simple problem was create to demonstrate the performance benefits of this
+method. The density of a hydrogen-filled sphere of radius 10cm and centered on
+the origin was varied from 0 to 1 $\frac{g}{cm^3}$ with a 5 MeV neutron point
+source at the origin. For each density, one simulation was performed without the
+signed distance field and another with the signed distance field and
+preconditioning enabled. Figure \ref{fig:sphere_hydrogen_density_study_util}
+shows the utiilzation results of this study.
 
 \begin{figure}[ht]
   \centering
@@ -297,11 +298,11 @@ signed distance field and preconditioning enabled. Figure
   \label{fig:sphere_hydrogen_density_study_perf}
 \end{figure}
 
-Utilization of the preconditioning method in this study remains high until the hydrogen
-density falls to 0.1 $\frac{g}{cm^3}$ at which point a distinct knee appears and
-the utilization falls off quickly. Even at the lowest density reached in the
-study of 0.01 $\frac{g}{cm^3}$, the utilization of the signed distance field to
-avoid ray fire calls is 0.54.
+Utilization of the preconditioning method in this study remains high until the
+hydrogen density falls to 0.1 $\frac{g}{cm^3}$ at which point a distinct knee
+appears and the utilization falls off quickly. Even at the lowest density
+reached in the study of 0.01 $\frac{g}{cm^3}$, the utilization preconditioning
+method is 0.54.
 
 
 Figure \ref{fig:sphere_hydrogen_density_study_perf} provides some insight into the
@@ -322,7 +323,7 @@ simulation tool.
 \subsection{Utilization Modeling}
 
 In order to characterize utilization of a signed distance field as a
-preconditioner for next surface intersection queries in DAGMC, a pseudo Monte
+preconditioner for \textit{Next Surface} intersection queries in DAGMC, a pseudo Monte
 Carlo simulation tool was developed using DAGMC. This tool was used to simulate
 different transport scenarios within a spherical geometry of radius 100
 cm. Particles were sourced uniformly inside the volume and scatter
@@ -332,7 +333,7 @@ $d$, can be represented by either a fixed distance or by sampling for the
 standard probability of interaction in a medium with mean free path,
 $\lambda$. The tool allows the value of $\lambda$ to be set directly, enabling a
 relation between the signed distance field and this value to be developed with
-intent for use as a means for characterizing appropriate
+intent for use as a means to characterize appropriate
 conditions for application of the signed distance field.
 
 \begin{figure}[H]
@@ -370,10 +371,10 @@ limit will now be discussed.
 The utilization of the signed distance field as a preconditioner for ray tracing
 operations can be modeled as an evaluation of the combined probability space for
 particles with a current position, $\vec{p}$, and a next physics event location,
-$\vec{n}$, after traveling a distance, $d$. The fraction of this probability
+$\vec{n}$, some distance, $d$, apart. The fraction of this probability
 space in which signed distance values can be used to rule out surface crossings
-for next surface intersections is then considered to be the theoretical
-utilization of the signed distance field. An initial form for this probability
+for next surface intersections is considered to be the theoretical
+utilization of the signed distance field. An general form for this probability
 space can found in Equation \ref{eq:util_model}.
 
 \begin{equation}
@@ -383,12 +384,12 @@ space can found in Equation \ref{eq:util_model}.
 
 In this model, the starting location of particles, $\vec{p_p}(r,\phi,\theta)$, is
 uniformly distributed, $p_p(r)=1$, throughout a sphere of radius, $R$, centered
-at the origin.  The location of the next event, $n(d,\alpha,\beta)$, where $d$
+at the origin.  The location of the next event, $\vec{p_{n}}(d,\alpha,\beta)$, where $d$
 is the distance traveled by the particle, $\alpha$ is the interior angle between
 the particle's \textit{position} vector and the particle's sampled direction
 vector, and $\beta$ represents an azimuthal angle for directions traveled with
-angle of departure, $\alpha$.  Figure \ref{fig:model} depicts these variables, $r$,
-$d$, and $\alpha$ more clearly.
+angle of departure, $\alpha$. Figure \ref{fig:model} depicts these variables, $r$,
+$d$, and $\alpha$ graphically.
 
 In order to represent particles traveling a fixed distance, the relationship in
 Equation \ref{eq:pn_fixed} is applied.
@@ -398,7 +399,7 @@ Equation \ref{eq:pn_fixed} is applied.
   p_n(d) = \frac{\delta(d-\lambda)}{d^{2}}
 \end{equation}
 
-The evaluation of this integral then gives a representation of all the query
+The evaluation of this integral provides a representation of all the query
 space available to the problem
 
 \begin{equation}
@@ -428,24 +429,23 @@ applied.
 
 This condition establishes that the nearest location to intersection for both
 points must be greater than the distance between the two points plus any error
-associated with their signed distance values as previously discussed. This
-condition is true for some fraction of the next surface queries in a Monte Carlo
-simulation, but not all.  This model does not account for error, making it an
-idealized model representing the largest utilization possible for any given
-pseudo simulation.
+associated with their signed distance values as previously described in Section
+\ref{sec:preconditioning_theory}. This condition is true for some fraction of
+the next surface queries in a Monte Carlo simulation, but not all. The signed
+distance function of a sphere, shown in Equation \ref{eq:sdf_sphere}, can be
+applied in Equation \ref{eq:condition_no_error}, to obatin a lower limit,
+$\alpha_{min}$ for the integral over $d\alpha$ in Equation \ref{eq:util_model}.
 
 \begin{equation}
-SDV(\vec{x}) =  R-|\vec{x}|
+  SDV(\vec{x}) =  R-|\vec{x}|
+  \label{eq:sdf_sphere}
 \end{equation}
 
 Making these substitutions into the inequality gives
 
 \begin{equation}
-  d < R-r : \alpha_{min} = 0
-\end{equation}
-
-\begin{equation}
-\alpha_{min} > \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg )
+  \alpha_{min} > \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg )
+  \label{eq:alpha_min_no_error_fixed}
 \end{equation}
 
 \begin{figure}[ht]
@@ -465,23 +465,28 @@ preconditioner to be utilized. The examination of this condition as a function
 of the distance traveled for various values of $r$ results in some conclusions
 about how signed distance values are being utilized.
 
-The inequality is undefined until the distance reaches a value $d = R- r$. This
+The inequality in Equation \ref{eq:alpha_min_no_error_fixed} is undefined until the distance reaches a value $d = R- r$. This
 is because the angular limit only needs to be applied to areas of the query
 space in which the distance traveled is large enough to violate the above
 condition as depicted in  Figure \ref{fig:modeling_cases}. A violation of this
 limit may only occur when a particle travels far enough to reach the geometric
 sphere boundary along the current position vector as if it were moving directly
-toward the boundary of the sphere. An additional interesting feature of Figure
-\ref{fig:alpha_min} is the convergence of all the curves on $\pi$ as $d$
-approaches $R$. The convergence on $\pi$ indicates that as the distance traveled
-approaches $R$ the only direction that the particle can move is back toward the
-origin along the position vector. It also defines a maximum distance a particle
-can travel in the sphere and still be preconditioned using signed distance
+toward the boundary of the sphere.
+
+A plot of the $\alpha_{min}$ limit for various radial starting positions and
+distances traveled can be found in \ref{fig:alpha_min}. An interesting feature
+of this figure is the convergence of all the curves on $\pi$ as $d$ approaches
+$R$. The convergence on $\pi$ indicates that as the distance traveled approaches
+$R$ the only direction that the particle can move is back toward the origin
+along the position vector. It also defines a maximum distance a particle can
+travel in the sphere and still be preconditioned using signed distance
 values. Intuitively this makes sense as the maximum chord length of a sphere is
 $2R$, and once a particle travels a distance $R$ the sum of the signed distance
-values can then be no larger than $R$ and the condition for utilization in
-Equation \ref{eq:condition} is violated. Hence all curves go to zero at $\lambda =
-100 cm$ in  Figure \ref{fig:sdf_fixed_dist}.
+values can then be no larger than $R$. Thus the condition for utilization in
+Equation \ref{eq:condition} is always violated for distances traveled greater
+than $R$. Hence all curves go to zero at $\lambda
+= 100 cm$ in Figure \ref{fig:sdf_fixed_dist}. Substitution of the $\alpha_{min}$
+condition gives
 
 \begin{equation}
 \small US = 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{\boldsymbol{\alpha_{min}}}^{\pi} \delta(d-\lambda) \,
@@ -494,18 +499,22 @@ following form for the theoretical limit of signed distance field utilization as
 preconditioner for ray firing
 
 \begin{equation}
-U_{fixed} = \frac{US}{A} =  \frac{(1-H(\lambda-R))(2R-\lambda)(R-\lambda)}{2R^2}
+  U_{fixed} = \frac{US}{A} =  \frac{(1-H(\lambda-R))(2R-\lambda)(R-\lambda)}{2R^2}
+  \label{eq:sdf_util_fixed}
 \end{equation}
 
 It can be seen in Figure \ref{fig:sdf_fixed_dist} that this utilization limit
-works well as an upper limit for the simulation results using various signed
-distance field mesh resolutions. As the step size of the mesh approaches zero,
-so does the evaluation of the error, resulting in the same utilization curve
-with varying distance traveled, $\lambda$, as in the analytic form developed
-here. Section \ref{sec:sdf_other_geoms} will include the comparison of this
-utilization limit to other single-volume geometries using dimensionless
-parameters to determine if the model above can be used to predict signed
-distance field utilization in other geometries as well.
+works well as an upper limit for the simulation results for various signed
+distance field mesh resolutions. Equation \ref{eq:sdf_util_fixed} is an
+idealized model and does not account for interpolation error of the signed
+distance values used in the pseudo simulation. As the step size of the mesh
+approaches zero, so does the evaluation of the error and the utilization values
+approach the idealized analytic model for the preconditioner utilization.
+
+%% Section \ref{sec:sdf_other_geoms} will include the comparison of this
+%% utilization limit to other single-volume geometries using dimensionless
+%% parameters to determine if the model above can be used to predict signed
+%% distance field utilization in other geometries as well.
 
 \begin{figure}[H]
   \centering
@@ -588,16 +597,16 @@ distance field utilization in other geometries as well.
 %% to its effect on utilization will also need to be included in future models of
 %% the utilization.
 
-The fixed distance traveled scenario provides a baseline for agreement
-between the computational results and the model, but a more realistic scenario
-is required before attempting to apply the model as a predicitive utility for
-application of the SDF in true Monte Carlo codes. The most useful alteration of
-the current simulation scenario is to move from a fixed distance distance to a
-sampled distance based on the standard probability for distance to interaction
-in a medium given a cross section, $\Sigma$.
+The fixed distance traveled scenario provides a baseline for agreement between
+the computational results and the model, but a more realistic scenario is
+required before attempting to apply the model as a predicitive utility for
+application of the SDF in true Monte Carlo codes. The next iteration of the
+analytic model applies a sampled next physics event distance based on the
+probability for distance to interaction in a medium with a total cross section,
+$\Sigma$.
 
 \begin{equation}
-  p = e^{-\Sigma d} = e^{-\frac{d}{\lambda}}
+  p = \frac{e^{-\Sigma d}}{d^{2}} = \frac{e^{-\frac{d}{\lambda}}}{d^{2}}
 \end{equation}
 
 where in this case now $\lambda$ represents the mean free path of the particle in the medium
@@ -608,20 +617,20 @@ In simulation, distances are now sampled as
   d = -\lambda ln(c)
 \end{equation}
 
-where $c$ is randomly sampled with a uniform distribution between 0 and
-1. Applying this distribution to Equation \ref{eq:util_model} gives
+where $c$ is randomly sampled with a uniform distribution between 0 and 1. To
+find the portion of utilized space for a given $R$ and $\lambda$ one can apply
+the same methods from the fixed distance case.  Appendix \ref{ch:appendix-a}
+provides a more detailed description of the model development for sampled
+distances. The result of the updated distribution for sampled distances is found
+in Equation \ref{eq:sdf_model_sampled}. Applying this distribution to Equation
+\ref{eq:util_model} gives
 
 \begin{equation}
-  \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{0}\int_{0}^{2\pi}\int_{0}^{\pi}
--r^2\sin{\phi} \, \lambda c ln(c)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
-\mathrm{d}\theta \mathrm{d}r
+  8\pi^{2} \int_{0}^{R}\int_{0}^{\infty}\int_{\alpha_{min}}^{\pi}
+-r^2\sin{\phi} \, \lambda c ln(c)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d
+\, \mathrm{d}r
 \end{equation}
 
-To find the portion of utilized space for a given $R$ and $\lambda$ one can
-apply the same methods from the fixed distance case. Appendix
-\ref{ch:appendix-a} provides a more detailed description of the model
-development for sampled distances. The result of the updated distribution for
-sampled distances is found in Equation \ref{eq:sdf_model_sampled}.
 
 %% Another way of viewing of
 %% viewing this condition in the case of a sampled distance traveled is to define
@@ -675,18 +684,19 @@ sampled distances is found in Equation \ref{eq:sdf_model_sampled}.
 \centering
 \includesvg{../images/sdf_sampled_dist_results}{width=\textwidth}
 \caption{Results of the model for the theoretical utilization limit with the
-  results of the simulation for a sampled distance traveled case.}
+  results of the simulation for a sampled distance traveled case over many
+  different mesh step sizes.}
 \label{fig:sdf_sampled_dist}
 \end{figure}
 
 As seen in Figure \ref{fig:sdf_sampled_dist}, the updated predictive model
 describes the idealized utilization of the preconditioning method very well when
 the SDF step size is small. As the SDF step size is increased, the predictive
-model becomes increasingly worse at evaluating the correct utilization. In
-application, the SDF step size will govern the memory footprint of the data
-structure. For the predictive model to be useful in a production scenario, the
-relationship of the preconditioning method's utilization to the SDF step size
-must be understood.
+model becomes increasingly worse at evaluating the correct utilization. For the
+predictive model to be useful in a production scenario, the relationship of the
+preconditioning method's utilization to the SDF step size must be understood as
+well. This relationship can be drawn through the SDF interpolation error,
+$\epsilon$, which is a function of the mesh step size, $h$.
 
 %% It is quite possible that utilization in either th interior or exterior
 %% resion of the sphere is being under represented. Regardless of the cause, examining the contribution to
@@ -726,18 +736,13 @@ first order, dependent on the second order partial derivatives of the function
 being approximated and the sampling frequency of the points used for
 interpolation. This relationship is described in two dimensions via the Taylor
 expansion of the formula for a bilinear interpolation in Figure
-\ref{fig:interpolation_err_2d}. In the case of our approxiamtion of surface
-boundaries using a signed distance field, the error can be estimated by using
-the maximum local curvature of the surface as a conservative estimate. However,
-in the case of a discretized mesh, this would be prohibitively computationally
-expensive to evaluate. Instead, a conservative estimate of the error based on
-the mesh size is used to ensure invalid geometric information is not returned
-from signed distance value recovery in the SDF.
-
-The error estimate used in this work is equal to the largest diagonal of the
-mesh elements in the uniform SDF grid, $\sqrt{3}h$, and ensures that signed
-distance values cannot be used improperly to determine that a ray query can be
-avoided during simulation.
+\ref{fig:interpolation_err_2d}. For the case of a signed distance field sampled
+from a surface boundary, the error can be estimated by using the maximum local
+curvature of the surface as a conservative estimate of the partial
+derivative. However, in the case of a discretized mesh, this would be
+prohibitively computationally expensive to evaluate. Instead, a conservative
+estimate of the error based on the mesh size is used to ensure invalid geometric
+information is not returned from signed distance value recovery in the SDF.
 
 \begin{figure}[H]
   \begin{equation}
@@ -753,6 +758,12 @@ avoided during simulation.
   \caption{Taylor expansion of 2D interpolation equation as an estimate for the error of a function sampled onto a structured cartesian mesh.}
   \label{fig:interpolation_err_2d}
 \end{figure}
+
+The error estimate used in this work is equal to the largest diagonal of the
+mesh elements in the uniform SDF grid, $\sqrt{3}h$, and ensures that signed
+distance values cannot be used improperly to determine that a ray query can be
+avoided during simulation.
+
 
 As seen in Figure \ref{fig:sdf_sampled_dist}, the step size of the mesh can
 significantly impact the utilization of the data structure and in turn the
@@ -783,14 +794,15 @@ departure ($\alpha_{min}$) shown in Equation \ref{eq:min_alpha_w_error}
 \begin{equation}
 \small
 \begin{split}
-\alpha_{min} =& \arccos\Bigg ( \frac{(2R-r-d-2\epsilon)^2-d^2-r^2}{2 d r} \Bigg )[H(d-(R-r-\epsilon))-H(d-(R-\epsilon))]  \\
-&+ \pi \, H(d-(R-\epsilon))
+\alpha_{min} =& \arccos\Bigg ( \frac{(2R-r-d-2\epsilon)^2-d^2-r^2}{2 d r} \Bigg )
 \end{split}
 \label{eq:min_alpha_w_error}
 \end{equation}
 
 This formulation of $\alpha_{min}$ can be used directly in the integration described
-in Equation \ref{eq:subs_a_cond}. The final form of the model after the integration is described in Equation \ref{eq:sdf_util_sampled_w_error}.
+in Equation \ref{eq:subs_a_cond}. The final form of the model after the
+integration is described in Equation \ref{eq:sdf_util_sampled_w_error}. Again, a
+more detailed development of this model is provided in Appendix \ref{ch:appendix-a}.
 
 \begin{equation}
   US_{sampled} = \frac{(R-\epsilon) (\frac{1}{2} \lambda ( R - 2\lambda - \epsilon ) e^{\frac{-R + \epsilon}{\lambda}} + \lambda^{2} - \frac{3}{2}\lambda(R - \epsilon) + (R-\epsilon)^{2})}{R^3}
@@ -809,14 +821,15 @@ in Equation \ref{eq:subs_a_cond}. The final form of the model after the integrat
 %% \end{split}
 %% \end{equation}
 
-This updated model was then compared to pseudo-simulations using sampled
-distances for the next physics event location. The result of this study can be seen in
-Figure \ref{fig:sdf_util_sampled_distance_w_error}. The dimensionless parameters
-$n$ and $c$ as formulated by normalizing the mean free path, $\lambda$ and the
-mesh step size, $h$ using the average chord length of the sphere,
-$R_{av}$. These dimensionless parameters are useful for describing the
-utilization in terms which are largely agnostic to the geometry. This is
-discussed in more detail in Section \ref{sec:sdf_other_geoms}.
+This model in Equation \ref{eq:sdf_util_sampled_w_error} was compared to
+pseudo-simulations using sampled distances for the next physics event
+location. The result of this study can be seen in Figure
+\ref{fig:sdf_util_sampled_distance_w_error}. The dimensionless parameters $n$
+and $c$ as formulated by normalizing the mean free path, $\lambda$ and the mesh
+step size, $h$ using the average chord length of the sphere, $R_{av}$. These
+dimensionless parameters are useful for describing the utilization in
+generalized terms of the geometry. This is discussed in more detail in
+Section \ref{sec:sdf_other_geoms}.
 
 \begin{figure}[H]
   \centering
@@ -826,20 +839,20 @@ discussed in more detail in Section \ref{sec:sdf_other_geoms}.
   \label{fig:sdf_util_sampled_distance_w_error}
 \end{figure}
 
-The model presented in Equation \ref{eq:sdf_util_sampled_w_error} agrees very well
-with the simulated results for small values of $n$. As the value of $n$
+The model presented in Equation \ref{eq:sdf_util_sampled_w_error} agrees very
+well with the simulated results for small values of $n$. As the value of $n$
 increases, the model begins to overpredict the utilization of the
 preconditioning method slightly for low relative mean free path values. The
 utilization values in this regime are so low that they are not concern,
-however. Knowing that the SDF will not only be applied to spheres in practice,
-it is necessary to understand the predictive model's behavior for other
-geometries as well.
+however. Knowing that the SDF will also be applied to non-spherical geometries
+in practice, it is necessary to understand the predictive model's behavior for
+other geometries as well.
 
 \subsection{Extension to other geometries}\label{sec:sdf_other_geoms}
 
 To apply this model to other geometries, the mean free path and mesh step size
 were normalized using a measure of the free space in a volume compared to its
-surface area, the average chord length ($R_av$) \cite{Wigner_1981}.  This value
+surface area, the average chord length, $R_{av}$ \cite{Wigner_1981}.  This value
 can be defined as seen in Equation \ref{eq:average_chord_length}.
 
 \begin{equation}
@@ -854,18 +867,16 @@ can be defined as seen in Equation \ref{eq:average_chord_length}.
 
 Normalizing the mean free path to the average chord length is a way of
 describing the probability that a particle will reach the surface of the volume
-in a way that is independent of the distance traveled by the particles and the
-explicit geometry \cite{Mazzolo_2014}. Normalizing the mesh step size using the
-average chord length is a description of how much of the particle track the
-error will occupy. This allows us to now describe the space in a
-[n=(0,1),c=(0,1)] domain for an arbitrary geometry, particle distance traveled,
-and mesh step size.
+that is independent of the distance traveled by the particles and the explicit
+geometry \cite{Mazzolo_2014}. This in turn allows studies of the utilization to
+be performed in a [n=(0,1),c=(0,1)] domain for an arbitrary geometry, mean free
+path, and mesh step size.
 
-This normalization allows a pathwway for comparison of the model in Equation
-\ref{eq:sdf_util_sampled_w_error} to other geometries, which will be important
-in assessing the utilization of the SDF in arbitrary DAGMC models. In order to
-test the extension of this analytic model to other geometries, the pseudo
-simulation for various path lengths was repeated for cylinder and cone
+This common domain of $n$ and $c$ provides a pathwway for comparison of the
+model in Equation \ref{eq:sdf_util_sampled_w_error} to other geometries, which
+will be important in assessing the utilization of the SDF in arbitrary DAGMC
+models. In order to test the extension of this analytic model to other
+geometries, pseudo simulations were performed for cylinder and cone
 geometries. The results of the utilization model and simulation results can be
 found in Figures \ref{fig:sdf_util_sampled_cylinder} and
 \ref{fig:sdf_util_sampled_cone}.
@@ -891,11 +902,13 @@ found in Figures \ref{fig:sdf_util_sampled_cylinder} and
 
 For small values of $n$, the utilization model is much closer to the simulated
 result. As the value of $n$ increases, however, the model becomes less accurate
-in predicting the utilization. The reason for this is that the analytic model
-breaks down for values of $n$ which are outside of the limits set by the
-$\alpha_{min}$ condition. In the spherical case this occurs when the error
-evaluation exceeds $R$, meaning that zero utilization of the data structure is
-expected.
+in predicting the utilization just as in the spherical geometry. The analytic
+model breaks down for values of $n$ which are outside of the limits set by the
+$\alpha_{min}$ condition. This is most cearly seen for the $n = 0.5$ trace in
+Figure \ref{fig:sdf_util_sampled_cone}. In the spherical case this occurs when
+the error evaluation exceeds $R$, meaning that zero utilization of the data
+structure is expected. For this condition, any evaluation of the error will
+exceed the maximum distance a particle can travel and still be utilized.
 
 \begin{equation}
   \epsilon(h) > R
@@ -910,22 +923,21 @@ expected.
   \label{eq:error_condition_sphere}
 \end{equation}
 
-For this condition, any evaluation of the error will exceed the maximum distance
-a particle can travel and still be utilized. To extend this limitation to other
-geometries, the average chord length will again be used as a surrogate for the
-sphere radius in representing the upper limit of utilization for an arbitrary
-geometry. For the spherical case, the average chord length is shown in Equation
-\ref{eq:sphere_acl}.
+To extend this limitation to other geometries, the average chord length will
+again be used as a surrogate for the sphere radius in representing the upper
+limit of utilization for an arbitrary geometry. For the spherical case, the
+average chord length is shown in Equation \ref{eq:sphere_acl}.
 
 \begin{equation}
   R_{av} = \frac{4}{3}R
   \label{eq:sphere_acl}
 \end{equation}
 
-This can then be substituted into Equation \ref{eq:error_condition_sphere} to obtain
-relationship of the mesh step size to the geometry for an upper limit of $h$
-when applying this model in simulation. This equation can then be normalized to
-place an upper limit on $n$ for a valid use of the utilization model.
+Equation \ref{eq:sphere_acl} can be substituted into Equation
+\ref{eq:error_condition_sphere} to obtain relationship of the mesh step size to
+the geometry for an upper limit of $h$ when applying this model in
+simulation. This equation can then be normalized to place an upper limit on $n$
+for a valid use of the utilization model.
 
 \begin{equation}
  h < h_{max} = \frac{3}{4\sqrt{3}} R_{av}
@@ -942,7 +954,7 @@ step size for which the utilization model from Equation
 unlikely that a step size this large would be applied in practice, it is
 important to understand the limitations of this model if it is to be used in an
 automated process for application of the data structure either on-the-fly or as
-a preprocessing step before running particle histories.
+a preprocessing before simulation.
 
 \section{Application in DAGMC Simulations}
 

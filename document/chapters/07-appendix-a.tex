@@ -11,10 +11,10 @@ $\vec{n}$, after traveling a distance, $d$. The fraction of this probability
 space in which signed distance values can be used to rule out surface crossings
 for next surface intersections is then considered to be the theoretical
 utilization of the signed distance field. An initial form for this probability
-space can found in Equation \ref{eq:util_model}.
+space can found in Equation \ref{appeq:util_model}.
 
 \begin{equation}
-  \label{eq:util_model}
+  \label{appeq:util_model}
 \int_{V_{sphere}}\int_{V_{track}} p_p(r) p_n(d) \, \mathrm{d}V_{sphere}\mathrm{d}V_{track}
 \end{equation}
 
@@ -24,10 +24,10 @@ at the origin.  The location of the next event, $n(d,\alpha,\beta)$, where $d$
 is the distance traveled by the particle, $\alpha$ is the interior angle between
 the particle's \textit{position} vector and the particle's sampled direction
 vector, and $\beta$ represents an azimuthal angle for directions traveled with
-angle of departure, $\alpha$.  Figure \ref{fig:model} depicts these variables, $r$,
+angle of departure, $\alpha$.  Figure \ref{appfig:model} depicts these variables, $r$,
 $d$, and $\alpha$ more clearly.
 
-The outer integral in Equation \ref{eq:util_model} represents all possible particle
+The outer integral in Equation \ref{appeq:util_model} represents all possible particle
 positions within the geometric sphere and expands to
 
 \begin{equation}
@@ -52,11 +52,11 @@ integration of $p_n(d)$ does not rely on them.
 r^2 \, d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
 \end{equation}
 
-In order to represent particles traveling a fixed distance, the relationship in Equation \ref{eq:pn_fixed}
+In order to represent particles traveling a fixed distance, the relationship in Equation \ref{appeq:pn_fixed}
 is applied.
 
 \begin{equation}
-  \label{eq:pn_fixed}
+  \label{appeq:pn_fixed}
   p_n(d) = \frac{\delta(d-\lambda)}{d^{2}}
 \end{equation}
 
@@ -64,7 +64,7 @@ The evaluation of this integral then gives a representation of all the query
 space available to the problem
 
 \begin{equation}
-  \label{eq:A_fixed}
+  \label{appeq:A_fixed}
 \small A = 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{0}^{\pi} \delta(d-\lambda) \,
 r^2 \, \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
 \end{equation}
@@ -74,12 +74,12 @@ $R$ and a fixed distance traveled, $\lambda$.
 
 In order to understand what fraction of this query space is able to be
 preconditioned, the condition for avoiding an explicit nearest intersection
-search along a particle direction in Equation \ref{eq:condition_no_error} will now be
+search along a particle direction in Equation \ref{appeq:condition_no_error} will now be
 applied.
 
 \begin{equation}
   SDV(\vec{p}) + SDV(\vec{n}) > |\vec{p}-\vec{n}| + 2\varepsilon(h)
-  \label{eq:condition_no_error}
+  \label{appeq:condition_no_error}
 \end{equation}
 \begin{align*}
  &SDV - \, signed \, distance \, value \, function \\
@@ -118,7 +118,7 @@ Reducing the next event location, $\vec{n}(d,\alpha,\beta)$, into an expression
 in terms of $r$, $d$, and $\alpha$ requires further examination of the
 problem. Because the coordinates of $n$ depend on the current particle position,
 the magnitude of $n$ with respect to the geometry origin must be obtained to get
-a correct form for the signed distance value. Again,  Figure \ref{fig:model} depicts the
+a correct form for the signed distance value. Again,  Figure \ref{appfig:model} depicts the
 value of $n$ graphically for reference. The magnitude of n can then be described
 using the law of cosines as
 
@@ -132,10 +132,14 @@ R-r + R - \sqrt{r^2 + d^2 + 2rd \cos{\alpha}} > d
 \end{equation}
 
 The inequality has now been reduced to the three variables seen in
-Equation \ref{eq:A_fixed}:$r$, $d$, and $\alpha$. This inequality can be applied to
+Equation \ref{appeq:A_fixed}:$r$, $d$, and $\alpha$. This inequality can be applied to
 construct limits of integration representing boundaries of space in which the
 SDF can be utilized. By rearranging the inequality, a limit on the angle of
 departure, $\alpha$, from the particle's position can be derived.
+
+\begin{equation}
+  d < R-r : \alpha_{min} = 0
+\end{equation}
 
 \begin{equation}
 \alpha_{min} > \arccos\Bigg ( \frac{(2R-r-d)^2-d^2-r^2}{2 d r} \Bigg )
@@ -148,7 +152,7 @@ departure, $\alpha$, from the particle's position can be derived.
     $d < R - r$. Middle: an example of a track for which $R-r < d < R$ and can be
     preconditioned.  Right: an example of a track for which $R-r < d < R$ and
     cannot be preconditioned.}
-  \label{fig:modeling_cases}
+  \label{appfig:modeling_cases}
 \end{figure}
 
 This condition on alpha can be interpreted as a minimum interior angle that the
@@ -161,11 +165,11 @@ about how signed distance values are being utilized.
 The inequality is undefined until the distance reaches a value $d = R- r$. This
 is because the angular limit only needs to be applied to areas of the query
 space in which the distance traveled is large enough to violate the above
-condition as depicted in  Figure \ref{fig:modeling_cases}. A violation of this
+condition as depicted in  Figure \ref{appfig:modeling_cases}. A violation of this
 limit may only occur when a particle travels far enough to reach the geometric
 sphere boundary along the current position vector as if it were moving directly
 toward the boundary of the sphere. An additional interesting feature of Figure
-\ref{fig:alpha_min} is the convergence of all the curves on $\pi$ as $d$
+\ref{appfig:alpha_min} is the convergence of all the curves on $\pi$ as $d$
 approaches $R$. The convergence on $\pi$ indicates that as the distance traveled
 approaches $R$ the only direction that the particle can move is back toward the
 origin along the position vector. It also defines a maximum distance a particle
@@ -173,8 +177,8 @@ can travel in the sphere and still be preconditioned using signed distance
 values. Intuitively this makes sense as the maximum chord length of a sphere is
 $2R$, and once a particle travels a distance $R$ the sum of the signed distance
 values can then be no larger than $R$ and the condition for utilization in
-Equation \ref{eq:condition} is violated. Hence all curves go to zero at $\lambda =
-100 cm$ in  Figure \ref{fig:sdf_fixed_dist}.
+Equation \ref{appeq:condition} is violated. Hence all curves go to zero at $\lambda =
+100 cm$ in  Figure \ref{appfig:sdf_fixed_dist}.
 
 In order to account for the fact that the form of $\alpha_{min}$ is undefined
 until $d = R-r$, a Heaviside function is applied before applying it as a limit
@@ -193,13 +197,13 @@ larger than $R$.
 
 
 By inserting this condition as a lower limit of the $d\alpha$ integration,
-Equation \ref{eq:subs_a_cond} will give all utilized space, $US$, in the query space
+Equation \ref{appeq:subs_a_cond} will give all utilized space, $US$, in the query space
 of the simulation.
 
 \begin{equation}
 \small US = 8\pi^2  \int_{0}^{R}\int_{0}^{\infty}\int_{\boldsymbol{\alpha_{min}}}^{\pi} \delta(d-\lambda) \,
 r^2 \, d^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}d \, \mathrm{d}r
-\label{eq:subs_a_cond}
+\label{appeq:subs_a_cond}
 \end{equation}
 
 Evaluating this integral and dividing by all query space gives the
@@ -210,7 +214,7 @@ preconditioner for ray firing
 U_{theoretical} = \frac{US}{A} =  \frac{(1-H(\lambda-R))(2R-\lambda)(R-\lambda)}{2R^2}
 \end{equation}
 
-It can be seen in  Figure \ref{fig:sdf_fixed_dist} that this utilization limit
+It can be seen in  Figure \ref{appfig:sdf_fixed_dist} that this utilization limit
 works well as an upper limit for the simulation results using various signed
 distance field mesh resolutions. As the step size of the mesh approaches zero,
 so does the evaluation of the error, resulting in the same utilization curve
@@ -226,10 +230,10 @@ geometries as well.
 %% sampled based on the standard probability for distance to interaction in a
 %% medium with a cross section, $\Sigma$, or mean free path $\lambda
 %% =1/\Sigma$. This results in the probability distribution function shown in
-%% Equation \ref{eq:pn_sampled} for the particle distance traveled in this scenario.
+%% Equation \ref{appeq:pn_sampled} for the particle distance traveled in this scenario.
 
 %% \begin{equation}
-%%   \label{eq:pn_sampled}
+%%   \label{appeq:pn_sampled}
 %% p_n(d) \propto \frac{e^{-\Sigma d}}{d^{2}} = \frac{e^{-\frac{d}{\lambda}}}{d^{2}}
 %% \end{equation}
 
@@ -268,12 +272,12 @@ geometries as well.
 %%   \label{tab:inp066_results}
 %% \end{table*}
 
-%% Following the same process as in the fixed distance case by plugging Equation \ref{eq:pn_sampled} into
-%% Equation \ref{eq:subs_a_cond}, the utilization form for the sampled distance case is
-%% shown in Equation \ref{eq:sampled_limit}.
+%% Following the same process as in the fixed distance case by plugging Equation \ref{appeq:pn_sampled} into
+%% Equation \ref{appeq:subs_a_cond}, the utilization form for the sampled distance case is
+%% shown in Equation \ref{appeq:sampled_limit}.
 
 %% \begin{equation}
-%%   \label{eq:sampled_limit}
+%%   \label{appeq:sampled_limit}
 %%   U_{theoretical} = \frac{US}{A} = \frac{ \frac{1}{2} \lambda(R - 2 \lambda) e^{\frac{-R}{\lambda}} + \lambda^2 - \frac{3}{2} R \lambda + R^2 }{R^2}
 %% \end{equation}
 
@@ -334,7 +338,7 @@ gives
 
 \begin{equation}
   \int_{0}^{R}\int_{0}^{2\pi}\int_{0}^{\pi}\int_{1}^{0}\int_{0}^{2\pi}\int_{0}^{\pi}
--r^2\sin{\phi} \, \lambda c ln(c)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}p \, \mathrm{d}\phi
+-r^2\sin{\phi} \, \lambda c ln(c)^2 \sin{\alpha} \, \mathrm{d}\alpha \mathrm{d}\beta \mathrm{d}c \, \mathrm{d}\phi
 \mathrm{d}\theta \mathrm{d}r
 \end{equation}
 
@@ -482,7 +486,7 @@ of the data structure.
 
 \begin{equation}
   SDV(\vec{p}) + SDV(\vec{n}) > |\vec{p}-\vec{n}| + 2\varepsilon(h)
-  \label{eq:condition}
+  \label{appeq:condition}
 \end{equation}
 \begin{align*}
  &SDV - \, signed \, distance \, value \, function \\
@@ -493,9 +497,9 @@ of the data structure.
 \end{align*}
 
 
-The expansion of Equation \ref{eq:condition_no_error} with the error term can be seen
-in \ref{eq:condition} and results in a new condition for the minimum angle of
-departure ($\alpha_{min}$) shown in Equation \ref{eq:min_alpha_w_error}
+The expansion of Equation \ref{appeq:condition_no_error} with the error term can be seen
+in \ref{appeq:condition} and results in a new condition for the minimum angle of
+departure ($\alpha_{min}$) shown in Equation \ref{appeq:min_alpha_w_error}
 
 \begin{equation}
 \small
@@ -503,15 +507,15 @@ departure ($\alpha_{min}$) shown in Equation \ref{eq:min_alpha_w_error}
 \alpha_{min} =& \arccos\Bigg ( \frac{(2R-r-d-2\epsilon)^2-d^2-r^2}{2 d r} \Bigg )[H(d-(R-r-\epsilon))-H(d-(R-\epsilon))]  \\
 &+ \pi \, H(d-(R-\epsilon))
 \end{split}
-\label{eq:min_alpha_w_error}
+\label{appeq:min_alpha_w_error}
 \end{equation}
 
 This formulation of $\alpha_{min}$ can be used directly in the integration described
-in Equation \ref{eq:subs_a_cond}. The final form of the model after the integration being:
+in Equation \ref{appeq:subs_a_cond}. The final form of the model after the integration being:
 
 \begin{equation}
   US_{sampled} = \frac{(R-\epsilon) (\frac{1}{2} \lambda ( R - 2\lambda - \epsilon ) e^{\frac{-R + \epsilon}{\lambda}} + \lambda^{2} - \frac{3}{2}\lambda(R - \epsilon) + (R-\epsilon)^{2})}{R^3}
-  \label{eq:sdf_util_sampled_w_error}
+  \label{appeq:sdf_util_sampled_w_error}
 \end{equation}
 
 %% For a direct evaluation of the utilization based on
@@ -543,7 +547,7 @@ discussed in more detail in Section \ref{sec:sdf_other_geoms}.
   \label{fig:sdf_util_sampled_distance_w_error}
 \end{figure}
 
-The model presented in Equation \ref{eq:sdf_util_sampled_w_error} agrees very well
+The model presented in Equation \ref{appeq:sdf_util_sampled_w_error} agrees very well
 with the simulated results for small values of $n$. As the value of $n$
 increases, the model begins to overpredict the utilization of the
 preconditioning method slightly for low relative mean free path values. The

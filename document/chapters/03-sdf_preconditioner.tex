@@ -41,7 +41,7 @@ called in simulations.  At least one ray is fired to satisfy any of these
 queries in DAGMC with $O(logN)$ complexity using MOAB's BVH, but it is
 hypothesized that these queries can be accelerated in many cases. For each of
 the fundamental Monte Carlo geometries outlines below, signed distance values
-are recovered from the signed distance field via interploation of the field
+are recovered from the signed distance field via interpolation of the field
 values and used to precondition ray fire calls in DAGMC.
 
 
@@ -50,7 +50,7 @@ values and used to precondition ray fire calls in DAGMC.
               {Examples of scenarios for point containment preconditioning using signed distance values.}
               {
                 \textit{Point Containment} queries can be preconditioning by examining
-                the interploated signed distance value for the current particle
+                the interpolated signed distance value for the current particle
                 location. If the point's value is negative (or outside of the
                 SDF), then the point is considered to be outside of the
                 volume. If the point's value is positive, then the point is
@@ -63,7 +63,7 @@ values and used to precondition ray fire calls in DAGMC.
                 this is not the case, then a ray must be fired to determine the
                 particle's containment with respect to the volume in
                 question. In effect, this verifies that the location is far
-                enough from the boundary of the volume to make a definititive
+                enough from the boundary of the volume to make a definitive
                 statement about whether it is inside or outside of the volume
                 based on the sign of its interpolated signed distance value.
                 Figure \ref{fig:point_containment_sdf} graphically describes the
@@ -76,7 +76,7 @@ values and used to precondition ray fire calls in DAGMC.
              {
                \textit{Next Surface} intersection queries are the most common
                geometry query in Monte Carlo simulations as demonstrated in
-               Table \ref{tab:geom_query_ratios}. These queries are intiated by
+               Table \ref{tab:geom_query_ratios}. These queries are initiated by
                native Monte Carlo codes to determine if a particle will cross a
                surface before reaching its next physics event location. Normally
                in DAGMC a ray is fired each time this query is called. This can
@@ -166,7 +166,7 @@ coordinate $<0,0,0>$ and $<N_{x}, N_{y}, N_{z}>$ represent the lowest and
 highest corner of the structured mesh in parameter space for a mesh containing
 $N_{x},N_{y},N_{z}$ elements in the x, y, and z directions respectively. This
 representation provides a fast path for verification, visualization, and proof
-of concept in transport test cases for demonstration, but is relatiely memory
+of concept in transport test cases for demonstration, but is relatively memory
 intensive due to the dense nature of the data structure and explicit mesh
 element information stored in the database. To reduce  memory consumption,
 an implicit version of the structured mesh has been implemented which takes
@@ -180,7 +180,7 @@ mesh.
 This avoids the storage of vertex coordinates, mesh element connectivity, and
 all associated handles to those entities. There is an added cost in re-computing
 vertex coordinates when a signed distance value is interpolated, but this added
-cost is negligible in comparison to a ray traverval and memory is of greater
+cost is negligible in comparison to a ray traversal and memory is of greater
 concern for this spatially dense data structure. This data structure can still
 interact with MOAB's structured mesh interface to generate an explicit mesh for
 visualization and verification if required.
@@ -204,10 +204,10 @@ visualization and verification if required.
 Signed distance values can be retrieved from the structured mesh by determining
 which mesh voxel the point lies within. The point's element is accessed by
 determining an $<i,j,k>$ index using the point's x, y, and z values divided by
-the structured mesh step size. A trilinear interpolation of the mesh element's 8
+the structured mesh step size. A tri-linear interpolation of the mesh element's 8
 vertex coordinates and their signed distance values is then used to provide the
 signed distance value for the location of interest. As a result, the complexity
-of a signed distance value lookup from the signed distance field is an
+of a signed distance value look-up from the signed distance field is an
 $O(1)$ operation.
 
 \subsection{Population}
@@ -285,7 +285,7 @@ the origin was varied from 0 to 1 $\frac{g}{cm^3}$ with a 5 MeV neutron point
 source at the origin. For each density, one simulation was performed without the
 signed distance field and another with the signed distance field and
 preconditioning enabled. Figure \ref{fig:sphere_hydrogen_density_study_util}
-shows the utiilzation results of this study.
+shows the utilization results of this study.
 
 \begin{figure}[ht]
   \centering
@@ -306,7 +306,7 @@ method is 0.54.
 
 
 Figure \ref{fig:sphere_hydrogen_density_study_perf} provides some insight into the
-impact of the precontitioning method on the simulation. The runtimes
+impact of the preconditioning method on the simulation. The run times
 of three implementations  converge as the density of the
 hydrogen is varied. As the hydrogen density approaches 1.0 $\frac{g}{cm^3}$, a
 factor of ~3.5 improvement in runtime is seen in the simulation where the SDF is
@@ -386,7 +386,7 @@ In this model, the starting location of particles, $\vec{p_p}(r,\phi,\theta)$, i
 uniformly distributed, $p_p(r)=1$, throughout a sphere of radius, $R$, centered
 at the origin.  The location of the next event, $\vec{p_{n}}(d,\alpha,\beta)$, where $d$
 is the distance traveled by the particle, $\alpha$ is the interior angle between
-the particle's \textit{position} vector and the particle's sampled direction
+the particle's position vector and the particle's sampled direction
 vector, and $\beta$ represents an azimuthal angle for directions traveled with
 angle of departure, $\alpha$. Figure \ref{fig:model} depicts these variables, $r$,
 $d$, and $\alpha$ graphically.
@@ -433,7 +433,7 @@ associated with their signed distance values as previously described in Section
 \ref{sec:preconditioning_theory}. This condition is true for some fraction of
 the next surface queries in a Monte Carlo simulation, but not all. The signed
 distance function of a sphere, shown in Equation \ref{eq:sdf_sphere}, can be
-applied in Equation \ref{eq:condition_no_error}, to obatin a lower limit,
+applied in Equation \ref{eq:condition_no_error}, to obtain a lower limit,
 $\alpha_{min}$ for the integral over $d\alpha$ in Equation \ref{eq:util_model}.
 
 \begin{equation}
@@ -519,7 +519,7 @@ approach the idealized analytic model for the preconditioner utilization.
 \begin{figure}[H]
   \centering
   \includesvg{../images/alpha_r}{width=1\textwidth}
-  \caption{Plot of mininum angle of departure restriction for particles with
+  \caption{Plot of minimum angle of departure restriction for particles with
     various radial positions between 0 cm and 100 cm and various distanced traveled.}
  \label{fig:alpha_min}
 \end{figure}
@@ -599,7 +599,7 @@ approach the idealized analytic model for the preconditioner utilization.
 
 The fixed distance traveled scenario provides a baseline for agreement between
 the computational results and the model, but a more realistic scenario is
-required before attempting to apply the model as a predicitive utility for
+required before attempting to apply the model as a predictive utility for
 application of the SDF in true Monte Carlo codes. The next iteration of the
 analytic model applies a sampled next physics event distance based on the
 probability for distance to interaction in a medium with a total cross section,
@@ -735,7 +735,7 @@ of the data structure. The error associated with any linear interpolation is, to
 first order, dependent on the second order partial derivatives of the function
 being approximated and the sampling frequency of the points used for
 interpolation. This relationship is described in two dimensions via the Taylor
-expansion of the formula for a bilinear interpolation in Figure
+expansion of the formula for a bi-linear interpolation in Figure
 \ref{fig:interpolation_err_2d}. For the case of a signed distance field sampled
 from a surface boundary, the error can be estimated by using the maximum local
 curvature of the surface as a conservative estimate of the partial
@@ -755,7 +755,7 @@ information is not returned from signed distance value recovery in the SDF.
     u(x,y) - &\, sampled\, function\, on\, mesh \\
     \epsilon - & \, error \\
   \end{align*}
-  \caption{Taylor expansion of 2D interpolation equation as an estimate for the error of a function sampled onto a structured cartesian mesh.}
+  \caption{Taylor expansion of 2D interpolation equation as an estimate for the error of a function sampled onto a structured Cartesian mesh.}
   \label{fig:interpolation_err_2d}
 \end{figure}
 
@@ -841,7 +841,7 @@ Section \ref{sec:sdf_other_geoms}.
 
 The model presented in Equation \ref{eq:sdf_util_sampled_w_error} agrees very
 well with the simulated results for small values of $n$. As the value of $n$
-increases, the model begins to overpredict the utilization of the
+increases, the model begins to over-predict the utilization of the
 preconditioning method slightly for low relative mean free path values. The
 utilization values in this regime are so low that they are not concern,
 however. Knowing that the SDF will also be applied to non-spherical geometries
@@ -872,7 +872,7 @@ geometry \cite{Mazzolo_2014}. This in turn allows studies of the utilization to
 be performed in a [n=(0,1),c=(0,1)] domain for an arbitrary geometry, mean free
 path, and mesh step size.
 
-This common domain of $n$ and $c$ provides a pathwway for comparison of the
+This common domain of $n$ and $c$ provides a pathway for comparison of the
 model in Equation \ref{eq:sdf_util_sampled_w_error} to other geometries, which
 will be important in assessing the utilization of the SDF in arbitrary DAGMC
 models. In order to test the extension of this analytic model to other
@@ -904,7 +904,7 @@ For small values of $n$, the utilization model is much closer to the simulated
 result. As the value of $n$ increases, however, the model becomes less accurate
 in predicting the utilization just as in the spherical geometry. The analytic
 model breaks down for values of $n$ which are outside of the limits set by the
-$\alpha_{min}$ condition. This is most cearly seen for the $n = 0.5$ trace in
+$\alpha_{min}$ condition. This is most clearly seen for the $n = 0.5$ trace in
 Figure \ref{fig:sdf_util_sampled_cone}. In the spherical case this occurs when
 the error evaluation exceeds $R$, meaning that zero utilization of the data
 structure is expected. For this condition, any evaluation of the error will
@@ -988,13 +988,13 @@ density of the transport in a given volume may be high relative to its average
 chord length, if a small percentage of the transport occurs in that volume, then
 the benefits of applying the SDF are diminished. As an estimate of this, the
 ratio of collisions a given volume to the total number of collisions in the
-sumulation was used as an estimate for the proportion of geometric queries
-occuring in the volume.  Additionally, it has been found through profiling of
+simulation was used as an estimate for the proportion of geometric queries
+occurring in the volume.  Additionally, it has been found through profiling of
 various simulations that as the collision density increases, the proportion of the
 runtime spent querying the geometry is small relative to the time spent calling
 physics subroutines.
 
-The SDF preconditiong method was applied in the following models:
+The SDF preconditioning method was applied in the following models:
 
 \sdfModel{ITER}{ The International Thermonuclear Experimental Reactor (ITER) is
   a demonstration nuclear fusion device currently under construction in southern
@@ -1048,8 +1048,8 @@ The SDF preconditiong method was applied in the following models:
 Table \ref{tab:sdf_prod_summary} displays the results of simulations in which
 the SDF was applied. More detailed information on the parameters of the SDFs and
 the volumes they were applied to can be found in Appendix
-\ref{ch:appendix-a}. Improvements in the simulation runtimes varied from
-0-35\%. While differences in the runtimes are significant, they are small in
+\ref{ch:appendix-a}. Improvements in the simulation run times varied from
+0-35\%. While differences in the run times are significant, they are small in
 comparison to those demonstrated in Section \ref{sec:preconditioner_utilization}
 for the hydrogen-filled sphere tests. The results in all simulations were
 identical regardless of SDF application, however, indicating that the
@@ -1087,9 +1087,9 @@ scenarios.
 Despite apparent limitations of the data structure, application in the medical
 isotope production model from SHINE (shown in Figure \ref{fig:shine_sdf}) is a
 somewhat successful demonstration of the preconditioning method's ability to
-reduce simulation runtimes. A signed distance field with a 0.1 cm step size was
+reduce simulation run times. A signed distance field with a 0.1 cm step size was
 applied to volumes near the bottom of the model which contain both an aqueous
-solution of uraniaum sulfate and a surounding light water moderator. As outlined
+solution of uranium sulfate and a surrounding light water moderator. As outlined
 in Table \ref{tab:sdf_prod_summary}, the resulting improvement in performance
 for a simulation of 500,000 particles was approximately 35\% of the total
 runtime.
@@ -1175,7 +1175,7 @@ the applied SDF and in turn the simulation runtime is reduced only marginally.
   \centering
   \includegraphics[width=\textwidth]{sns_vol16_flux.png}
   \caption{Depiction of utilization model limitation due to a small local average chord length
-    in the region of high collition density.}
+    in the region of high collision density.}
   \label{fig:sns_low_util}
 \end{sidewaysfigure}
 

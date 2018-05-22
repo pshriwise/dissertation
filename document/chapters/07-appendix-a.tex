@@ -19,9 +19,9 @@ space can found in Equation \ref{appeq:util_model}.
 \int_{V_{sphere}}\int_{V_{track}} p_p(r) p_n(d) \, \mathrm{d}V_{sphere}\mathrm{d}V_{track}
 \end{equation}
 
-In this model, the starting location of particles, $\vec{p_p}(r,\phi,\theta)$, is
+In this model, the starting location of particles, $\vec{p}_{p}(r,\phi,\theta)$, is
 uniformly distributed, $p_p(r)=1$, throughout a sphere of radius, $R$, centered
-at the origin.  The location of the next event, $n(d,\alpha,\beta)$, where $d$
+at the origin.  The location of the next event, $\vec{p}_{n}(d,\alpha,\beta)$, where $d$
 is the distance traveled by the particle, $\alpha$ is the interior angle between
 the particle's \textit{position} vector and the particle's sampled direction
 vector, and $\beta$ represents an azimuthal angle for directions traveled with
@@ -104,7 +104,7 @@ Reducing the next event location, $\vec{n}(d,\alpha,\beta)$, into an expression
 in terms of $r$, $d$, and $\alpha$ requires further examination of the
 problem. Because the coordinates of $n$ depend on the current particle position,
 the magnitude of $n$ with respect to the geometry origin must be obtained to get
-a correct form for the signed distance value. Again,  Figure \ref{appfig:model} depicts the
+a correct form for the signed distance value. Again, Figure \ref{fig:model} depicts the
 value of $n$ graphically for reference. The magnitude of n can then be described
 using the law of cosines as
 

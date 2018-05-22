@@ -382,9 +382,9 @@ space can found in Equation \ref{eq:util_model}.
 \int_{V_{sphere}}\int_{V_{track}} p_p(r) p_n(d) \, \mathrm{d}V_{sphere}\mathrm{d}V_{track}
 \end{equation}
 
-In this model, the starting location of particles, $\vec{p_p}(r,\phi,\theta)$, is
+In this model, the starting location of particles, $\vec{p}_{p}(r,\phi,\theta)$, is
 uniformly distributed, $p_p(r)=1$, throughout a sphere of radius, $R$, centered
-at the origin.  The location of the next event, $\vec{p_{n}}(d,\alpha,\beta)$, where $d$
+at the origin.  The location of the next event, $\vec{p}_{n}(d,\alpha,\beta)$, where $d$
 is the distance traveled by the particle, $\alpha$ is the interior angle between
 the particle's position vector and the particle's sampled direction
 vector, and $\beta$ represents an azimuthal angle for directions traveled with
@@ -430,7 +430,7 @@ applied.
 This condition establishes that the nearest location to intersection for both
 points must be greater than the distance between the two points plus any error
 associated with their signed distance values as previously described in Section
-\ref{sec:preconditioning_theory}. This condition is true for some fraction of
+\ref{sec:preconditioner_theory}. This condition is true for some fraction of
 the next surface queries in a Monte Carlo simulation, but not all. The signed
 distance function of a sphere, shown in Equation \ref{eq:sdf_sphere}, can be
 applied in Equation \ref{eq:condition_no_error}, to obtain a lower limit,

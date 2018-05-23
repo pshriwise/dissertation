@@ -586,6 +586,32 @@ reduced by up to nearly 30\% with little additional build times in the BVH and
 minimal increase in the memory footprint by replacing some of the AABBs with
 OBBs.
 
+The information in Table \ref{tab:hv_simulation_stats} was collected on regions
+of the triangle mesh identified as high valence during BVH construction as well
+as simulation. These statistics lend some insight into the impact of HV regions
+on DAGMC simulation performance based on
+
+\begin{table}
+  \small
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    Test Model & \thead{Regions \\ Identified} & \thead{Average Area
+      \\ ($cm^{2}$)} & \thead{Average \\  Valence} & \thead{HV Leaf \\ Visit Frequency} \\
+    \hline
+    FNG        & 514                & 12.91                   & 179.9           & 3.83\%          \\
+    ATR        & 836                & 3.98                    & 43.38           & 0.07\%          \\ 
+    UWNR       & 499                & 2855.2                  & 31.63           & 3.87\%          \\
+    ITER       & 3522               & 1363.4                  & 93.3            & 7.34\%          \\
+    \bottomrule
+  \end{tabular}
+  \caption[High valence region simulation statistics.]{High valence
+    identification and visit statistics for several DAGMC production models. The
+    high valence parameter, $\alpha$, was set to 0.5 for this study.}
+  \label{tab:hv_simulation_stats}
+\end{table}
+
+
 \section{Summary}
 
 This chapter introduced performance degradation caused by a tessellation feature

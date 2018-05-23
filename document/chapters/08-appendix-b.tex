@@ -2,11 +2,22 @@
 \chapter{Modified DAGMC Simulation Results}\label{ch:appendix-c}
 
 This appendix contains all results for simulations performed using modified
-versions of DAGMC.
+versions of DAGMC. Because a numerical comparison, as opposed to a statistical
+comparison, is being made between these different implementations, error values
+are not included in the tables of this appendix. The results of native MCNP
+simulations have been provided when possible for reference. MCNP results are
+expected to be statistically similar but not the same as DAG-MCNP results. All
+implementations of DAG-MCNP (EmDAG, SDF, unmodified DAGMC, etc.) are expected to
+report the same numerical solution.
 
 \section{EmDAG-MCNP}
 
-\subsection{Simple Test Cases}
+The results in this section were generated using the EmDAG
+implementaion presented in Section \ref{sec:embree}. These include several
+contrived test cases in Section \ref{appsec:emdag_simple_tests} along with a
+production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_fng}.
+
+\subsection{Simple Test Cases}\label{appsec:emdag_simple_tests}
   \subsubsection{Single Cube}
 
   \begin{table}[H]
@@ -128,7 +139,7 @@ versions of DAGMC.
     %%\vspace{-0.2cm}
   \end{table}
 
-  \section{Production Test Cases}
+  \section{Production Test Cases}\label{appsec:emdag_fng}
   
   \subsubsection{FNG}
 
@@ -149,9 +160,15 @@ versions of DAGMC.
       with DAGMC, or EmDAG-MCNP.}
   \end{table}
 
-\section{MPBVH}
+  \section{MPBVH}
 
-\subsection{Simple Test Cases}
+  The results in this section were generated using DAG-MCNP relying on the MPBVH
+  as its ray tracing kernel as presented in Section \ref{sec:MPBVH}. These
+  include several contrived test cases in Section
+  \ref{appsec:mpbvh_simple_tests} along with several production model
+  demonstrations in Section \ref{appsec:mpbvh_production_tests}.
+
+\subsection{Simple Test Cases}\label{appsec:mpbvh_simple_tests}
 
   \subsubsection{Single Cube}
 
@@ -273,7 +290,7 @@ versions of DAGMC.
     %%\vspace{-0.2cm}
   \end{table}
 
-\subsection{Production Tests}
+\subsection{Production Tests}\label{appsec:mpbvh_production_tests}
 
 \subsubsection{FNG}
 
@@ -339,8 +356,12 @@ versions of DAGMC.
   \subsubsection{ITER}
   WAITING ON FINAL RESULTS
 
-\section{Signed Distance Field}
+  \section{Signed Distance Field}
 
+  The results in this section are the result of signed distance field
+  application in DAGMC production models, seen in Section
+  \ref{sec:sdf_production}. 
+  
 \subsection{Production Tests}
 
 \subsubsection{ITER}

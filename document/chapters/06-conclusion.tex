@@ -27,11 +27,34 @@ severe high valence regions by informing BVH construction using an associated
 mesh database, MOAB, demonstrates the necessity of oriented bounding boxes for
 optimal performance in DAGMC models.
 
+\begin{table}[H]
+  \small
+  \centering
+  \begin{tabular}{lc}
+    Model & Ratio to Unmodified DAG-MCNP \\
+    \multicolumn{2}{c}{SDF} \\
+    ITER  & 1.16 \\
+    nTOF  & 1.41 \\
+    SHINE & 1.56 \\
+    SHINE & 1.35 \\
+    SNS   & 1.00 \\
+    \multicolumn{2}{c}{MPBVH} \\
+    FNG  & 2.09  \\
+    ATR  & 4.56  \\
+    UWNR & 2.87  \\
+    ITER & 5.81  \\
+  \end{tabular}
+  \caption[A summary of performance improvements in this work]{A summary of the
+    best-case performance improvements for modificed versions of DAG-MCNP in a
+    series of production test cases.}
+  \label{tab:the_rub}
+\end{table}
+
 The overall impact of this work on CAD-based Monte Carlo Radiation Transport is
-computational savings of 2x at a minimum when applying the MPBVH, with greater
-benefits of up to 5x depending on the nature of the model. For access to all
-open source code, raw data, and results presented here please refer to
-FigShare archive \textbf{DOI\_HERE}.
+summarized in Table \ref{tab:the_rub}. Coputational savings of 2x at a minimum
+when applying the MPBVH were observed, with greater benefits of >5x seen in one
+test case. For access to all open source code, raw data, and results presented
+here please refer to FigShare archive \textbf{DOI\_HERE}.
 
 \section{Broader Impacts}\label{sec:other_contrib}
 

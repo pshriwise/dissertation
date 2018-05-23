@@ -279,7 +279,7 @@ study, only a comparison of the values returned by EmDAG in comparison to DAGMC
 is considered. Differences in the tally results between DAG-MCNP and EmDAG-MCNP
 are present only in the nested spheres transport model. There is a small
 difference in the flux tally for the outermost volume as can be seen in Table
-\ref{nestedspheres} of Appendix \ref{ch:appendix-c}. By examining the number of
+\ref{nestedspheres} of Appendix \ref{ch:appendix-b}. By examining the number of
 particle tracks in each cell, it was determined via debugging values that this
 discrepancy is caused by a single particle ending in EmDAG-MCNP near a surface
 of cell 2 while in DAG-MCNP the particle crosses into cell 3 before abruptly
@@ -922,7 +922,7 @@ intersections. This indicates that attempts at providing accelerated ray tracing
 for engineering analysis by traversing an expanded, reduced precision BVH were
 quite successful.
 
-\section{Simplified Particle Tracking}
+\section{Simplified Particle Tracking}\label{sec:simplified_particle_tracking}
 
 The MPBVH kernel has been coupled to DAGMC as a numerically based particle
 tracking tool using a simple algorithm for determining \textit{Next Surface}
@@ -1174,7 +1174,7 @@ expected based on the difference in pure ray fire times from Section
   \caption[Performance results for simple DAG-MCNP test cases.]{Run time
     comparison of native MCNP, DAG-MCNP, and DAG-MCNP using the MPBVH over four
     transport test problems. No lost particles occurred in any of these runs and
-    all results (see Appendix \ref{ch:appendix-c}) match the standard DAGMC
+    all results (see Appendix \ref{ch:appendix-b}) match the standard DAGMC
     implementation exactly.}
   \label{tab:mpbvh_transport_timing_simple}
 \end{table}
@@ -1189,8 +1189,14 @@ lost particles were found in the FNG simulation with a volumetric source and all
 tally results matched the standard DAGMC implementation with reduction in the
 runtime by nearly a factor of two. Due to the success of the DAGMC MPBVH
 implementation for the FNG model, this system was applied to several other
-production models as well. No particles were lost in any of these geometries,
-and the results are unchanged between versions of DAGMC.
+production models as well. No particles were lost in any of these
+geometries. The results of the simulations between the unmodified and modified
+versions of DAG-MCNP were the same with the exception of the ITER test
+case. This is the only production model which is not fully topologically
+watertight and as a result does not meet the expectations in place in the
+particle tracking algorithm presented in Section
+\ref{sec:simplified_particle_tracking}. The discrepancies between the DAG-MCNP
+implementations are outlined in Appendix \ref{ch:appendix-b}.
 
 \begin{table}[H]
   \small

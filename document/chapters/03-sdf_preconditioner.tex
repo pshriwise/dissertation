@@ -34,9 +34,10 @@ demonstrations of its effectiveness for a number of simple problems and
 production models are shown and discussed.
 
 Signed distance fields are typically represented using a mesh-based structure
-such as a Cartesian grid or an Octree. Associated with each vertex in the mesh
-is a signed value representing the distance to the nearest surface of the
-geometry. Signed distance values can be constructed for arbitrary locations
+such as a Cartesian grid as depicted in Figure
+\ref{fig:preconditioner_datastruct} or an Octree. Associated with each vertex in
+the mesh is a signed value representing the distance to the nearest surface of
+the geometry. Signed distance values can be constructed for arbitrary locations
 within the mesh by interpolating the stored values of the vertices for the mesh
 element containing the point. These interpolated signed distance values can then
 be used to quickly provide local geometric information for Monte Carlo queries
@@ -56,7 +57,13 @@ values and used to precondition ray fire calls in DAGMC.
 
 \precondQuery{Point Containment}
               {point_containment_sdf}
-              {Examples of scenarios for point containment preconditioning using signed distance values.}
+              {Examples of scenarios for point containment preconditioning using
+                signed distance values. For locations far from the surface
+                boundary, the sign of interpolated signed distance value can be
+                used to determine point containment. Locations close to the
+                surface with interpolated values less than the interpolation
+                error, $\epsilon$, cannot be used to determine point
+                containment. }
               {
                 \textit{Point Containment} queries can be preconditioning by examining
                 the interpolated signed distance value for the current particle
@@ -81,8 +88,12 @@ values and used to precondition ray fire calls in DAGMC.
 
 \precondQuery{Next Surface}
              {next_surface_sdf}
-             {Examples of scenarios for next surface intersection preconditioning using signed distance values.}
-             {
+             {Examples of scenarios for next surface intersection
+               preconditioning using signed distance values. Various scenarios
+               are shown in which the signed distance values can be used to
+               avoid a ray fire query by confirming the absence of a surface
+               crossing between the particle's current location and physics
+               event location. } {
                \textit{Next Surface} intersection queries are the most common
                geometry query in Monte Carlo simulations as demonstrated in
                Table \ref{tab:geom_query_ratios}. These queries are initiated by
@@ -126,7 +137,10 @@ values and used to precondition ray fire calls in DAGMC.
 
 \precondQuery{Closest Surface}
              {closest_surface_sdf}
-             {Examples of scenarios for closest surface preconditioning using signed distance values.}
+             {Examples of scenarios for closest surface preconditioning using
+               signed distance values. Signed distance values interpolated from
+               the SDF can be used to quickly return an approximate nearest
+               surface location.}
              {
                \textit{Closest Surface} queries can be performed in a similar manner to
                \textit{Point Containment} queries, but they are more dependent on the

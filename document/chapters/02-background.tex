@@ -2,7 +2,7 @@
   \begin{figure}[H]
     \centering
     \includegraphics[width=#3\textwidth]{#2}
-    \caption{\textbf{#1:}#4}
+    \caption[Explanation of the \textit{#1} geometry query]{\textbf{#1:}#4}
     \label{fig:#1}
   \end{figure}
 }
@@ -160,7 +160,7 @@ form more complex objects as shown in Figure \ref{fig:csg_ex}.
 \begin{figure}[h]
   \centering
   \includegraphics{csg_ex.eps}
-  \caption{An example of how CSG volumes are created using Boolean combinations
+  \caption[Example of CSG Boolean operations.]{An example of how CSG volumes are created using Boolean combinations
     of objects. The union of the three orthogonal cylinders is
     subtracted from the intersection of the box and sphere on the left to form
     the final volume at the top of the figure.}
@@ -207,7 +207,7 @@ design iteration.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.4]{cad_fnsf.png}
-  \caption{The Fusion Neutron Science Facility (FNSF)\cite{Kessel_2017} model
+  \caption[CAD image of the FNSF facility.]{The Fusion Neutron Science Facility (FNSF)\cite{Kessel_2017} model
     displayed in the CUBIT \cite{Blacker_1994} CAD system.}
   \label{fig:cad_fnsf}
 \end{figure}
@@ -248,7 +248,7 @@ database can be seen in Figure \ref{fig:dagmc_geom_example}.
   \centering
   \includesvg{../images/moab_geom_fig}{width=0.45\textwidth,valign=t}
   \includesvg{../images/mesh_based_topology}{width=0.5\textwidth,valign=t}
-  \caption{Left: Partial representation of a discretized DAGMC geometry. Right:
+  \caption[The DAGMC data model in MOAB.]{Left: Partial representation of a discretized DAGMC geometry. Right:
     A representation of the mesh-based hierarchy used to maintain topological
     information about the CAD geometry in MOAB.}
   \label{fig:dagmc_geom_example}
@@ -315,7 +315,7 @@ technique reduces the algorithmic complexity of the search from a brute force,
 or linear $O(N_{primitives})$ , search to a logarithmic $O(\,
 log(N_{primitives}))$ search.
 
-\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={General algorithm for spatial hierarchy traversal to return the nearest intersection along a ray.},label={alg:bvh_traversal},captionpos=b]
+\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={[A general spatial hierarchy traversal algorithm.]{General algorithm for spatial hierarchy traversal to return the nearest intersection along a ray.}},label={alg:bvh_traversal},captionpos=b]
   def intersect_ray(tree_root, ray):
 
       stack.append(tree_root)
@@ -400,7 +400,7 @@ cost, respectively.
     P_{L} - & \, primitives\, contained\, by\, the\, left\, child  \\
     P_{R} - & \, primitives\, contained\, by\, the\, right\, child \\
   \end{align*}
-  \caption{An example of the ERH calculation for a binary tree.}
+  \caption[Formulation for the entity ratio heuristic.]{An example of the ERH calculation for a binary tree.}
   \label{fig:ERH}
 \end{figure}
 
@@ -428,7 +428,7 @@ the surface area heuristic was introduced in 1987 by Goldsmith and Salmon
     P_{R} - & \, primitives\, contained\, by\, the\, right\, child \\
     SA_{P} - & \, parent\, node's \, surface \, area \\
   \end{align*}
-  \caption{A form of the surface area heuristic for a binary tree.}
+  \caption[Formulation of the surface area heuristic.]{A form of the surface area heuristic for a binary tree.}
   \label{fig:SAH}
 \end{figure}
 
@@ -472,7 +472,7 @@ as a pure querying structure by altering the model.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.3]{2d_kd_eg.eps}
-  \caption{Depiction of a two dimensional KD-Tree. Left: Graph representation of
+  \caption[A 2D KD-Tree example.]{Depiction of a two dimensional KD-Tree. Left: Graph representation of
     the KD-Tree with boxes representing leaf nodes. Right: Two dimensional space
     partitioned in the graph. Boxes represent the range of their respective
     sub-tree. (Adapted from Bently et. al. \cite{Bentley_1975})}
@@ -521,7 +521,7 @@ so as not to have parent volumes containing large amounts of empty space.
   \centering
   \includegraphics[scale=0.33]{binary_graph.eps}
   \includegraphics[scale=0.33, trim = 0 50 0 0 ]{bvh_2d_ex.eps}
-  \caption{Depiction of a two dimensional BVH example adapted from Gottschalk 1996 \cite{Gottschalk_1996}}
+  \caption[A 2D bounding volume hierarchy example.]{Depiction of a two dimensional BVH example adapted from Gottschalk 1996 \cite{Gottschalk_1996}}
   \label{fig:2D_bvh}
 \end{figure}
 
@@ -668,7 +668,7 @@ exist.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.7]{octree_2d_ex.eps}
-  \caption{Depiction of a two dimensional Octree example of a top-down ray fire traversal for a simple geometric object.}
+  \caption[A 2D Octree example.]{Depiction of a two dimensional Octree example of a top-down ray fire traversal for a simple geometric object.}
   \label{fig:2D_octree}
 \end{figure}
 
@@ -759,7 +759,7 @@ have already been developed.
 \begin{figure}
   \centering
   \includegraphics[scale=0.6]{simd_ex.eps}
-  \caption{Concept of data parallelism using SIMD. Adapted from Intel's
+  \caption[Graphic representation of SIMD operations in CPUs.]{Concept of data parallelism using SIMD. Adapted from Intel's
     documentation on the advanced vector extensions (AVX) instruction
     set. \cite{Intel_AVX}}
   \label{fig:simd}
@@ -840,7 +840,7 @@ to the higher n-ary structure of the trees used in these implementations.
     K - & \, number \, of \, desired \, children \, per \, interior \, node \\
     T - & \, number \, of \, triangles \, in \, SIMD \, register
   \end{align*}
-  \caption{An adjusted form of the surface area heuristic as presented by Wald
+  \caption[Form of the surface area heuristic for an n-ary tree.]{An adjusted form of the surface area heuristic as presented by Wald
     in \cite{Wald_2008}. \protect\footnotemark}
   \label{adjusted_SAH}
 \end{figure}
@@ -876,7 +876,7 @@ surfaces.
 \begin{figure}[H]
   \includesvg{../images/preconditioner_datastruct}{width=0.5\textwidth}
   \centering
-  \caption{2D visualization of a signed distance field surrounding an arbitrary volume boundary.}
+  \caption[2D depiction of a signed distance field.]{2D visualization of a signed distance field surrounding an arbitrary volume boundary.}
   \label{fig:preconditioner_datastruct}
 \end{figure}
 

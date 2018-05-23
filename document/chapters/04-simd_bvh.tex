@@ -69,8 +69,8 @@ representation in MOAB.
 \begin{figure}
   \centering
   \includegraphics[scale=0.3]{emdag_mapping.png}
-  \caption{Representation of MOAB's topological connections mapped
-    to Embree.}
+  \caption[Topology of MOAB to Embree mapping.]{Representation of MOAB's
+    topological connections mapped to Embree.}
   \label{fig:emdag_mapping}
 \end{figure}
 
@@ -127,9 +127,9 @@ rays is fired in each ray tracing system.
       \includegraphics[scale=0.15]{ds.eps} &
       \includegraphics[scale=0.15]{larcyl.eps} \\
     \end{tabular}
-    \caption{CAD representations of the sphere, slotted sphere, and high aspect
-      ratio cylinder (left to right) test models used for ray fire timings of DAGMC and
-      EmDAGMC. \label{models}}
+    \caption[Ray fire test models.]{CAD representations of the sphere, slotted
+      sphere, and high aspect ratio cylinder (left to right) test models used
+      for ray fire timings of DAGMC and EmDAG. \label{models}}
   \end{center}
 \end{figure} 
 
@@ -163,13 +163,14 @@ required to be visited. The two sets of timing results can be found in Figure
   \includegraphics[scale=0.45]{Eig_fix_rf.eps}
   \includegraphics[scale=0.45]{embree_rf.eps}
   \includegraphics[scale=0.45]{mpbvh_rf.eps}
-  \caption{Ray fire test results on three representative DAGMC volumes shown in Figure \ref{models}. Each
-    data point represents the average ray fire time for 600k randomly directed
-    rays from the origin of each volume. Top Left: Results of the tests for
-    MOAB's OBB Tree. Top Right: Results of the tests for DAGMC coupled with
-    Embree, or EmDAG. Bottom: Ray fire test results for DAGMC coupled with the
-    MPBVH. The scale used for the MOAB OBB Tree is 10x greater than in the other
-    two cases due its lower performance.}
+  \caption[Ray fire test results all DAGMC implementations.]{Ray fire test
+    results on three representative DAGMC volumes shown in Figure
+    \ref{models}. Each data point represents the average ray fire time for 600k
+    randomly directed rays from the origin of each volume. Top Left: Results of
+    the tests for MOAB's OBB Tree. Top Right: Results of the tests for DAGMC
+    coupled with Embree, or EmDAG. Bottom: Ray fire test results for DAGMC
+    coupled with the MPBVH. The scale used for the MOAB OBB Tree is 10x greater
+    than in the other two cases due its lower performance.}
   \label{fig:rf_test_results}
 \end{sidewaysfigure}
 
@@ -247,8 +248,9 @@ long as particles reach all of the volumes in the model.
       
     \end{tabular}
   \end{center}
-  \caption{Runtime comparison native MCNP, DAG-MCNP, and EmDAG-MCNP over four contrived
-    transport test problems.}
+  \caption[Comparative performance results of EmDAG-MCNP.]{Runtime comparison of
+    native MCNP, DAG-MCNP, and EmDAG-MCNP over four contrived transport test
+    problems.}
       \label{timings}
 \end{table}
 
@@ -317,7 +319,8 @@ DAG-MCNP is found in Table \ref{fngemdag}.
       EmDAG-MCNP5 & 303.49 & 303.63 & 1.44 & 255  \\
       \hline
     \end{tabular} 
-    \caption{A comparison of transport on the FNG model using a 14.1 MeV
+    \caption[Comparative performance results of EmDAG-MCNP for a production
+      model.]{A comparison of transport on the FNG model using a 14.1 MeV
       volumetric source over 100M histories for native MCNP, DAG-MCNP, and
       EmDAG-MCNP.}
     \label{fngemdag}
@@ -327,9 +330,9 @@ DAG-MCNP is found in Table \ref{fngemdag}.
 \begin{figure}
   \centering
   \includegraphics[scale=0.45]{emdag_fng_cg_fine6.png}
-  \caption{Call-graph of the EmDAG run on the FNG model for \num{1E7}
-    histories. Processes taking $<=$6\% of the runtime are filtered in order to
-    simplify the call-graph.}
+  \caption[Callgraph of a DAGMC simulation.] {Call-graph of the EmDAG run on the
+    FNG model for \num{1E7} histories. Processes taking $<=$6\% of the runtime
+    are filtered in order to simplify the call-graph.}
   \label{emdag-fng-coarse}  
 \end{figure}
 
@@ -389,12 +392,12 @@ lost in the transport process.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.5]{imprint_ex.png}
-  \caption{Example of two adjacent volumes being imprinted and merged. a) Two
-    volumes, a cube and cylinder are created. b) The cylinder end face is moved
-    such that it is coincident with one of the faces of the cube. c) The imprint
-    operation is performed and the cylinder curve is imprinted onto the cube
-    (cylinder was removed for visibility of imprinted curve). Adapted from
-    \cite{White_2002}.}
+  \caption[Graphical depiction of the imprinting process.]{Example of two
+    adjacent volumes being imprinted and merged. a) Two volumes, a cube and
+    cylinder are created. b) The cylinder end face is moved such that it is
+    coincident with one of the faces of the cube. c) The imprint operation is
+    performed and the cylinder curve is imprinted onto the cube (cylinder was
+    removed for visibility of imprinted curve). Adapted from \cite{White_2002}.}
   \label{imprint_ex}
 \end{figure}
 
@@ -415,19 +418,19 @@ robust enough to find the triangle intersection on this volume and move on.
 \begin{figure}[h!]
   \begin{centering}
     \includegraphics[scale=0.7]{emdag_lost.png}
-    \caption{\textbf{A)} The initial state of the lost particle. The
-      particle's trajectory is such that it intersects with the boundary between
-      surfaces A and B. The correct continuation of the particle into volume C
-      is depicted as a dashed line. \textbf{B)} An intersection with surface A
-      is found though either surface A or B are equally valid. The particles
-      position is then updated to its intersection with the boundary of surfaces
-      A and B. The particle then logically moves into volume B. \textbf{C)} Upon
-      placement of the particle in volume B the Monte Carlo code requests
-      the distance to next surface intersection. The particles position and
-      direction are converted from double to single precision. The small change
-      in the particle's position places it outside of volume B and the
-      trajectory is such that an intersection is not found. At this point the
-      particle is considered lost.}
+    \caption[Graphic representation of lost particles.]{\textbf{A)} The initial
+      state of the lost particle. The particle's trajectory is such that it
+      intersects with the boundary between surfaces A and B. The correct
+      continuation of the particle into volume C is depicted as a dashed
+      line. \textbf{B)} An intersection with surface A is found though either
+      surface A or B are equally valid. The particles position is then updated
+      to its intersection with the boundary of surfaces A and B. The particle
+      then logically moves into volume B. \textbf{C)} Upon placement of the
+      particle in volume B the Monte Carlo code requests the distance to next
+      surface intersection. The particles position and direction are converted
+      from double to single precision. The small change in the particle's
+      position places it outside of volume B and the trajectory is such that an
+      intersection is not found. At this point the particle is considered lost.}
     \label{emdag-lost-particles}
   \end{centering}
   \end{figure}
@@ -565,8 +568,9 @@ to calculate intersections and return more precise distances to the surface.
 \begin{figure}[H]
   \centering
   \includesvg{../images/reduced_precision_scheme}{width=0.7\textwidth}
-  \caption{The reduced precision scheme used to accelerate ray traversal while
-    returning double precision intersections.}
+  \caption[Depiction of reduced precision ray tracing scheme.]{The reduced
+    precision scheme used to accelerate ray traversal while returning double
+    precision intersections.}
   \label{fig:reduced_precision_scheme}
 \end{figure}
 
@@ -582,9 +586,10 @@ are introduced. This effect is illustrated in Figure
 \begin{figure}[H]
   \centering
   \includesvg{../images/double_ray_float_ray}{width=0.5\textwidth}
-  \caption{A representation of the directional change due to conversion of a
-    ray's origin and direction from double to single precision. Where capital
-    letters indicate double precision values.}
+  \caption[Reduced precision directional alterations.]{A representation of the
+    directional change due to conversion of a ray's origin and direction from
+    double to single precision. Where capital letters indicate double precision
+    values.}
   \label{fig:double_to_single_ray}
 \end{figure}
 
@@ -688,7 +693,7 @@ performance for each model. Performance of the MPBVH kernel isn't strongly
 effected below $\Delta$ values of \num{1E-2}. Above this value, the performance
 degrades rapidly as box overlaps become large and the false positive
 intersections of the ray with nodes in the tree dominate the run time. When the
-extension of the boxes becomes large enough, the runtimes plateau - indicating
+extension of the boxes becomes large enough, the run times plateau - indicating
 that every node in the tree is being visited for each ray fire. Below a value of
 \num{1e-6}, missed rays begin to appear in the runs. The threshold for this
 region is accurately predicted using the model in Equation
@@ -705,10 +710,11 @@ rarely seen in radiation transport.
   \centering
   \includegraphics[scale=0.8]{box_extension_test.eps}
 %  \includesvg{../images/box_extension_test}{width=0.8\textwidth}
-  \caption{A study of ray tracing performance and robustness for various values of
-    the box extension parameter, $\Delta$. For varying faceting tolerances,
-    600,000 rays were fired at each model. Points in the graph represent the
-    average over all faceting tolerances used.}
+  \caption[Results of ray fire performance for various box extension values.]{A
+    study of ray tracing performance and robustness for various values of the
+    box extension parameter, $\Delta$. For varying faceting tolerances, 600,000
+    rays were fired at each model. Points in the graph represent the average
+    over all faceting tolerances used.}
   \label{fig:box_bump_tests}
 \end{figure}
 
@@ -764,7 +770,8 @@ can be evaluated as seen in Equation \eqref{eq:simplified_sah}.
     C^{L} \text{,} C^{R} - & \, left \, and \, right \, child \, costs, \, respectively, \, in \, a \, binary \, tree
   \end{align*}
   
-  \caption{A form of the simplified surface area heuristic for a binary tree.}
+  \caption[Definition of the simplified surface area heuristic.]{A form of the
+    simplified surface area heuristic for a binary tree.}
   \label{fig:SSAH}
 \end{figure}
 
@@ -795,9 +802,9 @@ for SIMD traversals.
   \centering
   \includesvg{../images/moab_geom_2d}{width=0.45\textwidth,valign=t}
   \includesvg{../images/moab_tree_topology}{width=0.45\textwidth,valign=t}
-  \caption{Left: Representation of a faceted DAGMC geometry. Right: The
-    corresponding BVH structure for that volume. Surface sub-trees are shared
-    between volumes to avoid duplicate data.}
+  \caption[DAGMC BVH topology.]{Left: Representation of a faceted DAGMC
+    geometry. Right: The corresponding BVH structure for that volume. Surface
+    sub-trees are shared between volumes to avoid duplicate data.}
   \label{fig:surface_root_example}
 \end{sidewaysfigure}
 
@@ -820,16 +827,16 @@ appropriate object type.
 
 For a leaf node structure the fourth bit is set to one, indicating it is a leaf
 node and that any pointer value taken from the node reference should be treated
-as a pointer to a primitive reference. The remaining three bits in the integer are
-combined to denote the number of primitives in that leaf node. This places a
+as a pointer to a primitive reference. The remaining three bits in the integer
+are combined to denote the number of primitives in that leaf node. This places a
 limit of eight on the number of entities stored in a leaf node. The impact of
 this limit will be discussed further in Chapter \ref{ch:high_valence}.
 
 \begin{figure}[H]
   \centering
   \includesvg{../images/leaf_encoding}{width=1.0\textwidth}
-  \caption{Visual representation of leaf encoding using integer-based
-    pointer values in node references.}
+  \caption[Graphic of leaf node encoding.]{Visual representation of leaf
+    encoding using integer-based pointer values in node references.}
   \label{fig:leaf_encoding}
 \end{figure}
 
@@ -868,8 +875,8 @@ point the traversal ray information will be updated.
 
 \begin{figure}
   \includesvg{../images/set_leaf_encoding}{width=1.0\textwidth}
-  \caption{Visual representation of set leaf encoding using integer-based
-    pointer values.}
+  \caption[Graphic of surface root node encoding.]{Visual representation of set
+    leaf encoding using integer-based pointer values.}
   \label{fig:set_leaf_encoding}
 \end{figure}
 
@@ -928,12 +935,7 @@ MPBVH as a robust particle tracking tool.
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algorithm used in \textit{Next Surface} queries.},captionpos=b,label={alg:Next Surface Pseudo Code}]
   
-  def next_surface(current_volume,
-                   point,
-                   direction,
-                   dist_limit
-                   &next_surface,
-                   &next_surface_distance):
+  def next_surface(current_volume, point, direction, dist_limit &next_surface, &next_surface_distance):
 
       # create a ray with infinite length
       ray = MBRay(current_volume, point,direction,)
@@ -1010,7 +1012,7 @@ returning exiting intersections only.
 \begin{figure}[H]
   \centering
   \includesvg{../images/mbray_structs}{width=1.0\textwidth}
-  \caption{Ray structures used to communicate hit information between the MPBVH
+  \caption[Extended ray structures for particle tracking.]{Ray structures used to communicate hit information between the MPBVH
     and DAGMC. The MBAccumulatorRay adds additional attributes to the MBRay for
     tracking of hit counts and orientations with respect to triangle normals.}
   \label{fig:mpbvh_ray_structures}  
@@ -1169,10 +1171,11 @@ expected based on the difference in pure ray fire times from Section
       \bottomrule
     \end{tabular}
   \end{center}
-  \caption{Runtime comparison native MCNP, DAG-MCNP, and DAG-MCNP using the
-    MPBVH over four transport test problems. No lost particles occurred in any
-    of these runs and all results (see Appendix \ref{ch:appendix-c}) match the
-    standard DAGMC implementation exactly.}
+  \caption[Performance results for simple DAG-MCNP test cases.]{Run time
+    comparison of native MCNP, DAG-MCNP, and DAG-MCNP using the MPBVH over four
+    transport test problems. No lost particles occurred in any of these runs and
+    all results (see Appendix \ref{ch:appendix-c}) match the standard DAGMC
+    implementation exactly.}
   \label{tab:mpbvh_transport_timing_simple}
 \end{table}
 
@@ -1206,9 +1209,10 @@ and the results are unchanged between versions of DAGMC.
       \bottomrule
     \end{tabular}
   \end{center}
-  \caption{Runtime comparison native MCNP, DAG-MCNP, and DAG-MCNP using the
-    MPBVH over four transport test problems. No lost particles occurred in any of
-  these runs and all results match the standard DAGMC implementation exactly.}
+  \caption[Performance comparison for production DAG-MCNP problems.]{Runtime
+    comparison native MCNP, DAG-MCNP, and DAG-MCNP using the MPBVH over four
+    transport test problems. No lost particles occurred in any of these runs and
+    all results match the standard DAGMC implementation exactly.}
   \label{tab:mpbvh_transport_timing_production}
 \end{table}
 
@@ -1242,8 +1246,8 @@ significant memory savings of ~1.2 GB in simulations of the ITER model.
       \bottomrule
     \end{tabular}
   \end{center}
-  \caption{Memory usage of the BVH structures using both MOAB's OBB
-    tree and the MPBVH.}
+  \caption[Memory usage comparison between DAGMC implementations.]{Memory usage
+    of the BVH structures using both MOAB's OBB tree and the MPBVH.}
   \label{tab:mpbvh_memory}
 \end{table}
 

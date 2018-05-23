@@ -7,7 +7,7 @@
     \begin{figure}[h]
       \begin{center}
         \includesvg{../images/#2}{width=0.65\textwidth}
-        \caption{#3}
+        \caption[Depiction of SDF usage for the \textit{#1} geometry query.]{#3}
         \label{fig:#2}
       \end{center}
     \end{figure}
@@ -219,8 +219,9 @@ visualization and verification if required.
 \begin{figure}
   \centering
   \includegraphics[scale=0.3]{../images/sdf_sphere.png}
-  \caption{A visual of a signed distance field with step size 0.5 cm surrounding
-    the spherical volume of test case with a radius of 10 cm.}
+  \caption[Visualization of a signed distance field created in MOAB.]{A visual
+    of a signed distance field with step size 0.5 cm surrounding the spherical
+    volume of test case with a radius of 10 cm.}
   \label{fig:sdf_sphere}
 \end{figure}
 
@@ -296,8 +297,9 @@ goes up, the performance of the simulation will also improve.
 \begin{figure}[ht]
   \centering
   \includesvg{../images/sdf_hydrogen_density_study_util}{width=\textwidth}
-  \caption{Utilization results for a 5 MeV neutron source at the origin of a 10 cm radius
-    sphere. Hydrogen density was varied from 0 to 1 $\frac{g}{cm^3}$.}
+  \caption[Utilization results for a simple SDF test case.]{Utilization results
+    for a 5 MeV neutron source at the origin of a 10 cm radius sphere. Hydrogen
+    density was varied from 0 to 1 $\frac{g}{cm^3}$.}
   \label{fig:sphere_hydrogen_density_study_util}
 \end{figure}
 
@@ -313,7 +315,8 @@ shows the utilization results of this study.
 \begin{figure}[ht]
   \centering
   \includesvg{../images/sdf_hydrogen_density_study_perf}{width=1.1\textwidth}
-  \caption{Performance results for a 5 MeV neutron source at the origin of a 10
+  \caption[A DAG-MCNP test simulation applying the signed distance
+    field.]{Performance results for a 5 MeV neutron source at the origin of a 10
     cm radius sphere. Hydrogen density was varied from 0.0 to 1.0
     $\frac{g}{cm^3}$. Simulations of 100M histories at each density were
     performed using native MCNP5, DAG-MCNP5 without the signed distance field,
@@ -362,8 +365,9 @@ conditions for application of the signed distance field.
 \begin{figure}[H]
   \centering
   \includesvg{../images/sdf_fixed_dist_results}{width=\textwidth}
-  \caption{Results of the model for the theoretical utilization limit with the
-    results of the simulation for a fixed distance traveled case.}
+  \caption[Pseudo-simulation results for the fixed distances traveled.]{Results
+    of the model for the theoretical utilization limit with the results of the
+    simulation for a fixed distance traveled case.}
   \label{fig:sdf_fixed_dist}    
 \end{figure}
 
@@ -385,7 +389,8 @@ this analytic limit will now be discussed.
 \begin{figure}[ht]
   \centering
   \includesvg{../images/alpha}{width=0.5\textwidth}
-  \caption{Depiction of model variables.}
+  \caption[Depiction of utilization model variables.]{Depiction of utilization
+    model variables.}
   \label{fig:model}
 \end{figure}
 
@@ -474,8 +479,9 @@ Making these substitutions into the inequality gives
 \begin{figure}[ht]
   \centering
   \includesvg{../images/model_cases_fixed_distance}{width=\textwidth}
-  \caption{Depiction of modeling cases. Left: an example of a track for which
-    $d < R - r$. Middle: an example of a track for which $R-r < d < R$ and can be
+  \caption[Depiction of utilization modeling scenarios.]{Depiction of
+    utilization modeling scenarios. Left: an example of a track for which $d < R
+    - r$. Middle: an example of a track for which $R-r < d < R$ and can be
     preconditioned.  Right: an example of a track for which $R-r < d < R$ and
     cannot be preconditioned.}
   \label{fig:modeling_cases}
@@ -542,8 +548,9 @@ approach the idealized analytic model for the preconditioner utilization.
 \begin{figure}[H]
   \centering
   \includesvg{../images/alpha_r}{width=1\textwidth}
-  \caption{Plot of minimum angle of departure restriction for particles with
-    various radial positions between 0 cm and 100 cm and various distanced traveled.}
+  \caption[Plot of $\alpha_{min}$.]{Plot of minimum angle of departure
+    restriction for particles with various radial positions between 0 cm and 100
+    cm and various distanced traveled.}
  \label{fig:alpha_min}
 \end{figure}
 
@@ -706,9 +713,10 @@ in Equation \eqref{eq:sdf_model_sampled}. Applying this distribution to Equation
 \begin{figure}[ht] 
 \centering
 \includesvg{../images/sdf_sampled_dist_results}{width=\textwidth}
-\caption{Results of the model for the theoretical utilization limit with the
-  results of the simulation for a sampled distance traveled case over many
-  different mesh step sizes.}
+\caption[Pseudo-simulation results for sampled distances traveled.]{Results of
+  the model for the theoretical utilization limit with the results of the
+  simulation for a sampled distance traveled case over many different mesh step
+  sizes.}
 \label{fig:sdf_sampled_dist}
 \end{figure}
 
@@ -778,7 +786,9 @@ information is not returned from signed distance value recovery in the SDF.
     u(x,y) - &\, sampled\, function\, on\, mesh \\
     \epsilon - & \, error \\
   \end{align*}
-  \caption{Taylor expansion of 2D interpolation equation as an estimate for the error of a function sampled onto a structured Cartesian mesh.}
+  \caption[Taylor expansion of a bi-linear interpolation.]{Taylor expansion of 2D
+    interpolation equation as an estimate for the error of a function sampled
+    onto a structured Cartesian mesh.}
   \label{fig:interpolation_err_2d}
 \end{figure}
 
@@ -857,7 +867,8 @@ Section \ref{sec:sdf_other_geoms}.
 \begin{figure}[H]
   \centering
   \includesvg{../images/sdf_util_sampled_distance_w_error}{width=\textwidth}
-  \caption{Theoretical limits for SDF utilization accounting for error
+  \caption[Preconditioner utilization model accounting for interpolation
+    error.]{Theoretical limits for SDF utilization accounting for error
     evaluation plotted with simulation results for varying mesh step sizes.}
   \label{fig:sdf_util_sampled_distance_w_error}
 \end{figure}
@@ -907,9 +918,10 @@ found in Figures \ref{fig:sdf_util_sampled_cylinder} and
 \begin{figure}[H]
   \centering
   \includesvg{../images/sdf_sampled_cylinder}{width=\textwidth}
-  \caption{Application of the analytic model for preconditioner utilization in a
-    cylinder volume for various mean mean free paths, $\lambda$, and mesh step
-    sizes, $h$.}
+  \caption[Application of the utilization model for a cylinder
+    geometry.]{Application of the analytic model for preconditioner utilization
+    in a cylinder volume for various mean mean free paths, $\lambda$, and mesh
+    step sizes, $h$.}
   \label{fig:sdf_util_sampled_cylinder}
 \end{figure}
 
@@ -917,8 +929,9 @@ found in Figures \ref{fig:sdf_util_sampled_cylinder} and
 \begin{figure}[H]
   \centering
   \includesvg{../images/sdf_sampled_cone}{width=\textwidth}
-  \caption{Application of the analytic model for preconditioner utilization in a
-    cone volume for various mean mean free paths, $\lambda$, and mesh step
+  \caption[Application of the utilization model for a conic
+    geometry.]{Application of the analytic model for preconditioner utilization
+    in a cone volume for various mean mean free paths, $\lambda$, and mesh step
     sizes, $h$.}
   \label{fig:sdf_util_sampled_cone}
 \end{figure}
@@ -1064,7 +1077,8 @@ The SDF preconditioning method was applied in the following models:
       \bottomrule
     \end{tabular}
     }
-    \caption{A summary of SDF application to several production DAGMC models.}
+    \caption[A summary of SDF application in production DAGMC models.]{A summary
+      of SDF application to several production DAGMC models.}
     \label{tab:sdf_prod_summary}
 \end{sidewaystable}
 
@@ -1098,8 +1112,9 @@ scenarios.
       \bottomrule
     \end{tabular}
   }
-  \caption{An summary of the relative number of calls to the various Monte Carlo
-    geometric queries for several DAGMC production models. \protect\footnotemark}
+  \caption[A summary of geometric query calls in DAG-MCNP.]{An summary of the
+    relative number of calls to the various Monte Carlo geometric queries for
+    several DAGMC production models. \protect\footnotemark}
   \label{tab:geom_query_ratios}
 \end{table}  
 
@@ -1120,8 +1135,8 @@ runtime.
 \begin{figure}
 \centering
 \includegraphics[width=0.4\textwidth]{SHINE.eps}
-\caption{A cutaway view of the SHINE model used for demonstration of the SDF
-  data structure.}
+\caption[A cutaway of the SHINE CAD model.]{A cutaway view of the SHINE model
+  used for demonstration of the SDF data structure.}
 \label{fig:shine_sdf}
 \end{figure}
 
@@ -1197,8 +1212,9 @@ the applied SDF and in turn the simulation runtime is reduced only marginally.
 \begin{sidewaysfigure}[H]
   \centering
   \includegraphics[width=\textwidth]{sns_vol16_flux.png}
-  \caption{Depiction of utilization model limitation due to a small local average chord length
-    in the region of high collision density.}
+  \caption[Mesh tally results of the SNS model.]{Depiction of utilization model
+    limitation due to a small local average chord length in the region of high
+    collision density.}
   \label{fig:sns_low_util}
 \end{sidewaysfigure}
 

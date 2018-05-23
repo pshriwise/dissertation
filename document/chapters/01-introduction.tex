@@ -83,7 +83,7 @@ in Table \ref{tab:dagmc_implementations}.
     Shift\cite{Pandya_2016}                  & DAG-Shift            \\
     \hline
   \end{tabular}
-  \caption{A list of Monte Carlo codes and the names of their corresponding DAGMC implementations.}
+  \caption[A list of Monte Carlo codes supported by DAGMC.]{A list of Monte Carlo codes and the names of their corresponding DAGMC implementations.}
   \label{tab:dagmc_implementations}
 \end{table}
 
@@ -125,7 +125,7 @@ Science and International Security.
   \centering
   \begin{tabular}{l l l c}
     \toprule
-    Model & Native rumtime (min) & DAG-MCNP runtime (min) & Timing Ratio \\
+    Model & Native run time (min) & DAG-MCNP runtime (min) & Timing Ratio \\
     \hline
     FNG   & 5871.92           & 22769.33            & 3.9   \\
     ATR   & 901.68            & 8627.80             & 9.6   \\
@@ -133,7 +133,7 @@ Science and International Security.
     nTOF  & 167.52            & 295.13              & 1.8   \\
     \hline
   \end{tabular}
-  \caption{Table comparing the performance of DAG-MCNP to native MCNP for the
+  \caption[Performance benchmarking of DAG-MCNP.]{Table comparing the performance of DAG-MCNP to native MCNP for the
     same models after translation to a CAD-based surface mesh.}
   \label{dag-mcnp-benchmarks}  
 \end{table}
@@ -161,7 +161,7 @@ calculating cross sections under the \textit{acetot\_} subroutine.
 
 \begin{figure}[H]
   \centering
-  \caption{Callgraph of DAG-MCNP FNG run for \num{1E7} histories. (Processes taking
+  \caption[Callgraph of a DAG-MCNP simulation.]{Callgraph of DAG-MCNP FNG run for \num{1E7} histories. (Processes taking
     $<$10\% of the runtime are filtered out in order to simplify the callgraph.)}
   \label{dagmc-fng-coarse}
   \includegraphics[scale=0.3]{dagmc_fng_cg_coarse.png}
@@ -169,7 +169,7 @@ calculating cross sections under the \textit{acetot\_} subroutine.
 
 \begin{figure}[H]
   \centering
-  \caption{Callgraph of native MCNP FNG run for \num{1E7} histories. Processes taking
+  \caption[Callgraph of a DAG-MCNP simulation.]{Callgraph of native MCNP FNG run for \num{1E7} histories. Processes taking
     $<$10\% of the runtime are filtered out in order to simplify the call
     graph.}
   \label{mcnp-fng-coarse}

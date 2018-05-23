@@ -14,7 +14,8 @@ boundary condition.
   \centering
   \includegraphics[scale=0.2]{iter_sideon.eps}
   \includegraphics[scale=0.2]{ds_hv.eps}
-  \caption{Examples of HV vertices in production models.}
+  \caption[Examples of HV vertices in production models.]{Examples of HV
+    vertices in production models.}
   \label{fig:hv_examples}
 \end{figure}
 
@@ -46,9 +47,9 @@ an outer volume of an ITER model, shown in Figure \ref{fig:sj_hv_test_models}.
   \centering
     \includegraphics[scale=0.32]{iter_rf_vol.eps}
     \includegraphics[scale=0.42]{ds.eps}
-  \caption{Images of the slotted sphere and ITER volume used to perform DAGMC
-    ray fire performance tests with increasing number of triangles or,
-    equivalently, decreasing faceting tolerance.}
+  \caption[CAD models used in ray fire timing.]{Images of the slotted sphere and
+    ITER volume used to perform DAGMC ray fire performance tests with increasing
+    number of triangles or, equivalently, decreasing faceting tolerance.}
   \label{fig:sj_hv_test_models}
 \end{figure} 
 
@@ -69,12 +70,12 @@ regions on DAGMC performance (see Figure \ref{fig:hv_examples}).
   \centering
   \begin{center}
     \includegraphics[scale=0.5]{sj_2010_orig.eps} \\
-    \caption{Results of MOAB ray tracing performance tests with decreasing
-      faceting tolerance performed by Steve Jackson in June of 2010. Data points
-      represent average time spent in firing a ray for random rays originating
-      at the center of each model\cite{Tautges_2009}. The ``deathstar'' model is
-      the same as the slotted sphere model used in tests performed by the
-      author.}
+    \caption[Previous results of ray fire timings from 2010.]{Results of MOAB
+      ray tracing performance tests with decreasing faceting tolerance performed
+      by Steve Jackson in June of 2010. Data points represent average time spent
+      in firing a ray for random rays originating at the center of each
+      model\cite{Tautges_2009}. The ``deathstar'' model is the same as the
+      slotted sphere model used in tests performed by the author.}
     \label{fig:sj_hv_test_results}
   \end{center}
 \end{figure}
@@ -90,10 +91,10 @@ regions had a significant effect on the scaling.
   \includegraphics[scale=0.45]{hv_study_MOAB.eps}
   \includegraphics[scale=0.45]{hv_study_MOAB_wsr1.eps}
   \includegraphics[scale=0.45]{hv_study_moab_adaptive.eps}
-  \caption{HV characterization study results for all MOAB OBB tree
-    implementations. Top Left: Unmodified MOAB results. Top Right: Manual
-    modification of MOAB OBB tree's build settings. Bottom: Results with
-    adaptive construction for HV regions.}
+  \caption[High valence study results.]{HV characterization study
+    results for all MOAB OBB tree implementations. Top Left: Unmodified MOAB
+    results. Top Right: Manual modification of MOAB OBB tree's build
+    settings. Bottom: Results with adaptive construction for HV regions.}
   \label{fig:moab_hv_studies}
 \end{sidewaysfigure}
 
@@ -114,8 +115,8 @@ performance impediment and determine its root cause.
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.33]{hv_study_design.eps}
-    \caption{Side-on view of the modified cube mesh used to study the
-      HV vertex problem.}
+    \caption[High valence vertex test model.]{Side-on view of the modified cube
+      mesh used to study the HV vertex problem.}
     \label{fig:hv_cube_design}
 \end{figure}
 
@@ -159,11 +160,12 @@ OBB visualization for the HV characterization model is shown in Figure
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.3]{{obbs_wsr_0.95}.eps}
-    \caption{View of culprit bounding box containing many HV region
-      triangles as well as other surface triangles. Blue box and triangles: leaf
-      node bounding box and associated triangles. Several thousand
-      triangles are represented in the solid blue region shown here. Red boxes: Other
-      representative OBBs at the same depth in that tree.}
+    \caption[Oriented bounding boxes in a high valence region.]{View of culprit
+      bounding box containing many HV region triangles as well as other surface
+      triangles. Blue box and triangles: leaf node bounding box and associated
+      triangles. Several thousand triangles are represented in the solid blue
+      region shown here. Red boxes: Other representative OBBs at the same depth
+      in that tree.}
     \label{fig:bad_hv_box}
 \end{figure}
 
@@ -275,13 +277,15 @@ its effect on simulation run times during transport.
   \centering
   \begin{tabular}{c c c c c}
     \toprule
-    \textbf{\thead{Model}} & \textbf{\thead{HV \\ regions}} & \textbf{\thead{Particle \\ histories}} & \textbf{\thead{Run Time \\ reduction}} & \textbf{\thead{Buildtime \\ increase}} \\
+    \textbf{\thead{Model}} & \textbf{\thead{HV \\ regions}} & \textbf{\thead{Particle \\ histories}} & \textbf{\thead{Run Time \\ reduction}} & \textbf{\thead{Build time \\ increase}} \\
     \hline
     FNG            & 514                 & 1M                          & 3.3\%                      & 18.5\%                      \\
     ITER           & 3522                & 1M                          & 23.4\%                     & 5.2\%                       \\
     \bottomrule
   \end{tabular}
-  \caption{Results of run time reduction in several DAGMC production models when applying the BVH refinement.}
+  \caption[Preformance results for high valence region refinement.]{Results of
+    run time reduction in several DAGMC production models when applying the BVH
+    refinement.}
   \label{tab:bvhrefine_production_results}
 \end{table}    
 
@@ -404,19 +408,19 @@ the HV characterization study was performed with somewhat surprising results.
 
 \subsection{High Valence Characterization}
 
-The same test described in Section \ref{sec:hv_study_MOAB} was performed
-using the ray fire test program compile with using EmDAG to fire rays. A
-different behavior was expected when using Embree to construct the underlying
-hierarchies due to its use of the SAH. Figure \ref{fig:simd_hv_studies} contains
-the results of this test run. Using the Embree kernel, the performance degrades
-in direct proportion to both valence and the relative area of the HV
-region. This data presents the behavior originally expected of MOAB's BVH. Unlike MOAB
-however, Embree's use of the surface area heuristic prevents the artificial
-increase in probability of visiting triangles in the HV region. Larger
-triangles adjacent to this region are more readily separated from the leaf due
-to the additional cost they add by increasing a bounding box's surface area and
-in turn its evaluated cost. Separation of triangles in the HV region itself is
-still difficult when restricted to axis-aligned candidate split planes.
+The same test described in Section \ref{sec:hv_study_MOAB} was performed using
+the ray fire test program compile with using EmDAG to fire rays. A different
+behavior was expected when using Embree to construct the underlying hierarchies
+due to its use of the SAH. Figure \ref{fig:simd_hv_studies} contains the results
+of this test run. Using the Embree kernel, the performance degrades in direct
+proportion to both valence and the relative area of the HV region. This data
+presents the behavior originally expected of MOAB's BVH. Unlike MOAB however,
+Embree's use of the surface area heuristic prevents the artificial increase in
+probability of visiting triangles in the HV region. Larger triangles adjacent to
+this region are more readily separated from the leaf due to the additional cost
+they add by increasing a bounding box's surface area and in turn its evaluated
+cost. Separation of triangles in the HV region itself is still difficult when
+restricted to axis-aligned candidate split planes.
 
 While this data provides evidence that HV regions are problematic for
 production-level ray tracing kernels, it is difficult to employ any adaptive
@@ -447,8 +451,9 @@ well-structured tree for triangles that are part of the HV area.
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{hv_leaf_simd_bvh.png}
-  \caption{MPBVH Axis-Aligned leaf node for the HV test model with area fraction
-    0.5 and a valence of 100.}
+  \caption[Axis-aligned bounding box in the high valence region.]{MPBVH
+    Axis-Aligned leaf node for the HV test model with area fraction 0.5 and a
+    valence of 100.}
   \label{fig:hv_leaf_simd_bvh}
 \end{figure}
   
@@ -476,8 +481,9 @@ and in turn, triangles, visited.
     \centering
     \includegraphics[scale=0.37]{hv_obbs.png}
   \end{subfigure}
-  \caption{Visualization of both axis-aligned and oriented boxes surrounding low
-    aspect ratio, off-axis triangles.}
+  \caption[Bounding boxes of the MPBVH in the high valence
+    region.]{Visualization of both axis-aligned and oriented boxes surrounding
+    low aspect ratio, off-axis triangles.}
   \label{fig:hv_overlap_simd_bvh}
 \end{figure}
 
@@ -523,9 +529,10 @@ verification that the exclusive use of OBBs results in a slower ray fire times.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.45]{mpbvh_rf_obb.eps}
-  \caption{Ray fire tests on three representative DAGMC volumes. Each data point
-    represents the average ray fire time for 600k randomly directed rays from
-    the origin of each volume.}
+  \caption[Ray fire timings for the MPBVH with oriented bounding boxes.]{Ray
+    fire tests on three representative DAGMC volumes. Each data point represents
+    the average ray fire time for 600k randomly directed rays from the origin of
+    each volume.}
   \label{fig:rf_test_results_obbs}
 \end{figure}
 
@@ -568,8 +575,8 @@ these simulations can be found in Figure \ref{fig:hv_parameter_study_simd}.
 \begin{figure}[H]
   \centering
   \includesvg{../images/hv_parameter_study_simd}{width=1.0\textwidth}
-  \caption{Variation in run time for different HV detection parameters on a
-    representative set of DAGMC models.}
+  \caption[High valence detection parameter study.]{Variation in run time for
+    different HV detection parameters on a representative set of DAGMC models.}
   \label{fig:hv_parameter_study_simd}
 \end{figure}
 

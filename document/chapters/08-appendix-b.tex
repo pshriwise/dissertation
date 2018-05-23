@@ -4,7 +4,7 @@
 This appendix contains all results for simulations performed using modified
 versions of DAGMC.
 
-\section{EmDAG}
+\section{EmDAG-MCNP}
 
 \subsection{Simple Test Cases}
   \subsubsection{Single Cube}
@@ -23,7 +23,8 @@ versions of DAGMC.
         Energy & 2.98787E-03 & 2.98787E-03 & 2.98787E-03 \\
         \bottomrule
       \end{tabular}
-      \caption{Single hydrogen-filled cube tally results. Flux tally units are
+      \caption[Single hydrogen-filled cube tally results.]{Single
+        hydrogen-filled cube tally results. Flux tally units are
         $cm^{-2}$. Energy tally units are MeV/g.}
       \label{nestedspheres}
     \end{center}
@@ -59,7 +60,8 @@ versions of DAGMC.
         \bottomrule
         
       \end{tabular}
-      \caption{Nested hydrogen-filled cube tally results. Flux tally units are
+      \caption[Nested hydrogen-filled cube tally results.]{Nested
+        hydrogen-filled cube tally results. Flux tally units are
         $cm^{-2}$. Energy tally units are MeV/g.}
       \label{nestedspheres}
     \end{center}
@@ -83,7 +85,8 @@ versions of DAGMC.
         Energy & 3.17629E-03 & 3.18079E-03 & 3.18079E-03 \\
         \bottomrule
       \end{tabular}
-      \caption{Single hydrogen-filled sphere tally results. Flux tally units are
+      \caption[Single hydrogen-filled sphere tally results.]{Single
+        hydrogen-filled sphere tally results. Flux tally units are
         $cm^{-2}$. Energy tally units are MeV/g.}
       \label{nestedspheres}
     \end{center}
@@ -118,14 +121,16 @@ versions of DAGMC.
         \bottomrule
         
       \end{tabular}
-      \caption{Nested Spheres Tally Results. Flux tally units are
-        $cm^{-2}$. Energy tally units are MeV/g.}
+      \caption[Nested Spheres Tally Results.]{Nested Spheres Tally Results. Flux
+        tally units are $cm^{-2}$. Energy tally units are MeV/g.}
       \label{nestedspheres}
     \end{center}
     %%\vspace{-0.2cm}
   \end{table}
 
-  \subsection{FNG}
+  \section{Production Test Cases}
+  
+  \subsubsection{FNG}
 
   \begin{table}[H]
     \small
@@ -138,7 +143,10 @@ versions of DAGMC.
         Minimum & 1.997170E-05 & 1.9384\textbf{4}0E-05 & 1.9384\textbf{5}0E-05 \\
       \end{tabular}
     \end{center}
-    \caption{Summary of the flux tally results for a global volumetric source in the FNG model for MCNP, DAG-MCNP, and Embree coupled with DAGMC, or EmDAG-MCNP.}
+    \caption[Flux tally results in FNG for various DAG-MCNP
+      implementations.]{Summary of the flux tally results for a global
+      volumetric source in the FNG model for MCNP, DAG-MCNP, and Embree coupled
+      with DAGMC, or EmDAG-MCNP.}
   \end{table}
 
 \section{MPBVH}
@@ -161,7 +169,8 @@ versions of DAGMC.
         Energy & 2.98787E-03 & 2.98787E-03 & 2.98787E-03 \\
         \bottomrule
       \end{tabular}
-      \caption{Single hydrogen-filled cube tally results. Flux tally units are
+      \caption[Single hydrogen-filled cube tally results.]{Single
+        hydrogen-filled cube tally results. Flux tally units are
         $cm^{-2}$. Energy tally units are MeV/g.}
       \label{nestedspheres}
     \end{center}
@@ -197,7 +206,8 @@ versions of DAGMC.
         \bottomrule
         
       \end{tabular}
-      \caption{Nested hydrogen-filled cube tally results. Flux tally units are
+      \caption[Nested hydrogen-filled cube tally results.]{Nested
+        hydrogen-filled cube tally results. Flux tally units are
         $cm^{-2}$. Energy tally units are MeV/g.}
       \label{nestedspheres}
     \end{center}
@@ -221,7 +231,8 @@ versions of DAGMC.
         Energy & 3.17629E-03 & 3.18079E-03 & 3.18079E-03 \\
         \bottomrule
       \end{tabular}
-      \caption{Single hydrogen-filled sphere tally results. Flux tally units are
+      \caption[Single hydrogen-filled sphere tally results.]{Single
+        hydrogen-filled sphere tally results. Flux tally units are
         $cm^{-2}$. Energy tally units are MeV/g.}
       \label{nestedspheres}
     \end{center}
@@ -255,8 +266,8 @@ versions of DAGMC.
         Energy & 4.96282E-06 & 4.96285E-06 & 4.96285E-06 \\
         \bottomrule
       \end{tabular}
-      \caption{Nested Spheres Tally Results. Flux tally units are
-        $cm^{-2}$. Energy tally units are MeV/g.}
+      \caption[Nested Spheres Tally Results.]{Nested Spheres Tally Results. Flux
+        tally units are $cm^{-2}$. Energy tally units are MeV/g.}
       \label{nestedspheres}
     \end{center}
     %%\vspace{-0.2cm}
@@ -265,8 +276,6 @@ versions of DAGMC.
 \subsection{Production Tests}
 
 \subsubsection{FNG}
-
-  \subsection{FNG}
 
   \begin{table}[H]
     \small
@@ -279,7 +288,10 @@ versions of DAGMC.
         Minimum & 1.918080E-05 & 1.877310E-05 & 1.877310E-05 \\
       \end{tabular}
     \end{center}
-    \caption{Summary of the flux tally results for a global volumetric source in the FNG model for MCNP, DAG-MCNP, and DAG-MCNP using the MPBVH.}
+    \caption[Flux tally results in FNG for various DAG-MCNP
+      implementations.]{Summary of the flux tally results for a global
+      volumetric source in the FNG model for MCNP, DAG-MCNP, and DAG-MCNP using
+      the MPBVH.}
   \end{table}
 
   \subsubsection{ATR}
@@ -297,7 +309,9 @@ versions of DAGMC.
         \bottomrule
       \end{tabular}
     \end{center}
-    \caption{Results of an eigenvalue simulation for the Advanced Test Reactor at Idaho National Laboratory over 100 cycles.}
+    \caption[Results of eigenvalue simulations in ATR for various DAG-MCNP
+      implementations.]{Results of an eigenvalue simulation for the Advanced
+      Test Reactor at Idaho National Laboratory over 100 cycles.}
   \end{table}
 
   \subsubsection{UWNR}
@@ -316,8 +330,9 @@ versions of DAGMC.
         \bottomrule
       \end{tabular}
     \end{center}
-    \caption{Results of an eigenvalue simulation for the University of Wisconsin
-      Nuclear Reactor over 75 cycles.}
+    \caption[Results of eigenvalue simulations in UWNR for various DAG-MCNP
+      implementations.]{Results of an eigenvalue simulation for the University
+      of Wisconsin Nuclear Reactor over 75 cycles.}
   \end{table}
 
 
@@ -326,7 +341,9 @@ versions of DAGMC.
 
 \section{Signed Distance Field}
 
-\subsection{ITER}
+\subsection{Production Tests}
+
+\subsubsection{ITER}
 
 \begin{table}
   \small
@@ -342,12 +359,13 @@ versions of DAGMC.
           \bottomrule
     \end{tabular}
   \end{center}
-  \caption{Result comparison for a mesh-based flux tally applied to the ITER
-    neutronics model for \num{1E7} histories.}
+  \caption[Flux tally results in the ITER model for various DAG-MCNP
+    implementations.]{Result comparison for a mesh-based flux tally applied to
+    the ITER neutronics model for \num{1E7} histories. Units are in $cm_{-2}$.}
 \end{table}
 
 
-\subsection{nTOF}
+\subsubsection{nTOF}
 
 \begin{table}
   \small
@@ -371,11 +389,13 @@ versions of DAGMC.
           \bottomrule
     \end{tabular}
   \end{center}
-  \caption{A result comparison between DAG-MCNP with and without the SDF field
-    applied for 10K histories in the the neutron Time-Of-Flight model.}
+  \caption[Results of flux mesh tallies for several particle types in the nTOF
+    model.]{A result comparison between DAG-MCNP with and without the SDF field
+    applied for 10K histories in the the neutron Time-Of-Flight model. Units are
+    in $cm_{-2}$.}
 \end{table}
 
-\subsection{SHINE}
+\subsubsection{SHINE}
 
 \begin{table}
   \small
@@ -391,8 +411,9 @@ versions of DAGMC.
           \bottomrule
     \end{tabular}
   \end{center}
-  \caption{A result comparison for the SHINE model with and without SDF
-    application for 10k particle histories.}
+  \caption[Flux tally results in the SHINE model for various DAG-MCNP
+    implementations.]{A result comparison for the SHINE model with and without
+    SDF application for 10k particle histories. Units are in $cm_{-2}$.}
 \end{table}
 
 \subsubsection{SNS}
@@ -438,8 +459,9 @@ versions of DAGMC.
       154          & 3.4720E+00 & 3.4720E+00        \\
       \bottomrule
     \end{tabular}
-    \caption{Result comparison for a variety of atom displacement tallies in
-      the Spallation Neutron Source model in DAG-MCNP both with and without the
-      SDF for 10K histories.}
+    \caption[Results of tally values in SNS for various DAG-MNP
+      implementations.]{Result comparison for a variety of atom displacement
+      tallies in the Spallation Neutron Source model in DAG-MCNP both with and
+      without the SDF for 10K histories.}
   \end{center}
 \end{table}

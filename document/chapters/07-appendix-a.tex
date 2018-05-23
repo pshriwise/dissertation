@@ -86,7 +86,7 @@ utilization without error consideration is as follows
 \end{align*}
 
 To apply this within the spherical geometry, the signed distance function of a
-sphere with radius, $R$, from Equation \ref{eq:sdf_sphere} is applied
+sphere with radius, $R$, from Equation \eqref{eq:sdf_sphere} is applied
 
 \begin{equation}
 R-|\vec{p}| + R - |\vec{n}| >   |\vec{p}-\vec{n}|
@@ -270,7 +270,7 @@ with distances sampled using the function
 where $c$ is randomly sampled with a uniform distribution between 0 and 1
 
 An examination of the change of variables in the general form for the utilized
-space from Equation \ref{eq:util_model} gives
+space from Equation \eqref{eq:util_model} gives
 
 \begin{equation}
   \frac{dp}{dd} = -\frac{p}{\lambda}
@@ -330,7 +330,7 @@ and the resulting integral becomes
 \mathrm{d}\theta \mathrm{d}r
 \end{equation}
 
-The evaluation of this integral gives the final form of the analytic preconditioner limit from Equation \ref{eq:sdf_model_sampled}
+The evaluation of this integral gives the final form of the analytic preconditioner limit from Equation \eqref{eq:sdf_model_sampled}
 
 \begin{align}
     \begin{split}
@@ -396,7 +396,7 @@ account for the error that will be subtracted from the signed distance values. T
 \label{appeq:min_alpha_w_error}
 \end{equation}
 
-After these adjustments to the $\alpha_{min}$ condition, the integral can be evaluated and simplified to give the form found in Equation \ref{eq:sdf_util_sampled_w_error}:
+After these adjustments to the $\alpha_{min}$ condition, the integral can be evaluated and simplified to give the form found in Equation \eqref{eq:sdf_util_sampled_w_error}:
 
 \begin{equation}
   US_{sampled} = \frac{(R-\epsilon) (\frac{1}{2} \lambda ( R - 2\lambda - \epsilon ) e^{\frac{-R + \epsilon}{\lambda}} + \lambda^{2} - \frac{3}{2}\lambda(R - \epsilon) + (R-\epsilon)^{2})}{R^3}

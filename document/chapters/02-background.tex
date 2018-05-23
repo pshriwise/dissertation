@@ -385,7 +385,7 @@ each child node to determine the cost of a split. The philosophy behind this
 heuristic is to maintain the expected $O(log(N_{triangles})$ cost of a ray
 traversal by ensuring that primitives are split as evenly as possible from
 parent to child node. A form of this heuristic is presented in Equation
-\ref{eq:ERH}. The ERH cost is unitless and bounded by zero and one. This
+\eqref{eq:ERH}. The ERH cost is unitless and bounded by zero and one. This
 heuristic provides a finite limit on the expected cost, and makes it possible to
 set both an upper and lower bound as both unacceptably high and ``good enough''
 cost, respectively.
@@ -405,7 +405,7 @@ cost, respectively.
 \end{figure}
 
 The SAH applies spatial information as well as division of primitives to the
-cost evaluation. Its full form is found in Equation \ref{eq:SAH}. The SAH uses
+cost evaluation. Its full form is found in Equation \eqref{eq:SAH}. The SAH uses
 the surface area of candidate child partitions relative to the parent
 partition's surface area as an approximation for the probability that the children
 will be visited after the parent volume. This evaluation relies on the
@@ -897,7 +897,7 @@ surfaces.
 %% By recognizing that the magnitude of $\Omega(\vec{x})$ is in fact a
 %% minimum interface distance function, one can construct a signed
 %% distance function, $SDV(\vec{x})$, using the isocontour representation
-%% and the magnitude of the function as seen in Eq.~\ref{eq:sdf}
+%% and the magnitude of the function as seen in Eq.~\eqref{eq:sdf}
 %% \cite{Osher_2003}.
 
 %% \begin{align} \label{eq:sdf}

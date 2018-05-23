@@ -641,7 +641,7 @@ respective single and double precision ray directions, the value of $\Delta$
   \label{eq:box_ext_max}
 \end{equation}
 
-Equation \ref{eq:box_ext_max} indicates that boxes will need to be expanded an amount $\Delta$
+Equation \eqref{eq:box_ext_max} indicates that boxes will need to be expanded an amount $\Delta$
 in order to ensure that $\vec{r}$ will intersect any box $\vec{R}$ does. One
 concern with this expansion is that artificially extending the bounding boxes
 causes more overlap and raises the average number of nodes visited per traversal
@@ -692,9 +692,9 @@ extension of the boxes becomes large enough, the runtimes plateau - indicating
 that every node in the tree is being visited for each ray fire. Below a value of
 \num{1e-6}, missed rays begin to appear in the runs. The threshold for this
 region is accurately predicted using the model in Equation
-\ref{eq:box_extension_limit}. The longest dimension for any of the models ranges
+\eqref{eq:box_extension_limit}. The longest dimension for any of the models ranges
 from 10 to 50 cm in size. Inserting this into Equation
-\ref{eq:box_extension_limit} indicates that missed rays will start occur at
+\eqref{eq:box_extension_limit} indicates that missed rays will start occur at
 values of $\Delta$ = ~\num{3E-6}. The lower limit of the box extension value and
 upper limit, the point at which performance begins to suffer, provide a window
 of several orders of magnitude for this value. This window will shrink as models
@@ -733,7 +733,7 @@ small compared to the cost of a triangle primitive intersection, $C_{i}$. This
 assumption is presumably stronger in the MPBVH due to the mixed precision nature
 of the implementation than for systems in which the hierarchy and primitives are
 both stored with the same precision. The cost evaluation for a candidate node
-can be evaluated as seen in Equation \ref{eq:simplified_sah}.
+can be evaluated as seen in Equation \eqref{eq:simplified_sah}.
 
 \begin{figure}[H]
   \begin{align}

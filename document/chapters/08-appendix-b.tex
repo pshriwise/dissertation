@@ -8,7 +8,8 @@ are not included in the tables of this appendix. The results of native MCNP
 simulations have been provided when possible for reference. MCNP results are
 expected to be statistically similar but not the same as DAG-MCNP results. All
 implementations of DAG-MCNP (EmDAG, SDF, unmodified DAGMC, etc.) are expected to
-report the same numerical solution.
+report the same numerical tally results. Additional CDF plots for differing mesh
+tally results are included when necessary.
 
 \section{EmDAG-MCNP}
 
@@ -160,6 +161,15 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
       with DAGMC, or EmDAG-MCNP.}
   \end{table}
 
+  \begin{figure}[H]
+    \centering
+    \includesvg{../images/emdag_fng_meshtally_cdf}{width=\textwidth}
+    \caption[Analysis of differing mesh tallies in FNG.]{A cumulative
+      distribution function for the differing tally values between DAG-MCNP and
+      EmDAG-MCNP for the FNG model. Zero entries for the unmodified DAG-MCNP
+      simulation are set to zero here. }
+  \end{figure}
+  
   \section{MPBVH}
 
   The results in this section were generated using DAG-MCNP relying on the MPBVH
@@ -300,9 +310,11 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
       \begin{tabular}{lccc}
         \toprule
         Value & MCNP & DAG-MCNP & DAG-MCNP-MPBVH \\
+        \hline
         Average & 7.227982E-05 & 7.230336E-05 & 7.230336E-05 \\
         Maximum & 1.471770E-04 & 1.471210E-04 & 1.471210E-04 \\
         Minimum & 1.918080E-05 & 1.877310E-05 & 1.877310E-05 \\
+        \bottomrule
       \end{tabular}
     \end{center}
     \caption[Flux tally results in FNG for various DAG-MCNP
@@ -313,7 +325,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
 
   \subsubsection{ATR}
 
-  \begin{table}
+  \begin{table}[H]
     \small
     \begin{center}
       \begin{tabular}{lccc}
@@ -334,7 +346,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
   \subsubsection{UWNR}
 
   
-  \begin{table}
+  \begin{table}[H]
     \small
     \begin{center}
       \begin{tabular}{lccc}
@@ -354,8 +366,36 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
 
 
   \subsubsection{ITER}
-  WAITING ON FINAL RESULTS
 
+  \begin{table}[H]
+    \small
+    \begin{center}
+      \begin{tabular}{lcc}
+        \toprule
+        Value   & DAG-MCNP     & DAG-MCNP with MPBVH      \\
+        \toprule
+        \multicolumn{3}{l}{\textbf{Neutron Flux}} \\
+        Average & 7.222176E+12 & 7.217213E+12   \\
+        Maximum & 1.410510E+14 & 1.410040E+14   \\
+        Minimum & 0.000000E+00 & 0.000000E+00   \\       
+        \bottomrule
+      \end{tabular}
+    \end{center}
+    \caption[Flux tally results in the ITER model for various DAG-MCNP
+      implementations.]{Result comparison for a mesh-based flux tally applied to
+      the ITER neutronics model for \num{1E6} histories. Units are in $cm_{-2}$}
+  \end{table}
+  
+  \begin{figure}[H]
+    \centering
+    \includesvg{../images/iter_mpbvh_meshtally_cdf}{width=\textwidth}
+    \caption[Analysis of differing mesh tallies in ITER.]{A cumulative
+      distribution function for the differing tally values between DAG-MCNP and
+      DAG-MCNP using the MPBVH for the ITER model. Zero entries for the
+      unmodified DAG-MCNP simulation are set to zero here. }
+  \end{figure}
+
+  
   \section{Signed Distance Field}
 
   The results in this section are the result of signed distance field
@@ -366,7 +406,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
 
 \subsubsection{ITER}
 
-\begin{table}
+\begin{table}[H]
   \small
   \begin{center}
     \begin{tabular}{lcc}
@@ -388,7 +428,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
 
 \subsubsection{nTOF}
 
-\begin{table}
+\begin{table}[H]
   \small
   \begin{center}
     \begin{tabular}{lcc}
@@ -418,7 +458,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
 
 \subsubsection{SHINE}
 
-\begin{table}
+\begin{table}[H]
   \small
   \begin{center}
     \begin{tabular}{lcc}
@@ -439,7 +479,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
 
 \subsubsection{SNS}
 
-\begin{table}
+\begin{table}[H]
   \small
   \begin{center}
     \begin{tabular}{lcc}

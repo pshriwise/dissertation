@@ -592,10 +592,27 @@ as simulation. Leaf nodes in MOAB's OBB Tree determined to be part of high
 valence regions with an HV parameter, $\alpha$, equal to 0.5 were tagged. A
 counter was incremented each time one of these tagged nodes was visited in the
 simulation, along with counters for the number of total nodes visited and the
-number of general leaf nodes visited. Additionally, the number of HV leaf nodes
-was tracked along with the valence and area of each HV region. Average values
-for these HV regions are shown to provide a sense of the severity of these
-regions for each model.
+number of general leaf nodes visited.
+
+\begin{table}[H]
+  \small
+  \begin{center}
+  \begin{tabular}{lcc}
+    \toprule
+    Model & \thead{Regions \\ Identified} & \thead{HV Leaf Visit Relative Frequency} \\
+    \hline
+    FNG  & 514  & 3.83\% \\
+    ATR  & 836  & 0.07\% \\ 
+    UWNR & 499  & 3.87\% \\
+    ITER & 3522 & 7.34\% \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \caption[High valence region simulation statistics.]{High valence
+    identification and visit statistics for several DAGMC production models. The
+    high valence parameter, $\alpha$, was set to 0.5 for this study.}
+  \label{tab:hv_simulation_stats}
+\end{table}
 
 These statistics lend some insight into the impact of HV regions on DAGMC
 simulation performance. As seen in Figure \ref{fig:hv_parameter_study_simd}, the ATR
@@ -605,30 +622,30 @@ interesting to note that, in all of these models, HV leafs are visited rather
 infrequently, yet they still have a significant impact on the performance of the
 simulation. This isn't surprising given the severity of the ray fire performance
 degredation seen in Figures \ref{fig:moab_hv_studies} and
-\ref{fig:simd_hv_studies}. 
+\ref{fig:simd_hv_studies}.
 
-\begin{table}
-  \small
-  \begin{center}
-  \begin{tabular}{lcccccccc}
-    \toprule
-    Model & \thead{Regions \\ Identified} & \multicolumn{3}{c}{HV Area
-      ($cm^{2}$)} & \multicolumn{3}{c}{HV Valence} & \thead{HV Leaves / \\ Leaf
-      Visit \%} \\
-         &      & Max    & Min   & Avg    & Max  & Min & Avg    &      \\
-    \hline
-    FNG  & 514  & 1786.3 & 0.013 & 12.91  & 521  & 14  & 179.9  & 3.83 \\
-    ATR  & 836  & 52.74  & 0.01  & 1.86   & 519  & 14  & 58.735 & 0.07 \\ 
-    UWNR & 499  & 168479 & 0.03  & 2496.3 & 1041 & 31  & 31.63  & 3.87 \\
-    ITER & 3522 & 853827 & 0.02  & 1363.4 & 3082 & 12  & 93.3   & 7.34 \\
-    \bottomrule
-  \end{tabular}
-  \end{center}
-  \caption[High valence region simulation statistics.]{High valence
-    identification and visit statistics for several DAGMC production models. The
-    high valence parameter, $\alpha$, was set to 0.5 for this study.}
-  \label{tab:hv_simulation_stats}
-\end{table}
+%\begin{table}
+%  \small
+%  \begin{center}
+%  \begin{tabular}{lcccccccc}
+%    \toprule
+%    Model & \thead{Regions \\ Identified} & \multicolumn{3}{c}{HV Area
+%      ($cm^{2}$)} & \multicolumn{3}{c}{HV Valence} & \thead{HV Leaves / \\ Leaf
+%      Visit \%} \\
+%         &      & Max    & Min   & Avg    & Max  & Min & Avg    &      \\
+%    \hline
+%    FNG  & 514  & 1786.3 & 0.013 & 12.91  & 521  & 14  & 179.9  & 3.83 \\
+%    ATR  & 836  & 52.74  & 0.01  & 1.86   & 519  & 14  & 58.735 & 0.07 \\ 
+%    UWNR & 499  & 168479 & 0.03  & 2496.3 & 1041 & 31  & 31.63  & 3.87 \\
+%    ITER & 3522 & 853827 & 0.02  & 1363.4 & 3082 & 12  & 93.3   & 7.34 \\
+%    \bottomrule
+%  \end{tabular}
+%  \end{center}
+%  \caption[High valence region simulation statistics.]{High valence
+%    identification and visit statistics for several DAGMC production models. The
+%    high valence parameter, $\alpha$, was set to 0.5 for this study.}
+%  \label{tab:hv_simulation_stats}
+%\end{table}
 
 \section{Summary}
 

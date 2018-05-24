@@ -36,8 +36,8 @@ space. In contrast, Monte Carlo methods only incur error associated with input
 parameters such as cross sections or geometry specifications, but it is
 challenging to achieve a global solution with uniform statistical error using
 this approach. Computationally, deterministic methods typically suffer memory
-and runtime costs that scale with the resolution of the discretized phase space
-whereas Monte Carlo methods are typically limited by the runtime needed to
+and run time costs that scale with the resolution of the discretized phase space
+whereas Monte Carlo methods are typically limited by the run time needed to
 achieve satisfactory uncertainty in a region of interest.
 
 
@@ -125,7 +125,7 @@ Science and International Security.
   \centering
   \begin{tabular}{l l l c}
     \toprule
-    Model & Native run time (min) & DAG-MCNP runtime (min) & Timing Ratio \\
+    Model & Native run time (min) & DAG-MCNP run time (min) & \thead{Timing \\ Ratio} \\
     \hline
     FNG   & 5871.92           & 22769.33            & 3.9   \\
     ATR   & 901.68            & 8627.80             & 9.6   \\
@@ -154,7 +154,7 @@ acceleration data structure construction.
 In Figure \ref{dagmc-fng-coarse} a callgraph for a profiling run of FNG for \num{1E7}
 histories is provided. In this callgraph it is shown that the time spent in
 transport is dominated by MOAB's ray tracing process used by DAGMC to track
-particles as they move through the geometry. About 60\% of the runtime is spent
+particles as they move through the geometry. About 60\% of the run time  is spent
 in DAGMC's \textit{ray\_fire} while in native MCNP the relative time spent on
 this process is reduced to ~5\% with the majority of the time spent in
 calculating cross sections under the \textit{acetot\_} subroutine.
@@ -162,7 +162,7 @@ calculating cross sections under the \textit{acetot\_} subroutine.
 \begin{figure}[H]
   \centering
   \caption[Callgraph of a DAG-MCNP simulation.]{Callgraph of DAG-MCNP FNG run for \num{1E7} histories. (Processes taking
-    $<$10\% of the runtime are filtered out in order to simplify the callgraph.)}
+    $<$10\% of the run time are filtered out in order to simplify the callgraph.)}
   \label{dagmc-fng-coarse}
   \includegraphics[scale=0.3]{dagmc_fng_cg_coarse.png}
 \end{figure}
@@ -170,7 +170,7 @@ calculating cross sections under the \textit{acetot\_} subroutine.
 \begin{figure}[H]
   \centering
   \caption[Callgraph of a DAG-MCNP simulation.]{Callgraph of native MCNP FNG run for \num{1E7} histories. Processes taking
-    $<$10\% of the runtime are filtered out in order to simplify the call
+    $<$10\% of the run time are filtered out in order to simplify the call
     graph.}
   \label{mcnp-fng-coarse}
   \includegraphics[scale=0.3]{native_fng_cg_coarse.png}

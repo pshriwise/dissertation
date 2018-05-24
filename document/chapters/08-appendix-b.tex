@@ -150,15 +150,19 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
       \begin{tabular}{lccc}
         \toprule
         Value & MCNP & DAG-MCNP & EmDAG-MCNP \\
+        \hline
+        \multicolumn{4}{l}{\textbf{Neutron Flux}} \\
+        \hline
         Average & 7.228758E-05 & 7.3211\textbf{88}E-05 & 7.3211\textbf{69}E-05 \\
         Maximum & 1.457240E-04 & 1.4858\textbf{8}0E-04 & 1.4858\textbf{4}0E-04 \\
         Minimum & 1.997170E-05 & 1.9384\textbf{4}0E-05 & 1.9384\textbf{5}0E-05 \\
+        \bottomrule
       \end{tabular}
     \end{center}
     \caption[Flux tally results in FNG for various DAG-MCNP
       implementations.]{Summary of the flux tally results for a global
       volumetric source in the FNG model for MCNP, DAG-MCNP, and Embree coupled
-      with DAGMC, or EmDAG-MCNP.}
+      with DAGMC, or EmDAG-MCNP. Units of flux are in $cm^{-2}$.}
   \end{table}
 
   \begin{figure}[H]
@@ -383,7 +387,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
     \end{center}
     \caption[Flux tally results in the ITER model for various DAG-MCNP
       implementations.]{Result comparison for a mesh-based flux tally applied to
-      the ITER neutronics model for \num{1E6} histories. Units are in $cm_{-2}$}
+      the ITER neutronics model for \num{1E6} histories. Units are in $cm^{-2}$}
   \end{table}
   
   \begin{figure}[H]
@@ -395,6 +399,18 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
       unmodified DAG-MCNP simulation are set to zero here. }
   \end{figure}
 
+  \begin{table}[H]
+    \begin{center}
+      \begin{tabular}{cc}
+        Number of Tally Values & Standard Deviation \\
+        0.50 & 59.69 \\
+        0.75 & 108.77 \\
+        0.90 & 162.93 \\
+        0.95 & 213.71 \\
+        0.99 & 353.51 \\
+      \end{tabular}
+    \end{center}
+  \end{table}
   
   \section{Signed Distance Field}
 
@@ -422,7 +438,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
   \end{center}
   \caption[Flux tally results in the ITER model for various DAG-MCNP
     implementations.]{Result comparison for a mesh-based flux tally applied to
-    the ITER neutronics model for \num{1E7} histories. Units are in $cm_{-2}$.}
+    the ITER neutronics model for \num{1E7} histories. Units are in $cm^{-2}$.}
 \end{table}
 
 
@@ -453,7 +469,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
   \caption[Results of flux mesh tallies for several particle types in the nTOF
     model.]{A result comparison between DAG-MCNP with and without the SDF field
     applied for 10K histories in the the neutron Time-Of-Flight model. Units are
-    in $cm_{-2}$.}
+    in $cm^{-2}$.}
 \end{table}
 
 \subsubsection{SHINE}
@@ -474,7 +490,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
   \end{center}
   \caption[Flux tally results in the SHINE model for various DAG-MCNP
     implementations.]{A result comparison for the SHINE model with and without
-    SDF application for 10k particle histories. Units are in $cm_{-2}$.}
+    SDF application for 10k particle histories. Units are in $cm^{-2}$.}
 \end{table}
 
 \subsubsection{SNS}

@@ -1,7 +1,7 @@
 \newcommand{\geomQuery}[4] {
   \begin{figure}[H]
     \centering
-    \includegraphics[width=#3\textwidth]{#2}
+    \includesvg{../images/#2}{width=#3\textwidth}
     \caption[Explanation of the \textit{#1} geometry query]{\textbf{#1:}#4}
     \label{fig:#1}
   \end{figure}
@@ -17,37 +17,37 @@
 A Monte Carlo geometry kernel must provide robust support for the geometry
 queries shown in Figures \ref{fig:Point Containment} - \ref{fig:Measure}.
 
-\geomQuery{Point Containment}{plc_query.eps}{0.5}{
+\geomQuery{Point Containment}{plc_query}{0.5}{
 Given a set of volumes and particle location, $\mathbf{x}$, determine if the
 point is inside, outside, or on the boundary of that volume.
 }
 
-\geomQuery{Next Surface}{dtb_query.eps}{0.3}{
+\geomQuery{Next Surface}{dtb_query}{0.3}{
 Given a volume, $\mathbf{V}$, particle location, $\mathbf{x}$, and particle
 trajectory, \boldmath$\Omega$, determine the next surface, \boldmath$B$, of the
 volume that the particle intersects with along \boldmath$\Omega$ and the
 distance, \boldmath$d$ to that intersection.
 }
 
-\geomQuery{Closest Surface}{ctl_query.eps}{0.3}{
+\geomQuery{Closest Surface}{ctl_query}{0.3}{
 Given a volume, \boldmath$V$, and particle location, \boldmath$x$, determine
 the distance, \boldmath$d$, to to the nearest surface, \boldmath$S$, of the
 volume in any direction.
 }
 
-\geomQuery{Next Volume}{next_vol_query.eps}{0.5}{
+\geomQuery{Next Volume}{next_vol_query}{0.5}{
 Given a particle at location, \boldmath$x$, in volume, \boldmath$V_1$, traveling
 in a direction, \boldmath$\Omega$, and crossing a surface, \boldmath$S$,
 determine the correct adjacent volume, \boldmath$V_2$.
 }
 
-\geomQuery{Surface Normal}{normal_query.eps}{0.3}{
+\geomQuery{Surface Normal}{normal_query}{0.3}{
 Given a surface, \boldmath$S$ and particle location, \boldmath$x$ determine
 the normal vector, \boldmath$\vec{n}$ of the surface at a point closest to the
 particle's location.
 }
 
-\geomQuery{Measure}{measure_query.eps}{0.3}{
+\geomQuery{Measure}{measure_query}{0.3}{
 Given a volume, \boldmath$V$, or surface, \boldmath$S$ in the geometry,
 determine properties of that entity such as the volume or area.
 }
@@ -315,6 +315,8 @@ technique reduces the algorithmic complexity of the search from a brute force,
 or linear $O(N_{primitives})$ , search to a logarithmic $O(\,
 log(N_{primitives}))$ search.
 
+\newpage
+
 \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={[A general spatial hierarchy traversal algorithm.]{General algorithm for spatial hierarchy traversal to return the nearest intersection along a ray.}},label={alg:bvh_traversal},captionpos=b]
   def intersect_ray(tree_root, ray):
 
@@ -382,7 +384,7 @@ will not be discussed as this work is more focused on traversal performance.
 Two heuristics will be discussed here - the Entity Ratio Heuristic (ERH) and the
 Surface Area Heuristic (SAH). The ERH uses the resulting number of primitives in
 each child node to determine the cost of a split. The philosophy behind this
-heuristic is to maintain the expected $O(log(N_{triangles})$ cost of a ray
+heuristic is to maintain the expected $O(log(N_{primitives}))$ cost of a ray
 traversal by ensuring that primitives are split as evenly as possible from
 parent to child node. A form of this heuristic is presented in Equation
 \eqref{eq:ERH}. The ERH cost is unitless and bounded by zero and one. This
@@ -846,7 +848,7 @@ to the higher n-ary structure of the trees used in these implementations.
 \end{figure}
 
 \footnotetext{Some notation has been modified to agree with
-  notation used earlier in in Figure \ref{fig:SAH}}
+  notation used in Figure \ref{fig:SAH}}
 
 % NOT SURE THIS IS NECESSARY %
 For completeness of all ray tracing data structures discussed in this chapter,

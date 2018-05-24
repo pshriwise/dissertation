@@ -48,7 +48,7 @@ in simulation.
 Of the geometric queries that DAGMC supports, \textit{Next Surface},
 \textit{Point Containment}, and \textit{Closest Surface} are most commonly
 called in simulations.  At least one ray is fired to satisfy any of these
-queries in DAGMC with $O(logN)$ complexity using MOAB's BVH, but it is
+queries in DAGMC with $O(log \, N_{triangles})$ complexity using MOAB's BVH, but it is
 hypothesized that these queries can be accelerated in many cases. For each of
 the fundamental Monte Carlo geometries outlines below, signed distance values
 are recovered from the signed distance field via interpolation of the field
@@ -168,7 +168,7 @@ for the relatively expensive ray fire process to accelerated CAD-based MCRT by
 using an $O(1)$ process to establish that the conditions of a geometric query
 are such that a more computationally expensive ray fire is necessary before
 performing the ray tracing operation. It is hypothesized that for some Monte
-Carlo problems this process can be used to avoid $O(logN)$ ray fire calls to
+Carlo problems this process can be used to avoid $O(log \, N_{triangles})$ ray fire calls to
 significantly reduce the runtime of the simulation.
 
 \section{Implementation}

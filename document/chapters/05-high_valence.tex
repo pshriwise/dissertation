@@ -160,12 +160,12 @@ OBB visualization for the HV characterization model is shown in Figure
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.3]{{obbs_wsr_0.95}.eps}
-    \caption[Oriented bounding boxes in a high valence region.]{View of culprit
-      bounding box containing many HV region triangles as well as other surface
-      triangles. Blue box and triangles: leaf node bounding box and associated
-      triangles. Several thousand triangles are represented in the solid blue
-      region shown here. Red boxes: Other representative OBBs at the same depth
-      in that tree.}
+    \caption[Oriented bounding boxes in a high valence region.]{View of an
+      OBB containing many HV region triangles as well as other
+      surface triangles. Blue box and triangles: leaf node bounding box and
+      associated triangles. Several thousand triangles are represented in the
+      solid blue region shown here. Red boxes: Other representative OBBs at the
+      same depth in that tree.}
     \label{fig:bad_hv_box}
 \end{figure}
 
@@ -275,12 +275,14 @@ its effect on simulation run times during transport.
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{c c c c c}
+  \begin{tabular}{c c c c c c}
     \toprule
-    \textbf{\thead{Model}} & \textbf{\thead{HV \\ regions}} & \textbf{\thead{Particle \\ histories}} & \textbf{\thead{Run Time \\ reduction}} & \textbf{\thead{Build time \\ increase}} \\
+    \textbf{\thead{Model}} & \textbf{\thead{HV \\ regions}} & \textbf{\thead{Run Time \\ reduction}} & \textbf{\thead{Build time \\ increase}} & \textbf{\thead{HV Leaf Visit \\ Relative Frequency}} \\
     \hline
-    FNG            & 514                 & 1M                          & 3.3\%                      & 18.5\%                      \\
-    ITER           & 3522                & 1M                          & 23.4\%                     & 5.2\%                       \\
+    FNG            & 514                 & 24.2\%                      & 18.5\% & 3.83 \% \\
+    ATR            & 755                 & < 3\%                       & 22.9\% & 0.07 \% \\
+    UWNR           & 496                 & < 2\%                       & < 5\%  & 3.87 \% \\
+    ITER           & 3522                & 29.4\%                      & 5.2\%  & 7.34 \% \\
     \bottomrule
   \end{tabular}
   \caption[Preformance results for high valence region refinement.]{Results of
@@ -289,17 +291,12 @@ its effect on simulation run times during transport.
   \label{tab:bvhrefine_production_results}
 \end{table}    
 
-In the case of FNG, the run time is decreased only marginally, but in the ITER
-model the run time is reduced by nearly $\frac{1}{4}$. It can be presumed that
-the reduction in the run time is associated with the frequency with which a HV
-nodes in MOAB's OBB tree are visited and how many of them appear in the
-model. In FNG, the HV regions tend to be smaller and adjacent to the graveyard
-of the problem while in ITER there are large HV regions occupying large portions
-of the external reflecting surfaces of the model. This provides some anecdotal
-information about why the refinement has a larger effect in the ITER model than
-in the FNG model. It is possible, however, to quantify this effect more
-thoroughly by counting the number of HV node visits in either case during
-simulation.
+As seen in Table \ref{tab:bvhrefine_production_results}, the ATR and UWNR
+problem run time is decreased only marginally, but in the ITER and FNG models
+the run time is reduced by $\approx\frac{1}{4}$. Given the outcome might seem
+that the high valence regions are visited more often in the, but information
+gathered during simulation using MOAB's mesh tagging interface suggest
+otherwise.
 
 \begin{sidewaysfigure}
   \centering
@@ -314,6 +311,21 @@ simulation.
     method which applies OBBs in HV regions.}
   \label{fig:simd_hv_studies}
 \end{sidewaysfigure}
+
+The information on the frequency of HV leaf visits in Table
+\ref{tab:bvhrefine_production_results} was collected on regions of the triangle
+mesh identified as high valence during BVH construction as well as
+simulation. Leaf nodes in MOAB's OBB Tree determined to be part of high valence
+regions with an HV parameter, $\alpha$, equal to 0.5 were tagged. A counter was
+incremented each time one of these tagged HV leaf nodes was visited in
+simulation, along with counters for the number of total nodes visited and the
+total number of leaf nodes visited. The adaptive building method was not applied
+to these simulations to avoid biasing the values for leaf node visits. This
+lends some insight into the impact of HV regions on DAGMC simulation
+performance. It is interesting to note that, in all of these models, HV leafs are
+visited rather infrequently, yet they still have a significant impact on the
+performance of the simulation. This isn't surprising given the severity of the
+ray fire performance degredation seen in Figure \ref{fig:moab_hv_studies}.
 
 \section{Embree's Ray Tracing Kernel}\label{sec:emdag_hv_study}
 
@@ -584,46 +596,10 @@ The application of OBBs in HV regions makes little difference in the simulation
 run times of ATR or UWNR, but in the FNG model and ITER model the run times are
 reduced by up to nearly 30\% with little additional build times in the BVH and
 minimal increase in the memory footprint by replacing some of the AABBs with
-OBBs.
-
-The information in Table \ref{tab:hv_simulation_stats} was collected on regions
-of the triangle mesh identified as high valence during BVH construction as well
-as simulation. Leaf nodes in MOAB's OBB Tree determined to be part of high
-valence regions with an HV parameter, $\alpha$, equal to 0.5 were tagged. A
-counter was incremented each time one of these tagged HV leaf nodes was visited
-in simulation, along with counters for the number of total nodes visited and
-the total number of leaf nodes visited. The adaptive building method was not
-applied to these simulations to avoid biasing the values for leaf node visits.
-
-\begin{table}[H]
-  \small
-  \begin{center}
-  \begin{tabular}{lcc}
-    \toprule
-    Model & \thead{Regions \\ Identified} & \thead{HV Leaf Visit \\ Relative Frequency} \\
-    \hline
-    FNG   & 514                           & 3.83\% \\
-    ATR   & 836                           & 0.07\% \\ 
-    UWNR  & 499                           & 3.87\% \\
-    ITER  & 3522                          & 7.34\% \\
-    \bottomrule
-  \end{tabular}
-  \end{center}
-  \caption[High valence region simulation statistics.]{High valence
-    identification and visit statistics for several DAGMC production models. The
-    high valence parameter, $\alpha$, was set to 0.5 for this study.}
-  \label{tab:hv_simulation_stats}
-\end{table}
-
-These statistics lend some insight into the impact of HV regions on DAGMC
-simulation performance. As seen in Figure \ref{fig:hv_parameter_study_simd}, the ATR
-and UWNR model run times were largely unaffected by adaptation of the BVH to HV
-regions while the FNG and ITER models saw a decrease in the HV regions. It is
-interesting to note that, in all of these models, HV leafs are visited rather
-infrequently, yet they still have a significant impact on the performance of the
-simulation. This isn't surprising given the severity of the ray fire performance
-degredation seen in Figures \ref{fig:moab_hv_studies} and
-\ref{fig:simd_hv_studies}.
+OBBs. This reflects the behavior seen in results of Table
+\ref{tab:bvhrefine_production_results} for simulations using MOAB's OBB tree. A
+study on the HV leaf visit frequency was not performed here due to a limited
+ability to mark HV leaf nodes in the MPBVH system.
 
 %\begin{table}
 %  \small
@@ -679,4 +655,4 @@ for understanding of the HV parameter's effect on simulation run times. Little
 impact was found for some models while a significant reduction was seen in
 others. It was also was found that these run times are significantly reduced
 despite the fact that a very small number of rays are intersected with triangles
-in HV regions as shown in Table MORE CAPITAL LETTERS HERE YUCK.
+in HV regions as shown in Table \ref{tab:bvhrefine_production_results}.

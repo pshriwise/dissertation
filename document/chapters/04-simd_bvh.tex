@@ -417,7 +417,7 @@ robust enough to find the triangle intersection on this volume and move on.
 
 \begin{figure}[h!]
   \begin{centering}
-    \includegraphics[scale=0.7]{emdag_lost.png}
+    \includegraphics[scale=0.6]{emdag_lost.png}
     \caption[Graphic representation of lost particles.]{\textbf{A)} The initial
       state of the lost particle. The particle's trajectory is such that it
       intersects with the boundary between surfaces A and B. The correct
@@ -935,7 +935,7 @@ MPBVH as a robust particle tracking tool.
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algorithm used in \textit{Next Surface} queries.},captionpos=b,label={alg:Next Surface Pseudo Code}]
   
-  def next_surface(current_volume, point, direction, dist_limit &next_surface, &next_surface_distance):
+  def next_surface(current_volume, point, direction):
 
       # create a ray with infinite length
       ray = MBRay(current_volume, point,direction,)
@@ -984,7 +984,7 @@ MPBVH as a robust particle tracking tool.
         next_surf = 0
         next_surf_distance = ray.tfar
 
-      return
+      return next_surf, next_surf_distance
 
   def backface_cull( &mbray ):
 
@@ -1162,7 +1162,7 @@ expected based on the difference in pure ray fire times from Section
       \toprule
       Test Model & MCNP & DAG-MCNP & DAG-MCNP (w/ MPBVH) \\
       %%\hline
-      & \multicolumn{3}{c}{\textbf{time (min)/ ratio to MCNP}} \\
+      & \multicolumn{3}{c}{\textbf{run time (min)/ ratio to MCNP}} \\
       \hline
       Sphere         & 2.93 / 1.00 & 25.13 / 8.58  & 9.38 / 3.2  \\
       Cube           & 5.03 / 1.00 & 10.56 / 2.10 & 5.46 / 1.08 \\
@@ -1206,7 +1206,7 @@ implementations are outlined in Appendix \ref{ch:appendix-b}.
       \toprule
       Test Model & MCNP & DAG-MCNP & DAG-MCNP MPBVH \\
       %%\hline
-      & \multicolumn{3}{c}{\textbf{time (min)/ ratio to MCNP}} \\
+      & \multicolumn{3}{c}{\textbf{run time (min)/ ratio to MCNP}} \\
       \hline
       FNG           & 2.49 / 1.00 &  9.83  / 3.95  & 6.48 / 2.60 \\
       ATR           & 3.18 / 1.00 &  36.16 / 11.37 & 8.54 / 2.68 \\
@@ -1243,7 +1243,9 @@ significant memory savings of ~1.2 GB in simulations of the ITER model.
     \begin{tabular}{lc}
 
       \toprule
-      \textbf{Test Model} & \textbf{\thead{Memory Usage Ratio \\ to MOAB OBB Tree}} \\
+      \multicolumn{2}{c}{\textbf{MPBVH Memory Usage}} \\
+      \hline
+      \textbf{Test Model} & \textbf{\thead{Ratio to unmodified DAGMC}} \\
       \hline
       FNG           & 0.83 \\
       ATR           & 0.80 \\

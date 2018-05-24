@@ -31,18 +31,24 @@ optimal performance in DAGMC models.
   \small
   \centering
   \begin{tabular}{lc}
-    Model & Ratio to Unmodified DAG-MCNP \\
-    \multicolumn{2}{c}{SDF} \\
+    \toprule
+    Model & Ratio to unmodified DAG-MCNP \\
+    \hline
+    \multicolumn{2}{c}{Signed Distance Field} \\
+    \hline
     ITER  & 1.16 \\
     nTOF  & 1.41 \\
     SHINE & 1.56 \\
     SHINE & 1.35 \\
     SNS   & 1.00 \\
-    \multicolumn{2}{c}{MPBVH} \\
+    \hline
+    \multicolumn{2}{c}{Mixed Precision BVH} \\
+    \hline
     FNG  & 2.09  \\
     ATR  & 4.56  \\
     UWNR & 2.87  \\
     ITER & 5.81  \\
+    \bottomrule
   \end{tabular}
   \caption[A summary of performance improvements in this work]{A summary of the
     best-case performance improvements for modificed versions of DAG-MCNP in a

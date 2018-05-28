@@ -4,7 +4,30 @@
 \usetheme[white]{Wisconsin}
 \title{Shriwise Defense}
 
+% packages
 \usepackage{auto-pst-pdf}
+
+% beamer settings
+\setbeamertemplate{footline}[page number]
+\setbeamertemplate{caption}[numbered]
+
+\makeatletter
+\newenvironment{withoutheadline}{
+  \setbeamertemplate{headline}[default]
+  \def\beamer@entrycode{\vspace*{-\headheight}}
+}{}
+\makeatother
+
+\AtBeginSection[]{
+  \begin{frame}
+    \vfill
+    \centering
+    \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+      \usebeamerfont{title}\insertsectionhead\par%
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
 
 \author{Patrick C. Shriwise}
 
@@ -14,7 +37,17 @@
 
 \begin{document}
 
+\begin{withoutheadline}
 \frame{ \titlepage }
+\end{withoutheadline}
 
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents
+\end{frame}
+
+\input{motivation}
+
+\input{background}
 
 \end{document}

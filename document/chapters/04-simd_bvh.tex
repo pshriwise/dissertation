@@ -1191,12 +1191,13 @@ runtime by nearly a factor of two. Due to the success of the DAGMC MPBVH
 implementation for the FNG model, this system was applied to several other
 production models as well. No particles were lost in any of these
 geometries. The results of the simulations between the unmodified and modified
-versions of DAG-MCNP were the same with the exception of the ITER test
-case. This is the only production model which is not fully topologically
-watertight and as a result does not meet the expectations in place in the
-particle tracking algorithm presented in Section
-\ref{sec:simplified_particle_tracking}. The discrepancies between the DAG-MCNP
-implementations are outlined in Appendix \ref{ch:appendix-b}.
+versions of DAG-MCNP were the same for all production models presented in Table
+\ref{tab:mpbvh_transport_timing_production}. It is worth noting, however, that
+the simplified algorithm presented in Section
+\ref{sec:simplified_particle_tracking} was unable to accurately track particles
+due to the presence unmerged surfaces and unsealed volumes. An identical
+tracking algorithm to the one used in the unmodified version of DAGMC was used
+instead to obtain the same numerical result.
 
 \begin{table}[H]
   \small

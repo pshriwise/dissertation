@@ -379,9 +379,9 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
         Value   & DAG-MCNP     & DAG-MCNP with MPBVH      \\
         \toprule
         \multicolumn{3}{l}{\textbf{Neutron Flux}} \\
-        Average & 7.222176E+12 & 7.217213E+12   \\
-        Maximum & 1.410510E+14 & 1.410040E+14   \\
-        Minimum & 0.000000E+00 & 0.000000E+00   \\       
+        Average & 7.222176E+12 & 7.222176E+12     \\
+        Maximum & 1.410510E+14 & 1.410510E+14     \\
+        Minimum & 0.000000E+00 & 0.000000E+00     \\       
         \bottomrule
       \end{tabular}
     \end{center}
@@ -390,27 +390,27 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
       the ITER neutronics model for \num{1E6} histories. Units are in $cm^{-2}$}
   \end{table}
   
-  \begin{figure}[H]
-    \centering
-    \includesvg{../images/iter_mpbvh_meshtally_cdf}{width=\textwidth}
-    \caption[Analysis of differing mesh tallies in ITER.]{A cumulative
-      distribution function for the differing tally values between DAG-MCNP and
-      DAG-MCNP using the MPBVH for the ITER model. Zero entries for the
-      unmodified DAG-MCNP simulation are set to zero here. }
-  \end{figure}
+  %% \begin{figure}[H]
+  %%   \centering
+  %%   \includesvg{../images/iter_mpbvh_meshtally_cdf}{width=\textwidth}
+  %%   \caption[Analysis of differing mesh tallies in ITER.]{A cumulative
+  %%     distribution function for the differing tally values between DAG-MCNP and
+  %%     DAG-MCNP using the MPBVH for the ITER model. Zero entries for the
+  %%     unmodified DAG-MCNP simulation are set to zero here. }
+  %% \end{figure}
 
-  \begin{table}[H]
-    \begin{center}
-      \begin{tabular}{cc}
-        Number of Tally Values & Standard Deviation \\
-        0.50 & 59.69 \\
-        0.75 & 108.77 \\
-        0.90 & 162.93 \\
-        0.95 & 213.71 \\
-        0.99 & 353.51 \\
-      \end{tabular}
-    \end{center}
-  \end{table}
+  %% \begin{table}[H]
+  %%   \begin{center}
+  %%     \begin{tabular}{cc}
+  %%       Number of Tally Values & Standard Deviation \\
+  %%       0.50 & 59.69 \\
+  %%       0.75 & 108.77 \\
+  %%       0.90 & 162.93 \\
+  %%       0.95 & 213.71 \\
+  %%       0.99 & 353.51 \\
+  %%     \end{tabular}
+  %%   \end{center}
+  %% \end{table}
   
   \section{Signed Distance Field}
 

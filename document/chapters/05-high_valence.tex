@@ -296,8 +296,16 @@ problem run time is decreased only marginally, but in the ITER and FNG models
 the run time is reduced by $\approx\frac{1}{4}$. Given the outcome might seem
 that the high valence regions are visited more often in the, but information
 gathered during simulation using MOAB's mesh tagging interface suggest
-otherwise. A sweep of the high valence parameter, $\alpha$, for these models is shown in Figure
-\ref{fig:hv_parameter_study_moab}
+otherwise. A sweep of the high valence parameter, $\alpha$, for these models is
+shown in Figure \ref{fig:hv_parameter_study_moab} which reflects the performance
+impact shown in Table \ref{tab:bvhrefine_production_results}. It also describes
+the relationship between the simulation run time and the high valence parameter
+value in the ITER and FNG models. Even for a relatively high $\alpha$ parameter
+of 0.9, a significant reduction in the run time is seen in these models. As the
+value decreases, the run time is futher reduced to nearly 30\% of the maximum
+run time in the study. The large change at a high value of $\alpha$ indicates
+that even coarse detection of high valence regions has a measurable impact on
+performance.
 
 \begin{figure}[H]
   \centering
@@ -607,7 +615,7 @@ these simulations can be found in Figure \ref{fig:hv_parameter_study_mpbvh}.
 
 The application of OBBs in HV regions makes little difference in the simulation
 run times of ATR or UWNR, but in the FNG model and ITER model the run times are
-reduced by up to nearly 30\% with little additional build times in the BVH and
+reduced by up to ~40\% with little additional build times in the BVH and
 minimal increase in the memory footprint by replacing some of the AABBs with
 OBBs. This reflects the behavior seen in results of Table
 \ref{tab:bvhrefine_production_results} for simulations using MOAB's OBB tree. A

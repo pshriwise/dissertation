@@ -296,7 +296,18 @@ problem run time is decreased only marginally, but in the ITER and FNG models
 the run time is reduced by $\approx\frac{1}{4}$. Given the outcome might seem
 that the high valence regions are visited more often in the, but information
 gathered during simulation using MOAB's mesh tagging interface suggest
-otherwise.
+otherwise. A sweep of the high valence parameter, $\alpha$, for these models is shown in Figure
+\ref{fig:hv_parameter_study_moab}
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/hv_parameter_study_moab}{width=1.0\textwidth}
+  \caption[High valence detection parameter study.]{Variation in run time for
+    different HV detection parameters on a representative set of DAGMC models
+    using the adaptive build method in MOAB.}
+  \label{fig:hv_parameter_study_moab}
+\end{figure}
+
 
 \begin{sidewaysfigure}
   \centering
@@ -583,14 +594,15 @@ node objects themselves with little added overhead in the traversal process.
 
 The Mixed MPBVH was applied to the same set of production transport tests as the
 AABB MPBVH in Section \ref{subsec:mpbvh_production_transport}. Timing results of
-these simulations can be found in Figure \ref{fig:hv_parameter_study_simd}.
+these simulations can be found in Figure \ref{fig:hv_parameter_study_mpbvh}.
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/hv_parameter_study_simd}{width=1.0\textwidth}
+  \includesvg{../images/hv_parameter_study_mpbvh}{width=1.0\textwidth}
   \caption[High valence detection parameter study.]{Variation in run time for
-    different HV detection parameters on a representative set of DAGMC models.}
-  \label{fig:hv_parameter_study_simd}
+    different HV detection parameters on a representative set of DAGMC models
+    using the MPBVH.}
+  \label{fig:hv_parameter_study_mpbvh}
 \end{figure}
 
 The application of OBBs in HV regions makes little difference in the simulation

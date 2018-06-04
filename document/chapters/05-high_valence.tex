@@ -469,11 +469,12 @@ well-structured tree for triangles that are part of the HV area.
   \label{fig:hv_leaf_simd_bvh}
 \end{figure}
   
-Both Embree and the MOAB SIMD BVH have the shared characteristic of maximum
-leaf size of eight primitives due to the way the leaves are encoded. This
-removes the possibility that large numbers of triangles in leaf nodes as the
-cause of performance degradation, which was the case for MOAB's OBB Tree. For Embree and the MPBVH, the largest cause of performance degradation is
-overlapping regions of the leaf nodes.
+Both Embree and the MOAB SIMD BVH have the shared characteristic of maximum leaf
+size of eight primitives due to the way the leaves are encoded. This removes the
+possibility that large numbers of triangles in leaf nodes as the cause of
+performance degradation, which was the case for MOAB's OBB Tree. For Embree and
+the MPBVH, the largest cause of performance degradation is overlapping regions
+of the leaf nodes.
 
 Because both of these implementations use AABBs, bounding of high aspect ratio,
 off-axis triangles results in bounding boxes with a considerable amount of empty

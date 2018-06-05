@@ -296,7 +296,7 @@ problem run time is decreased only marginally, but in the ITER and FNG models
 the run time is reduced by $\approx\frac{1}{4}$. Given the outcome might seem
 that the high valence regions are visited more often in the, but information
 gathered during simulation using MOAB's mesh tagging interface suggest
-otherwise. A sweep of the high valence parameter, $\alpha$, for these models is
+otherwise. \DIFaddbegin \DIFadd{A sweep of the high valence parameter, $\alpha$, for these models is
 shown in Figure \ref{fig:hv_parameter_study_moab} which reflects the performance
 impact shown in Table \ref{tab:bvhrefine_production_results}. It also describes
 the relationship between the simulation run time and the high valence parameter
@@ -306,15 +306,17 @@ value decreases, the run time is futher reduced to nearly 30\% of the maximum
 run time in the study. The large change at a high value of $\alpha$ indicates
 that even coarse detection of high valence regions has a measurable impact on
 performance.
+}
 
 \begin{figure}[H]
   \centering
   \includesvg{../images/hv_parameter_study_moab}{width=1.0\textwidth}
-  \caption[High valence detection parameter study.]{Variation in run time for
+  \caption[High valence detection parameter study.]{\DIFaddFL{Variation in run time for
     different HV detection parameters on a representative set of DAGMC models
-    using the adaptive build method in MOAB.}
+    using the adaptive build method in MOAB.}}
   \label{fig:hv_parameter_study_moab}
 \end{figure}
+\DIFaddend 
 
 
 \begin{sidewaysfigure}
@@ -323,7 +325,8 @@ performance.
   \includegraphics[scale=0.45]{hv_study_SIMD.eps}
   \includegraphics[scale=0.45]{hv_study_SIMD_OBB.eps}
   \includegraphics[scale=0.45]{hv_study_mpbvh_mixed.eps}
-  \caption[HV characterization studies using EmDAG and MPBVH.]{HV characterization results for all SIMD-enabled ray tracing
+  \DIFdelbegin %DIFDELCMD < \caption{%%%
+\DIFdelend \DIFaddbegin \caption[HV characterization studies using EmDAG and MPBVH.]{\DIFaddend HV characterization results for all SIMD-enabled ray tracing
     kernels. Top Left: Results of the HV study for EmDAG. Top Right: Results of
     the HV study using the MPBVH with AABBs. Bottom Left: Results using the
     MPBVH with OBBS. Bottom Right: Results for the MPBVH with an adaptive build
@@ -487,7 +490,7 @@ well-structured tree for triangles that are part of the HV area.
     valence of 100.}
   \label{fig:hv_leaf_simd_bvh}
 \end{figure}
-  
+
 Both Embree and the MOAB SIMD BVH have the shared characteristic of maximum leaf
 size of eight primitives due to the way the leaves are encoded. This removes the
 possibility that large numbers of triangles in leaf nodes as the cause of
@@ -602,20 +605,24 @@ node objects themselves with little added overhead in the traversal process.
 
 The Mixed MPBVH was applied to the same set of production transport tests as the
 AABB MPBVH in Section \ref{subsec:mpbvh_production_transport}. Timing results of
-these simulations can be found in Figure \ref{fig:hv_parameter_study_mpbvh}.
+these simulations can be found in Figure \DIFdelbegin \DIFdel{\ref{fig:hv_parameter_study_simd}}\DIFdelend \DIFaddbegin \DIFadd{\ref{fig:hv_parameter_study_mpbvh}}\DIFaddend .
 
 \begin{figure}[H]
   \centering
-  \includesvg{../images/hv_parameter_study_mpbvh}{width=1.0\textwidth}
-  \caption[High valence detection parameter study.]{Variation in run time for
+  \DIFdelbeginFL %DIFDELCMD < \includesvg{../images/hv_parameter_study_simd}{width=1.0\textwidth}
+%DIFDELCMD <   %%%
+\DIFdelendFL \DIFaddbeginFL \includesvg{../images/hv_parameter_study_mpbvh}{width=1.0\textwidth}
+  \DIFaddendFL \caption[High valence detection parameter study.]{Variation in run time for
     different HV detection parameters on a representative set of DAGMC models
-    using the MPBVH.}
-  \label{fig:hv_parameter_study_mpbvh}
-\end{figure}
+    \DIFaddbeginFL \DIFaddFL{using the MPBVH}\DIFaddendFL .}
+  \DIFdelbeginFL %DIFDELCMD < \label{fig:hv_parameter_study_simd}
+%DIFDELCMD < %%%
+\DIFdelendFL \DIFaddbeginFL \label{fig:hv_parameter_study_mpbvh}
+\DIFaddendFL \end{figure}
 
 The application of OBBs in HV regions makes little difference in the simulation
 run times of ATR or UWNR, but in the FNG model and ITER model the run times are
-reduced by up to ~40\% with little additional build times in the BVH and
+reduced by up to \DIFdelbegin \DIFdel{nearly 30}\DIFdelend \DIFaddbegin \DIFadd{~40}\DIFaddend \% with little additional build times in the BVH and
 minimal increase in the memory footprint by replacing some of the AABBs with
 OBBs. This reflects the behavior seen in results of Table
 \ref{tab:bvhrefine_production_results} for simulations using MOAB's OBB tree. A

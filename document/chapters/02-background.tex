@@ -135,11 +135,11 @@ conditions are met:\footnote{The sign convention shown here is opposed to the
 
 \begin{figure}[H]
   \begin{center}
-      \begin{itemize}
+       \begin{itemize} 
       \item $ \Omega(\vec{x}) = d(\vec{x}) = 0 $ for all $x$ on the surface boundary
       \item $ \Omega(\vec{x}) = d(\vec{x}) $ for all $x$ inside the surface boundary
       \item $ \Omega(\vec{x}) = -d(\vec{x}) $ for all $x$ outside the surface boundary
-      \end{itemize}
+       \end{itemize} 
   \end{center}
 \end{figure}
 
@@ -328,13 +328,13 @@ log(N_{primitives}))$ search.
 
           if is_leaf(node):
               primitives = get_node_primitives(node)
-    
+
               for primitive in primitives:
                   d = primitive_intersect(primitive, ray)
                   if d < dist: dist = d
 
               continue
-      
+
           if node_intersect(node, ray):
               children = get_node_children(node)
 
@@ -911,12 +911,12 @@ valuable property of this geometric representation. A signed distance field,
 $SDF(v)$, meets the following requirements for any vertex, $v$, in the
 total set of locations, $V$, in the field:
 
-\begin{itemize}
+ \begin{itemize} 
 \item $ |SDF(v)| = min(|\vec{x}-\vec{x_I}|) \, \forall \, v \, \in \, V$
 \item $ SDF(v) = 0 \, \forall \, v$ on the surface boundary
 \item $ SDF(v) > 0 \, \forall \, v$ inside the surface boundary, and
 \item $ SDF(v) < 0 \, \forall \, v$ outside the surface boundary
-\end{itemize}
+ \end{itemize} 
 
 Implicit surfaces can be naturally extended to represent dynamic geometries by
 including a time dependence in the function, making them powerful tools for

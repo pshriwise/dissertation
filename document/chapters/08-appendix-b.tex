@@ -70,7 +70,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
         Flux    & 1.92847E-04 &  1.92847E-04 & 1.92847E-04 \\
         Energy  & 1.10361E-04 &  1.10361E-04 & 1.10361E-04 \\
         \bottomrule
-        
+
       \end{tabular}
       \caption[Nested hydrogen-filled cube tally results.]{Nested
         hydrogen-filled cube tally results. Flux tally units are
@@ -131,7 +131,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
         Flux    & 1.18371E-05 & 1.18\textbf{376}E-05 & 1.18\textbf{410}E-05 \\
         Energy  & 4.96282E-06 & 4.96285E-06 & 4.96285E-06 \\
         \bottomrule
-        
+
       \end{tabular}
       \caption[Nested Spheres Tally Results.]{Nested Spheres Tally Results. Flux
         tally units are $cm^{-2}$. Energy tally units are MeV/g.}
@@ -141,7 +141,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
   \end{table}
 
   \section{Production Test Cases}\label{appsec:emdag_fng}
-  
+
   \subsubsection{FNG}
 
   \begin{table}[H]
@@ -173,7 +173,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
       EmDAG-MCNP for the FNG model. Zero entries for the unmodified DAG-MCNP
       simulation are set to zero here. }
   \end{figure}
-  
+
   \section{MPBVH}
 
   The results in this section were generated using DAG-MCNP relying on the MPBVH
@@ -235,7 +235,7 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
         Flux    & 1.92847E-04 &  1.92847E-04 & 1.92847E-04 \\
         Energy  & 1.10361E-04 &  1.10361E-04 & 1.10361E-04 \\
         \bottomrule
-        
+
       \end{tabular}
       \caption[Nested hydrogen-filled cube tally results.]{Nested
         hydrogen-filled cube tally results. Flux tally units are
@@ -379,8 +379,8 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
         Value   & DAG-MCNP     & DAG-MCNP with MPBVH      \\
         \toprule
         \multicolumn{3}{l}{\textbf{Neutron Flux}} \\
-        Average & 7.222176E+12 & 7.222176E+12     \\
-        Maximum & 1.410510E+14 & 1.410510E+14     \\
+        Average & 7.222176E+12 & \DIFdelbeginFL \DIFdelFL{7.217213}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{7.222176}\DIFaddendFL E+12     \\
+        Maximum & 1.410510E+14 & \DIFdelbeginFL \DIFdelFL{1.410040}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{1.410510}\DIFaddendFL E+14     \\
         Minimum & 0.000000E+00 & 0.000000E+00     \\       
         \bottomrule
       \end{tabular}
@@ -389,35 +389,73 @@ production model test of FNG with the EmDAG system in Section \ref{appsec:emdag_
       implementations.]{Result comparison for a mesh-based flux tally applied to
       the ITER neutronics model for \num{1E6} histories. Units are in $cm^{-2}$}
   \end{table}
-  
-  %% \begin{figure}[H]
-  %%   \centering
-  %%   \includesvg{../images/iter_mpbvh_meshtally_cdf}{width=\textwidth}
-  %%   \caption[Analysis of differing mesh tallies in ITER.]{A cumulative
-  %%     distribution function for the differing tally values between DAG-MCNP and
-  %%     DAG-MCNP using the MPBVH for the ITER model. Zero entries for the
-  %%     unmodified DAG-MCNP simulation are set to zero here. }
-  %% \end{figure}
 
-  %% \begin{table}[H]
-  %%   \begin{center}
-  %%     \begin{tabular}{cc}
-  %%       Number of Tally Values & Standard Deviation \\
-  %%       0.50 & 59.69 \\
-  %%       0.75 & 108.77 \\
-  %%       0.90 & 162.93 \\
-  %%       0.95 & 213.71 \\
-  %%       0.99 & 353.51 \\
-  %%     \end{tabular}
-  %%   \end{center}
-  %% \end{table}
-  
+  \DIFdelbegin %DIFDELCMD < \begin{figure}[H]
+%DIFDELCMD <     \centering
+%DIFDELCMD <     \includesvg{../images/iter_mpbvh_meshtally_cdf}{width=\textwidth}
+%DIFDELCMD <     %%%
+%DIFDELCMD < \caption[Analysis of differing mesh tallies in ITER.]{%
+{%DIFAUXCMD
+\DIFdelFL{A cumulative
+      distribution function for the differing tally values between DAG-MCNP and
+      DAG-MCNP using the MPBVH for the ITER model. Zero entries for the
+      unmodified DAG-MCNP simulation are set to zero here. }}
+  %DIFAUXCMD
+%DIFDELCMD < \end{figure}
+%DIFDELCMD < %%%
+\DIFdelend %DIF > % \begin{figure}[H]
+  %DIF > %   \centering
+  %DIF > %   \includesvg{../images/iter_mpbvh_meshtally_cdf}{width=\textwidth}
+  %DIF > %   \caption[Analysis of differing mesh tallies in ITER.]{A cumulative
+  %DIF > %     distribution function for the differing tally values between DAG-MCNP and
+  %DIF > %     DAG-MCNP using the MPBVH for the ITER model. Zero entries for the
+  %DIF > %     unmodified DAG-MCNP simulation are set to zero here. }
+  %DIF > % \end{figure}
+
+  \DIFdelbegin %DIFDELCMD < \begin{table}[H]
+%DIFDELCMD <     \begin{center}
+%DIFDELCMD <       \begin{tabular}{cc}
+%DIFDELCMD <         %%%
+\DIFdelFL{Number of Tally Values }%DIFDELCMD < & %%%
+\DIFdelFL{Standard Deviation }%DIFDELCMD < \\
+%DIFDELCMD <         %%%
+\DIFdelFL{0.50 }%DIFDELCMD < & %%%
+\DIFdelFL{59.69 }%DIFDELCMD < \\
+%DIFDELCMD <         %%%
+\DIFdelFL{0.75 }%DIFDELCMD < & %%%
+\DIFdelFL{108.77 }%DIFDELCMD < \\
+%DIFDELCMD <         %%%
+\DIFdelFL{0.90 }%DIFDELCMD < & %%%
+\DIFdelFL{162.93 }%DIFDELCMD < \\
+%DIFDELCMD <         %%%
+\DIFdelFL{0.95 }%DIFDELCMD < & %%%
+\DIFdelFL{213.71 }%DIFDELCMD < \\
+%DIFDELCMD <         %%%
+\DIFdelFL{0.99 }%DIFDELCMD < & %%%
+\DIFdelFL{353.51 }%DIFDELCMD < \\
+%DIFDELCMD <       \end{tabular}
+%DIFDELCMD <     \end{center}
+%DIFDELCMD <   \end{table}
+%DIFDELCMD <   %%%
+\DIFdelend %DIF > % \begin{table}[H]
+  %DIF > %   \begin{center}
+  %DIF > %     \begin{tabular}{cc}
+  %DIF > %       Number of Tally Values & Standard Deviation \\
+  %DIF > %       0.50 & 59.69 \\
+  %DIF > %       0.75 & 108.77 \\
+  %DIF > %       0.90 & 162.93 \\
+  %DIF > %       0.95 & 213.71 \\
+  %DIF > %       0.99 & 353.51 \\
+  %DIF > %     \end{tabular}
+  %DIF > %   \end{center}
+  %DIF > % \end{table}
+
   \section{Signed Distance Field}
 
   The results in this section are the result of signed distance field
   application in DAGMC production models, seen in Section
   \ref{sec:sdf_production}. 
-  
+
 \subsection{Production Tests}
 
 \subsubsection{ITER}

@@ -232,7 +232,7 @@ long as particles reach all of the volumes in the model.
 \begin{table}[H]
   \small
   \begin{center}
-    
+
     \begin{tabular}{lccc}
 
       \toprule
@@ -245,7 +245,7 @@ long as particles reach all of the volumes in the model.
       Nested Spheres & 4.35 / 1.00  & 50.82 / 11.68  & 7.94 / 1.83 \\
       Nested Cubes & 4.73 / 1.00 & 9.26 / 1.96 & 4.35 / 0.92 \\
       \bottomrule
-      
+
     \end{tabular}
   \end{center}
   \caption[Comparative performance results of EmDAG-MCNP.]{Runtime comparison of
@@ -498,14 +498,14 @@ Transport. The details of these features can be found in Embree's documentation
 \cite{Embree}. Several such design elements found in both the Embree and the MPBVH
 include:
 
-\begin{itemize}
+ \begin{itemize} 
   \item single-precision bounding entities
   \item bit-encoding of BVH node types
   \item type-agnostic vectors for support of SIMD instruction sets
   \item memory pre-fetching of node memory during traversal
   \item pre-computation of near and far box boundaries
   \item vectorized node intersection
-\end{itemize}
+ \end{itemize} 
 
 
 The kernel created by the author is a lightweight version of the Embree kernel
@@ -769,7 +769,7 @@ can be evaluated as seen in Equation \eqref{eq:simplified_sah}.
     SA_{P} - & \, parent\, bounding\, volume \\
     C^{L} \text{,} C^{R} - & \, left \, and \, right \, child \, costs, \, respectively, \, in \, a \, binary \, tree
   \end{align*}
-  
+
   \caption[Definition of the simplified surface area heuristic.]{A form of the
     simplified surface area heuristic for a binary tree.}
   \label{fig:SSAH}
@@ -891,11 +891,11 @@ to adjusting triangle normals on the fly.
 The the criterion for a robust ray tracing kernel as a replacement for MOAB's
 OBB tree are as follows:
 
-\begin{itemize}
+ \begin{itemize} 
   \item every ray query should return the \textbf{same triangle id} as MOAB's BVH
     implementation
   \item every ray query should return the \textbf{same intersection distance} as MOAB's BVH
-\end{itemize}
+ \end{itemize} 
 
 Many unit tests are used to ensure watertight box intersection using the slab
 method \cite{Kay_1986} in single precision, but the mixed precision scheme is
@@ -934,12 +934,12 @@ histories. This tracking algorithm uses structures known as the \textbf{MBRay}
 MPBVH as a robust particle tracking tool.
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algorithm used in \textit{Next Surface} queries.},captionpos=b,label={alg:Next Surface Pseudo Code}]
-  
+
   def next_surface(current_volume, point, direction):
 
       # create a ray with infinite length
       ray = MBRay(current_volume, point,direction,)
-    
+
       # if the ray orientation is set, ignore
       # hits which opposed the triangle's
       # sense-adjusted normal
@@ -948,10 +948,10 @@ MPBVH as a robust particle tracking tool.
       # if the orientation is not set, remove the filter
       else:
         unset_filter()
-    
+
       # fire the ray
       fire_ray(ray)
-    
+
       # if the ray missed and overlaps are allowed in the model
       # fire a ray in the opposite direction
       if ray.missed and overlap_thickness != 0.0: {
@@ -962,22 +962,22 @@ MPBVH as a robust particle tracking tool.
         ray.tnear = small_val
         # set the ray distance to the overlap thickness
         ray.tfar = overlap_thickness
-    
+
         # unset the ray filter regardless of ray orientation
         unset_filter()
 
         # fire the ray
         fire_ray(ray)
-        
+
         # update ray value to zero for this type of hit
         ray.tfar = 0
-    
+
       # if we have a hit at this point, set the returned
       # surface ID and distance
       if !ray.missed:
         next_surf = ray.surface
         next_surf_distance = ray.tfar
-        
+
       # otherwise the particle is lost,
       # set return information accordingly
       else:
@@ -1021,13 +1021,13 @@ returning exiting intersections only.
 The conditions laid out for a robust tracking
 algorithm by B. Smith are as follows \cite{Smith_2011}:
 
-\begin{enumerate}[{a)}]
+ \begin{enumerate} [{a)}]
   \bfseries
   \item \normalfont Particles cannot become lost
   \bfseries
 \item \normalfont Infinite loops cannot occur
   \normalfont
-\end{enumerate}
+ \end{enumerate} 
 
 The algorithm presented here addresses \textbf{a)} by using the watertight
 Pl\"{u}cker intersection test and extending ray boxes to ensure the correct
@@ -1050,13 +1050,13 @@ based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algorithm for point containment within a volume.},
     label={alg:Point Containment Pseudo Code},captionpos=b]
-  
+
   def point_contained(volume, point, direction):
       # result values : 0 - outside; 1 - inside
 
       # start with an outside value
       result = 0
-  
+
       # create a ray
       ray = MBRay(volume, point, direction)
 
@@ -1066,11 +1066,11 @@ based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
 
       # fire the ray
       fire_ray(ray)
-      
+
       # calculate the dot product of
       # ray direction and triangle normal
       dot_prod= dot_product(ray.dir, ray.norm)
-      
+
       # if a hit is found, 
       if not ray.missed and dot_prod not 0.0:
           if dot_prod < 0.0:
@@ -1098,12 +1098,12 @@ based on the MPBVH, shown in Figure \ref{alg:Point Containment Pseudo Code}.
          aray.tfar = inf;
 
          fire_ray(aray)
-         
+
          # if no hits were found
          # point is outside
          if aray.num_hit == 0:
              return OUTSIDE
-            
+
          # check the value of the sum
          if 0 > aray.sum:
              return INSIDE
@@ -1126,11 +1126,11 @@ either entering or exiting based on the dot product calculation with the
 triangle normal. If the first ray fire finds no intersection and any of the
 following conditions are true:
 
-\begin{itemize}
+ \begin{itemize} 
   \item the ray misses the volume
   \item the ray direction is tangent to the intersected triangle normal
   \item the overlap tolerance is non-zero
-\end{itemize}
+ \end{itemize} 
 
 Then ray hits are accumulated by firing a \textbf{MBAccumulatorRay} in both the
 positive and negative direction. All hits are registered on the ray as exiting
@@ -1191,13 +1191,17 @@ runtime by nearly a factor of two. Due to the success of the DAGMC MPBVH
 implementation for the FNG model, this system was applied to several other
 production models as well. No particles were lost in any of these
 geometries. The results of the simulations between the unmodified and modified
-versions of DAG-MCNP were the same for all production models presented in Table
+versions of DAG-MCNP were the same \DIFdelbegin \DIFdel{with the exception of the ITER test
+case. This is the only production model which is not fully topologically
+watertight and as a result does not meet the expectations in place in the
+particle tracking }\DIFdelend \DIFaddbegin \DIFadd{for all production models presented in Table
 \ref{tab:mpbvh_transport_timing_production}. It is worth noting, however, that
-the simplified algorithm presented in Section
-\ref{sec:simplified_particle_tracking} was unable to accurately track particles
+the simplified }\DIFaddend algorithm presented in Section
+\ref{sec:simplified_particle_tracking} \DIFdelbegin \DIFdel{. The discrepancies between the DAG-MCNP
+implementations are outlined in Appendix \ref{ch:appendix-b}}\DIFdelend \DIFaddbegin \DIFadd{was unable to accurately track particles
 due to the presence unmerged surfaces and unsealed volumes. An identical
 tracking algorithm to the one used in the unmodified version of DAGMC was used
-instead to obtain the same numerical result.
+instead to obtain the same numerical result}\DIFaddend .
 
 \begin{table}[H]
   \small
@@ -1211,8 +1215,8 @@ instead to obtain the same numerical result.
       \hline
       FNG  & 2.49 / 1.00 & 9.83  / 3.95    & 6.48 / 2.60   \\
       ATR  & 3.18 / 1.00 & 36.16 / 11.37   & 8.54 / 2.68   \\
-      UWNR & 270  / 1.00 & 1452.14  / 5.38 & 505.83 / 1.48 \\
-      ITER & N/A  / N/A  & 55.46   / N/A   & 12.64  / N/A  \\
+      UWNR & 270  / 1.00 & \DIFdelbeginFL \DIFdelFL{7900  }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{1452.14  }\DIFaddendFL / \DIFdelbeginFL \DIFdelFL{29.26 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{5.38 }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{3645 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{505.83 }\DIFaddendFL / \DIFdelbeginFL \DIFdelFL{13.5 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{1.48 }\DIFaddendFL \\
+      ITER & N/A  / N/A  & \DIFdelbeginFL \DIFdelFL{116   }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{55.46   }\DIFaddendFL / N/A   & \DIFdelbeginFL \DIFdelFL{44   }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{12.64  }\DIFaddendFL / N/A  \\
       \bottomrule
     \end{tabular}
   \end{center}

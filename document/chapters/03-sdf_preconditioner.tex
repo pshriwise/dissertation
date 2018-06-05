@@ -120,7 +120,7 @@ values and used to precondition ray fire calls in DAGMC.
                exact distance to the next surface. Figure
                \ref{fig:next_surface_sdf} depicts these different cases in 2D
                space.
-               
+
                For robustness, the error for each interpolation should be
                subtracted from the sum of the signed distance values as a
                protective measure against invalid surface crossings. If the
@@ -149,7 +149,7 @@ values and used to precondition ray fire calls in DAGMC.
                determine whether or not the particle will exit the volume before
                reaching its next physics event location. This information can be
                interpolated from a signed distance field to the same effect.
-               
+
                In similar fashion to the point containment case, the signed
                distance value should only be trusted if it is greater than the
                error associated with the value. Additionally, the error should
@@ -162,7 +162,7 @@ values and used to precondition ray fire calls in DAGMC.
                \ref{fig:closest_surface_sdf} depicts these different cases in a
                2D example.
              }
-             
+
 Using these methods, signed distance fields can act as a preconditioning tool
 for the relatively expensive ray fire process to accelerated CAD-based MCRT by
 using an $O(1)$ process to establish that the conditions of a geometric query
@@ -395,7 +395,7 @@ this analytic limit will now be discussed.
 \end{figure}
 
 \subsection{Analytic Model Development}
-  
+
 The utilization of the signed distance field as a preconditioner for ray tracing
 operations can be modeled as an evaluation of the combined probability space for
 particles with a current position, $\vec{p}$, and a next physics event location,
@@ -594,7 +594,7 @@ approach the idealized analytic model for the preconditioner utilization.
 %%           MCNP6 & 0.18 & 0.18 & 1 & N/A \\
 %%           DAG-MCNP6 & 11.12 & 11.16 & 62 & N/A \\
 %%           DAG-MCNP6 w/ SDF & 0.50 & 0.52 & 2.89 & 0.96 \\
-          
+
 %%   \end{tabular}
 %%   \caption{Performance results for an MCNP6 test case involving electron
 %%     transport of a 1 keV-100 keV photon source incident on an Fe/W target. 5,000
@@ -838,7 +838,7 @@ integration is described in Equation \eqref{eq:sdf_util_sampled_w_error}. Again,
 more detailed development of this model is provided in Appendix \ref{ch:appendix-a}.
 
 \begin{equation}
-  U_{sampled} = \frac{(R-\epsilon) (\frac{1}{2} \lambda ( R - 2\lambda - \epsilon ) e^{\frac{-R + \epsilon}{\lambda}} + \lambda^{2} - \frac{3}{2}\lambda(R - \epsilon) + (R-\epsilon)^{2})}{R^3}
+  \DIFdelbegin \DIFdel{US}\DIFdelend \DIFaddbegin \DIFadd{U}\DIFaddend _{sampled} = \frac{(R-\epsilon) (\frac{1}{2} \lambda ( R - 2\lambda - \epsilon ) e^{\frac{-R + \epsilon}{\lambda}} + \lambda^{2} - \frac{3}{2}\lambda(R - \epsilon) + (R-\epsilon)^{2})}{R^3}
   \label{eq:sdf_util_sampled_w_error}
 \end{equation}
 
@@ -1071,7 +1071,7 @@ The SDF preconditioning method was applied in the following models:
       \hline
       ITER                 & 1M                           & 37.1                                & 40.1                             & 0.86                  \\
       nTOF                 & 10k                          & 62.9                                & 66.2                             & 0.71                  \\
-      SHINE                & 500k                         & 60.1                                & 48.2                             & 0.84                  \\
+      SHINE                & 500k                         & 60.1                                & 48.2                             & \DIFdelbegin \DIFdel{0.64                  }\DIFdelend \DIFaddbegin \DIFadd{0.84                  }\DIFaddend \\
       SHINE$^{*}$          & 500k                         & 60.1                                & 56.5                             & 0.74                  \\
       SNS                  & 10k                          & 31.0                                & 2.1                              & 1.00                  \\
       \bottomrule

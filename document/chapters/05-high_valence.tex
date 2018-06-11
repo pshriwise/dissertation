@@ -98,7 +98,7 @@ regions had a significant effect on the scaling.
   \label{fig:moab_hv_studies}
 \end{sidewaysfigure}
 
-\section{High Valence Characterization and Testing Framework}
+\section{High Valence Characterization Test Framework}
 
 In order to isolate a HV region, a test model was manually generated in MOAB
 with an artificial HV region (shown in Figure \ref{fig:hv_cube_design}). This
@@ -346,7 +346,7 @@ visited rather infrequently, yet they still have a significant impact on the
 performance of the simulation. This isn't surprising given the severity of the
 ray fire performance degredation seen in Figure \ref{fig:moab_hv_studies}.
 
-\section{Embree's Ray Tracing Kernel}\label{sec:emdag_hv_study}
+\subsection{Embree's Ray Tracing Kernel}\label{sec:emdag_hv_study}
 
 For all of the tests and simulations performed in Chapter \ref{ch:simd_bvh},
 EmDAG was much faster than DAGMC. Using the same ray fire test program in EmDAG,
@@ -468,6 +468,8 @@ terms of its response to HV regions.
 
 \section{Mixed Precision Bounding Volume Hierarchy}\label{sec:simd_hv_study}
 
+\subsection{High Valence Characterization}
+
 The MPBVH kernel created by the author has a similar trend to Embree's kernel
 where ray fire times increase proportionally to both the valence and size of the
 HV region as seen in Figure \ref{fig:simd_hv_studies}. The author's BVH applies
@@ -582,7 +584,7 @@ common case leads to the conclusion that OBBs can be beneficial to ray fire
 times, but only if they are used in regions of the model where sibling
 AABBs contain large overlaps for these pathological mesh features. 
 
-\subsection{A Mixed AABB/OBB BVH}
+\subsubsection{A Mixed AABB/OBB BVH}
 
 The solution to HV regions when using the SIMD BVH
 kernel proposed by the author is to apply OBBs only in regions determined to be
@@ -607,7 +609,7 @@ setting the appropriate bits in the node reference objects. These node masks are
 stripped from the node reference's integer value to retrieve the pointer to the
 node objects themselves with little added overhead in the traversal process.
 
-\section{Application to Production Models}
+\subsubsection{Application to Production Models}
 
 The Mixed MPBVH was applied to the same set of production transport tests as the
 AABB MPBVH in Section \ref{subsec:mpbvh_production_transport}. Timing results of

@@ -257,7 +257,7 @@ outward from the volume they represent. In the rare cases for which the dot
 product of these vectors is ambiguous, or zero, DAGMC's point containment
 algorithm is used to disambiguate the value's sign.
 
-\section{Preconditioner Utilization}\label{sec:preconditioner_utilization}
+\section{Preconditioning Utilization}\label{sec:preconditioner_utilization}
 
 In effect, the preconditioner is attempting to check whether or not the particle
 will actually cross a surface before explicitly searching for the particle's
@@ -756,7 +756,7 @@ $\epsilon$, which is a function of the mesh step size, $h$.
 %% significance of using both the current position signed distance value as well as the
 %% next event location's signed distance value to precondition ray fire calls in DAGMC.
 
-\subsection{Applying SDF Error Evaluation}
+\subsection{Applying Error Evaluation}
 
 Thus far, the error associated with the tri-linear interpolation used to recover
 signed distance values from the signed distance field has been ignored. In order

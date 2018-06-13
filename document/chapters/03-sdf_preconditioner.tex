@@ -7,7 +7,7 @@
     \begin{figure}[h]
       \begin{center}
         \includesvg{../images/#2}{width=0.65\textwidth}
-        \caption[Depiction of SDF usage for the \textit{#1} geometry query.]{#3}
+        \caption[Depiction of SDF preconditioning for the \textit{#1} geometry query.]{#3}
         \label{fig:#2}
       \end{center}
     \end{figure}
@@ -315,8 +315,7 @@ shows the utilization results of this study.
 \begin{figure}[ht]
   \centering
   \includesvg{../images/sdf_hydrogen_density_study_perf}{width=1.1\textwidth}
-  \caption[A DAG-MCNP test simulation applying the signed distance
-    field.]{Performance results for a 5 MeV neutron source at the origin of a 10
+  \caption[A DAG-MCNP test simulation using SDF preconditioning.]{Performance results for a 5 MeV neutron source at the origin of a 10
     cm radius sphere. Hydrogen density was varied from 0.0 to 1.0
     $\frac{g}{cm^3}$. Simulations of 100M histories at each density were
     performed using native MCNP5, DAG-MCNP5 without the signed distance field,
@@ -548,7 +547,7 @@ approach the idealized analytic model for the preconditioner utilization.
 \begin{figure}[H]
   \centering
   \includesvg{../images/alpha_r}{width=1\textwidth}
-  \caption[Plot of $\alpha_{min}$.]{Plot of minimum angle of departure
+  \caption[Plot of $\alpha_{min}$ condition.]{Plot of minimum angle of departure
     restriction for particles with various radial positions between 0 cm and 100
     cm and various distanced traveled.}
  \label{fig:alpha_min}
@@ -867,7 +866,7 @@ Section \ref{sec:sdf_other_geoms}.
 \begin{figure}[H]
   \centering
   \includesvg{../images/sdf_util_sampled_distance_w_error}{width=\textwidth}
-  \caption[Preconditioner utilization model accounting for interpolation
+  \caption[Preconditioner utilization model including interpolation
     error.]{Theoretical limits for SDF utilization accounting for error
     evaluation plotted with simulation results for varying mesh step sizes.}
   \label{fig:sdf_util_sampled_distance_w_error}
@@ -1135,7 +1134,7 @@ runtime.
 \begin{figure}
 \centering
 \includegraphics[width=0.4\textwidth]{SHINE.eps}
-\caption[A cutaway of the SHINE CAD model.]{A cutaway view of the SHINE model
+\caption[A cutaway view of the SHINE CAD model.]{A cutaway view of the SHINE model
   used for demonstration of the SDF data structure.}
 \label{fig:shine_sdf}
 \end{figure}
@@ -1143,7 +1142,7 @@ runtime.
 For the majority of the production test cases, the preconditioner utilization
 model is relatively accurate for the widely varying geometries of the DAGMC
 production models.  There are cases in which the model struggles to accurately
-predict SDF usage and ray fire query avoidance, however. This an other
+predict preconditioner usage and ray fire query avoidance, however. This an other
 observations about the limited effects of the preconditioning method will now be
 addressed.
 

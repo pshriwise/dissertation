@@ -91,7 +91,7 @@ regions had a significant effect on the scaling.
   \includegraphics[scale=0.45]{hv_study_MOAB.eps}
   \includegraphics[scale=0.45]{hv_study_MOAB_wsr1.eps}
   \includegraphics[scale=0.45]{hv_study_moab_adaptive.eps}
-  \caption[High valence study results.]{HV characterization study
+  \caption[High valence study results for various BVH implementations.]{HV characterization study
     results for all MOAB OBB tree implementations. Top Left: Unmodified MOAB
     results. Top Right: Manual modification of MOAB OBB tree's build
     settings. Bottom: Results with adaptive construction for HV regions.}
@@ -160,7 +160,7 @@ OBB visualization for the HV characterization model is shown in Figure
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.3]{{obbs_wsr_0.95}.eps}
-    \caption[Oriented bounding boxes in a high valence region.]{View of an
+    \caption[Oriented leaf bounding boxes in a high valence region.]{View of an
       OBB containing many HV region triangles as well as other
       surface triangles. Blue box and triangles: leaf node bounding box and
       associated triangles. Several thousand triangles are represented in the
@@ -285,7 +285,7 @@ its effect on simulation run times during transport.
     ITER           & 3522                & 29.4\%                      & 5.2\%  & 7.34 \% \\
     \bottomrule
   \end{tabular}
-  \caption[Preformance results for high valence region refinement.]{Results of
+  \caption[Performance results for high valence region refinement in production models.]{Results of
     run time reduction in several DAGMC production models when applying the BVH
     refinement.}
   \label{tab:bvhrefine_production_results}
@@ -618,7 +618,7 @@ these simulations can be found in Figure \ref{fig:hv_parameter_study_mpbvh}.
 \begin{figure}[H]
   \centering
   \includesvg{../images/hv_parameter_study_mpbvh}{width=1.0\textwidth}
-  \caption[High valence detection parameter study.]{Variation in run time for
+  \caption[High valence detection parameter study using the MPBVH.]{Variation in run time for
     different HV detection parameters on a representative set of DAGMC models
     using the MPBVH.}
   \label{fig:hv_parameter_study_mpbvh}

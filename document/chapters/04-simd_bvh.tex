@@ -679,9 +679,10 @@ geometries was put forth by Vaidyanathan in which the ray's origin is
 periodically updated during traversal so that the deviation from the double
 precision intersection is limited \cite{Vaidyanathan_2016}. This method is
 intended for use with geometries in motion and requires additional computation
-during ray traversal. DAGMC geometries, and Monte Carlo radiation transport
-geometries in general, are static, so it is more efficient to account for the
-discrepancy caused by the reduced precision ray direction during construction of
+during ray traversal. DAGMC geometries, and MCRT geometries in
+general, are static, so it is more efficient to account for the 
+discrepancy caused by the reduced precision ray direction during
+construction of 
 the MPBVH.
 
 To further understand this effect, the value of the box extension in the kernel

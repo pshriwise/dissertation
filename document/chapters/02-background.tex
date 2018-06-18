@@ -24,7 +24,7 @@ point is inside, outside, or on the boundary of that volume.
 
 \geomQuery{Next Surface}{dtb_query}{0.3}{
 Given a volume, $\mathbf{V}$, particle location, $\mathbf{x}$, and particle
-trajectory, \boldmath$\Omega$, determine the next surface, \boldmath$B$, of the
+trajectory, \boldmath$\Omega$, determine the next surface, \boldmath$S$, of the
 volume that the particle intersects with along \boldmath$\Omega$ and the
 distance, \boldmath$d$ to that intersection.
 }
@@ -43,9 +43,8 @@ determine the correct adjacent volume, \boldmath$V_2$.
 
 \geomQuery{Surface Normal}{normal_query}{0.3}{
 Given a surface, \boldmath$S$ and particle location, \boldmath$x$ determine
-the normal vector, \boldmath$\vec{n}$ of the surface at a point closest to the
-particle's location.
-}
+the normal vector, \boldmath$\vec{n}$, of the surface where the particle
+crossing occurs.}
 
 \geomQuery{Measure}{measure_query}{0.3}{
 Given a volume, \boldmath$V$, or surface, \boldmath$S$ in the geometry,
@@ -88,7 +87,7 @@ positive value.
 Unlike their explicit counterparts, implicit representations allow complex
 topologies of surfaces to be integrated into a single representation. This is in
 part because the function is defined for all space, allowing them to naturally
-represent the merging and separation of disparate volumes well. These properties
+represent the merging and separation of disparate volumes. These properties
 allow for straightforward representation of dynamic surfaces such as fluids,
 though this is not yet of concern in the area of radiation transport. In
 practice, implicit surfaces are often used to re-sample the model into some
@@ -172,7 +171,7 @@ Chapter \ref{ch:introduction}, the interface for this work is typically
 text-based. This format makes defining complex volumes a tedious and
 time-consuming task. Detecting problems with the geometry definition is
 straightforward for the same reason that particles can be robustly tracked
-through the geometry - the analytic description of the surfaces. Fixing
+through the analytic description of the surfaces. Fixing
 undefined regions of the geometry or detecting invalid volume definitions is
 more difficult however.
 
@@ -187,12 +186,12 @@ fewer surfaces in their definition.
 
 Visualization of CSG models is also somewhat limited. Because native formats for
 CSG differ greatly between each Monte Carlo code, each typically provides its
-own geometry visualization tools. These tools are typically restricted to 2D
+own geometry visualization tools. These tools are commonly restricted to 2D
 images of the model representing a user-specified slice through the
 geometry. Other tools such as MCAM \cite{Liu_2005} and McCad
 \cite{Tsigetamirat_2008} allow for interactive visualization and repair of CSG
 models, but these systems often require simplifications of the true model in
-translation.
+translation and limited export formats for various Monte Carlo codes.
 
 \section{CAD Geometry}
 
@@ -212,37 +211,37 @@ design iteration.
   \label{fig:cad_fnsf}
 \end{figure}
 
-In addition to reducing human error, CAD models provide a common domain for
-analysis in other engineering domains such as fluid dynamics, heat transfer, and
-structural engineering. This shared domain enables ease of parametric studies
-and iterative design in coupled physics simulations. CAD engines also provide
-the ability to represent free-form or higher-order surfaces. The use of
-representations like splines and subdivision surfaces allow for accurate
-representation of these arbitrarily complex forms which would be impossible to
-accurately represent using CSG.
+In addition to reducing human error and effort, CAD models provide a common
+domain for analysis in other engineering domains such as fluid dynamics, heat
+transfer, and structural engineering. This shared domain enables ease of
+parametric studies and iterative design in coupled physics simulations. CAD
+engines also provide the ability to represent free-form or higher-order
+surfaces. The use of representations like splines, Bezier curves, and
+subdivision surfaces allow for accurate representation of these arbitrarily
+complex forms which would be impossible to accurately represent using CSG.
 
 \section{CAD-Based Monte Carlo Radiation Transport}
 
 The Direct Accelerated Geometry Monte Carlo (DAGMC) software toolkit enables
-MCRT directly on CAD geometries
-\cite{Tautges_2009}. DAGMC was developed at the University of Wisconsin -
-Madison and has been coupled with many Monte Carlo codes. DAGMC relies on
+MCRT directly on CAD geometries \cite{Tautges_2009}. DAGMC was developed at the
+University of Wisconsin - Madison and has been coupled with many Monte Carlo
+codes (see Table \ref{tab:dagmc_implementations}). DAGMC relies on
 Cubit\cite{Blacker_1994} (and its commercial counterpart,
-Trelis\cite{Trelis_2018}) for model importing, cleaning, and discretization.
+Trelis\cite{Trelis_2018}) for model importing, cleaning, and tessellation.
 
 More specifically, DAGMC provides robust particle tracking for the underlying
 physics kernels of various Monte Carlo codes (see Table
 \ref{tab:dagmc_implementations}. It accomplishes this by discretizing CAD
-surfaces into sets of triangles. Volumes are then defined by all sets of
-triangles which represent bounding surfaces of a given volume. This surface mesh
-and the geometric relationships between the mesh entity sets, also known as
-Meshsets, are stored in the Mesh Oriented dAtaBase (MOAB)
-\cite{Tautges_2004}. These relationships, which preserve the geometric topology,
-are stored in a hierarchical structure within MOAB, relating volumes to their
-surfaces, surfaces to curves, and curves to geometric vertices. For the purposes
-of this work, only the relationship between volumes and surfaces are of
-concern. A depiction of the relationship between Meshsets in the
-database can be seen in Figure \ref{fig:dagmc_geom_example}.
+surfaces into sets of triangles representing surface boundaries. Volumes are
+then defined by all sets of triangles which represent bounding surfaces of a
+given volume. This surface mesh and the geometric relationships between sets of
+mesh elements, also known as Meshsets, are stored in the Mesh Oriented dAtaBase
+(MOAB) \cite{Tautges_2004}. These relationships, which preserve the geometric
+topology, are stored in a hierarchical structure within MOAB, relating volumes
+to their surfaces, surfaces to curves, and curves to geometric vertices. For the
+purposes of this work, only the relationship between volumes and surfaces are of
+concern. A depiction of the relationship between Meshsets in DAGMC geometries
+can be seen in Figure \ref{fig:dagmc_geom_example}.
 
 \begin{sidewaysfigure}
   \centering
@@ -259,7 +258,7 @@ accelerate certain geometric queries on the surface mesh. For example,
 \textit{Next Volume} (see Figure \ref{fig:Next Volume}) queries are accelerated
 by using these relationships to directly determine which volume a particle is
 passing into upon crossing a surface. In CSG, a surface crossing can require a
-series of point containment checks for each volume to determine the logical
+series of point containment checks for each volume to update the logical
 position of a particle in another volume. Other queries become more complicated,
 however, due to the sheer number of triangles needed to properly define volumes
 with detailed features.
@@ -298,7 +297,7 @@ partitioning process is performed recursively. The result is a tree, or
 hierarchy, in which partitions at the top of tree are associated other
 partitions, known as child nodes, rather than primitives. Partitions at the
 bottom of the tree are known as leaf nodes and are directly associated with
-geometric primitives representing the volume boundary.
+geometric primitives representing the geometric boundary.
 
 The search for a ray intersection then becomes a traversal of the tree in which
 the children of the root node are checked for intersection. If an intersection
@@ -309,11 +308,11 @@ version of this method can be found in Algorithm \ref{alg:bvh_traversal}.
 
 Any primitives underneath a node with which the ray does not intersect can
 immediately be rejected as a possibility for a hit. This allows many primitives
-to rapidly be removed from the search, limiting the number of true intersections
-to a small number compared to checking each primitive individually. This
-technique reduces the algorithmic complexity of the search from a brute force,
-or linear $O(N_{primitives})$ , search to a logarithmic $O(\,
-log(N_{primitives}))$ search.
+to rapidly be removed from the search, limiting the number of primitive
+intersection checks to a small number compared to checking each primitive
+individually. This technique reduces the algorithmic complexity of the search
+from a brute force, or linear $O(N_{primitives})$ , search to a logarithmic
+$O(\, log(N_{primitives}))$ search.
 
 \newpage
 
@@ -345,51 +344,50 @@ log(N_{primitives}))$ search.
 
 The remainder of this section reviews heuristics, bounding constructs, and data
 structure relationships used in rendering and scientific simulation
-today. Next two splitting heuristics used to build these data structures, the Entity Ratio Heuristic (ERH) and
+today. Next, two splitting heuristics used to build these data structures, the Entity Ratio Heuristic (ERH) and
 Surface Area Heuristic (SAH) are discussed. After that, several common spatial
 hierarchies are described including the KD-Tree, Bounding Volume Hierarchy
 (BVH), and the Octree. The remainder of this chapter describes CPU architecture
 characteristics which allow adaptations of these hierarchical data structures to
 achieve improved performance. This description includes a commentary on the
-relevance of these accelerations and selection of design elements which make
-these adaptations relevant to MCRT.
+relevance of specific design elements in these accelerations to MCRT.
 
 \subsection{Splitting Heuristics}\label{sec:heuristics}
 
 There are two critical components that go into the creation of spatial
 partitions in ray tracing hierarchies. The first is the selection of a candidate
 splitting plane which is used to separate entities into one partition or
-another. The second is the evaluation of the ``cost'' of that split should it be
-used. This cost is representative of the comparison between a division of the
-node for several candidate split planes and forming a leaf from the current
-node.  Because there is no way to know exactly how expensive or inexpensive a
-split will be for the particular simulation at hand, heuristics are used to
-estimate this cost and determine the optimal splitting plane using limited
-information about the local nodes in the tree. More specifically, this
-information is typically limited to the number of primitives being split, bounds
-of the parent partition, and bounds of the candidate child partitions.
+another. The second is the evaluation of the ``cost'' of that split. This cost
+is representative of the comparison between a division of the node for several
+candidate split planes and forming a leaf from the current node.  Because there
+is no way to know exactly how expensive or inexpensive the cost of a split will
+be for the particular simulation at hand, heuristics are used to estimate this
+cost and determine the optimal splitting plane using limited information about
+the local nodes in the tree. More specifically, this information is typically
+limited to the number of primitives being split, bounds of the parent partition,
+and bounds of the candidate child partitions.
 
 A virtually infinite number of planes could be tested to find the optimal plane for
-dividing the entities between the two child volumes, but even if one were to
+dividing the entities between the child bounding volumes, but even if one were to
 encounter such a splitting plane, it can be difficult to identify the plane as
 such without more knowledge about the final tree structure. As a result, a
 limited set of planes is tested for the best split based on a set of assumptions
 about the problem at hand and the heuristics being used to evaluate split
 costs. The most common method for split plane candidates is median plane
-splitting in which the current partition is split in half for each axes of the
-current bounding volume. The splitting planes are then evaluated and the split
+splitting in which the current partition is split in half along each axes of the
+current bounding volume. Splitting plane costs are then evaluated and the split
 with the lowest cost is selected. Other methods for plane selection exist, but
-will not be discussed as this work is more focused on traversal performance.
+will not be discussed here as this work is more focused on traversal performance.
 
-Two heuristics will be discussed here - the Entity Ratio Heuristic (ERH) and the
+Two heuristics will now be discussed - the Entity Ratio Heuristic (ERH) and the
 Surface Area Heuristic (SAH). The ERH uses the resulting number of primitives in
 each child node to determine the cost of a split. The philosophy behind this
 heuristic is to maintain the expected $O(log(N_{primitives}))$ cost of a ray
-traversal by ensuring that primitives are split as evenly as possible from
+traversal by ensuring that the number primitives are split as evenly as possible from
 parent to child node. A form of this heuristic is presented in Equation
-\eqref{eq:ERH}. The ERH cost is unitless and bounded by zero and one. This
+\eqref{eq:ERH}. The ERH cost is unit-less and bounded by zero and one. This
 heuristic provides a finite limit on the expected cost, and makes it possible to
-set both an upper and lower bound as both unacceptably high and ``good enough''
+set both an upper and lower bound as both an unacceptably high and ``good enough''
 cost, respectively.
 
 \begin{figure}[H]
@@ -402,7 +400,7 @@ cost, respectively.
     P_{L} - & \, primitives\, contained\, by\, the\, left\, child  \\
     P_{R} - & \, primitives\, contained\, by\, the\, right\, child \\
   \end{align*}
-  \caption[Formulation of the entity ratio heuristic.]{An example of the ERH calculation for a binary tree.}
+  \caption[Formulation of the entity ratio heuristic.]{An example of the ERH calculation for a binary hierarchy.}
   \label{fig:ERH}
 \end{figure}
 
@@ -450,7 +448,7 @@ dimension is split in each level of the tree, and the process is recursively
 repeated until a sufficiently small number of records or entities exist within
 the resulting partitions of a split, resulting in leaf nodes of the tree.
 
-This data structure is commonly applied to virtual 3D space for ray intersection
+This data structure is also commonly applied to virtual 3D space for ray intersection
 queries. A different dimension of space is split in each level of the tree just
 as is done in the context of an arbitrary database with different indices of
 data. The values used for separation of entities in the tree now represent a
@@ -463,7 +461,7 @@ candidate is bisected.
 
 It is possible that by doing this primitive
 entities are divided by the plane as well. There are a couple of ways in which
-this problem is handled. The first is to simply reference any intersected
+this problem is addressed. The first is to simply reference any intersected
 primitives in both of the subdivisions. This means that some primitives may be
 checked for intersection more than once, but requires no changes to the original
 model. The other solution is to divide the primitive entities using the
@@ -473,41 +471,41 @@ as a pure querying structure by altering the model.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.3]{2d_kd_eg.eps}
+  \includegraphics[scale=0.33]{2d_kd_eg.eps}
   \caption[A 2D KD-Tree example.]{Depiction of a two dimensional KD-Tree. Left: Graph representation of
     the KD-Tree with boxes representing leaf nodes. Right: Two dimensional space
     partitioned in the graph. Boxes represent the range of their respective
-    sub-tree. (Adapted from Bently et. al. \cite{Bentley_1975})}
+    sub-tree nodes. (Adapted from Bently et. al. \cite{Bentley_1975})}
   \label{fig:2D_kd_tree}
 \end{figure}
 
-KD-Trees are able to perform highly efficient due to traversal schemes developed
-based on the inherent quality of KD-Trees' non-overlapping sibling nodes. As a
-KD-Tree is being constructed, an ever-shrinking bounding box is being defined as
-one moves deeper into the tree. At the leaves of a KD-Tree, a well-resolved
-bounding box can be conceptualized using the coordinates of the last six
-splitting planes visited and possibly the domain boundary. The conceptual
-construction of this box is one way to move from node to node in a more
-efficient way than a more standard depth-first approach used in tree
-traversal. The partitions whose planes are used to construct this conceptual box
-can be linked to the current partition in order maintain a spatially localized
-search within the hierarchy. These links are referred to as neighbor links and,
-as shown by Samet et. al.\cite{Samet_1989}, can be used to significantly reduce
-traversal costs in the KD-Tree. After a leaf is visited, neighbor links can be
-used to direct the traversal to either the next adjacent leaf or a nearby
-interior node in the tree thus avoiding a depth-first style traversal in which
-the next step upon visiting a leaf node is to return to the root node of the
-tree and continue. Neighbor links take advantage of the notion of a nearby leaf
-node containing the intersection desired. By using these links to move directly
-to nearby leaf nodes, unnecessary shallow and mid-level tree traversal steps can
-be avoided.
+KD-Trees are able to perform highly efficient spatial searches due to traversal
+schemes developed based on the inherent characteristic of KD-Trees'
+non-overlapping sibling nodes. As a KD-Tree is being constructed, an
+ever-shrinking bounding box is being defined as one moves deeper into the
+tree. At the leaves of a KD-Tree, a well-resolved bounding box can be
+conceptualized using the coordinates of the last six splitting planes visited
+and possibly the domain boundary. The conceptual construction of this box is one
+way to move from node to node in a more efficient way than a more standard
+depth-first approach shown in Algorithm \ref{alg:bvh_traversal}. The partitions
+whose planes are used to construct this conceptual box can be linked to the
+current partition in order maintain a spatially localized search within the
+hierarchy. These links are referred to as neighbor links and, as shown by Samet
+et. al.\cite{Samet_1989}, can be used to significantly reduce traversal costs in
+the KD-Tree. After a leaf is visited, neighbor links can be used to direct the
+traversal to either the next adjacent leaf or a nearby interior node in the
+tree, thus avoiding a depth-first style traversal in which the next step upon
+visiting a leaf node is to return to the root node of the tree and continue. By
+using these links to move directly to nearby leaf nodes, unnecessary shallow and
+mid-level tree traversal steps can be avoided.
 
 KD-Trees are frequently cited as being able to provide the best ray tracing
-performance to date \cite{Ernst_2007,Hurley_2002,Havran_2000}. In particular,
-KD-Trees are noted as being better equipped to handle models with highly varying
-triangle sizes/densities. In practice, KD-Trees also tend to be very deep and can
-consume relatively high amounts of memory compared to other acceleration data
-structures, however. 
+performance to date for certain geometries
+\cite{Ernst_2007,Hurley_2002,Havran_2000}. In particular, KD-Trees are noted as
+being better equipped to handle models with highly varying triangle
+sizes/densities. In practice, KD-Trees also tend to be very deep, taking a long
+time to construct, and can consume relatively high amounts of memory compared to
+other acceleration data structures, however.
 
 \subsection{Bounding Volume Hierarchies}%%Status: Done%%
 \label{subsec:BVH}
@@ -529,9 +527,9 @@ so as not to have parent volumes containing large amounts of empty space.
 
 In Weghorst's exploration of sphere and box bounding volumes it was found that
 while spherical bounding volumes are not as computationally expensive to check
-for ray intersections than bounding boxes because the latter generally provide a
+for ray intersections compared to bounding boxes the latter generally provide a
 tighter fit to the objects they contain. This decreases the chance of wasted
-ray-volume intersection checks for rays which intersect the bounding volume, but
+ray-volume intersection checks for rays which intersect the bounding volume but
 not the object it contains. When considering the application of bounding volumes
 to a discretized analytic surface represented by a triangle mesh, this becomes
  more important as BVHs become deeper and more ray-volume intersection checks are performed to
@@ -543,13 +541,13 @@ bounding spheres.
 Two forms of BVHs are commonly applied in ray tracing problems: Axis-Aligned
 Bounding Boxes (AABBs) and Oriented Bounding Boxes (OBBs). AABBs are boxes whose
 orientation is restricted such that their faces are parallel to the global
-planes of the problem space. Given a set of points to contain, tightly fitting
-axis aligned boxes are straightforward to construct. Their simple representation
-results in a relatively low memory footprint and computationally inexpensive
-ray-intersection tests. Unlike AABBs, the faces of OBBs are allowed take any
-orientation relative to the global axes in order to enclose their set of
-primitives as tightly as possible. Several robust methods for determining the
-orientation of a box for best fit to a set of primitives have been developed
+planes of the problem space. Given a set of points to contain, aligned boxes are
+straightforward to construct. Their simple representation results in a
+relatively low memory footprint and computationally inexpensive ray-intersection
+tests. Unlike AABBs, the axes of OBBs are allowed take any orientation relative
+to the global axes in order to enclose their set of primitives as tightly as
+possible. Several robust methods for determining the orientation of a box for
+best fit to a set of primitives have been developed
 \cite{Gottschalk_1996,ORourke_1985}. OBBs are better for avoiding superfluous
 ray-box intersections that might otherwise occur for an AABB. They also more
 quickly conform to the full set of enclosed primitives as the boxes are
@@ -561,7 +559,7 @@ shallow hierarchies making the worst-case number of intersection tests lower
 than for an AABB hierarchy on average. While a shallow hierarchy might indicate
 a smaller memory footprint, OBBs require one to store some extra information
 about their orientation relative to the global axes making this assumption
-difficult to consistently prove.
+difficult to prove consistently.
 
 One disadvantage of using OBBs is that the ray-box intersection check requires
 an extra step in transformation of the ray to the oriented axes of the box in
@@ -587,13 +585,13 @@ performance of the data structure.
 
 One difficulty that BVHs face is that of overlapping sibling bounding
 volumes. Overlapping sibling volumes can cause additional box intersection
-checks in a similar manner to loosely fitting bounding volumes. If a ray enters
-a region of overlapping sibling volumes, this causes the children of both boxes
-to be checked despite the fact that the desired nearest intersection will be
-found in only one of those boxes. Overlaps are difficult to avoid, however, due
-to the reality that volumes are required to contain discrete elements for
-robustness, not just a section of the virtual space. Simply put, if the
-splitting plane of a bounding volume goes through one of the geometric
+checks in a similar manner to loosely fitting bounding volumes. If a ray passes
+through a region of overlapping sibling volumes, this causes the children of
+both boxes to be checked despite the fact that the desired nearest intersection
+will be found in only one of those boxes. Overlaps are difficult to avoid,
+however, due to the reality that volumes are required to contain discrete
+elements, not just a section of the virtual space. Simply put, if
+the splitting plane of a bounding volume goes through one of the geometric
 primitives, there will be an overlap in the resulting child bounding
 volumes. Overlaps of sibling AABBs are typically limited to the size of perhaps
 one or two geometric primitives whereas overlaps between sibling OBBs are more
@@ -621,35 +619,35 @@ mentioned. In fact, the search becomes closely aligned with the search for
 a spatial split as might be found in KD-Tree construction. The optimal
 splitting plane is then selected via a comparison of the cost for all
 candidate split planes - spatial or ``traditional''. Secondary heuristics are
-used to limit reference splitting in an effort properly manage the data
+used to limit reference splitting in an effort to manage the data
 structure's memory footprint. The result of the SBVH is a hierarchy which can be
 traversed just like any other BVH but with significantly reduced sibling volume
 overlaps. The SBVH results consistently show significant improvement over other
-methods, ranging anywhere from (20-100\%) \cite{Stich_2009}.
+methods \cite{Stich_2009}.
 
 In summary, bounding volume hierarchies are favored in the field of ray tracing
 for their lower memory footprints and well-developed parallel building
 schemes. These features are of great import for systems with limited memory,
-such as GPUs, and applications with intent for realtime viewing or
+such as GPUs, and applications with intent for real-time viewing or
 interaction. These data structures are particularly performant for \textit{Next
   Surface} intersections and are currently the most commonly employed
 acceleration data structure for ray tracing. They are relatively simple to
-implement for the performance they are able to provide and have a smaller
-footprint relative to other ray tracing acceleration data structures,
-making them attracitve to memory-limited environments such as GPUs.
+implement for the performance they provide and have smaller memory
+footprints relative to other ray tracing acceleration data structures,
+making them attractive to memory-limited environments such as GPUs.
 
 \subsection{Octrees}%%Status:Done%%
 \label{subsec:octree}
 
-Octrees are a partitioning scheme in which cuboid bounding boxes known, also
-known as voxels, are used to partition the 3D problem space into the eight
+Octrees are a partitioning scheme in which cuboid bounding boxes, also
+known as voxels, are used to partition the 3D problem space into eight
 octants defined by the global axes and extents of the parent voxel. These eight
 voxels are then linked as children of the parent voxel. This process is repeated
 recursively until leaf conditions are met in which a sufficiently small number
 of primitives is contained within the current voxel. This spatial subdivision
 technique is commonly used to efficiently index data in 3-D space
 \cite{Glassner_1989}. Octrees are somewhat like KD-trees in that their divisions
-are spatial, their partitions contain no overlaps, and the placement of entities
+are purely spatial, their partitions contain no overlaps, and the placement of entities
 in nodes occurs in a similar manner to that of KD-trees, but each node is
 represented by a closed bounding volume as in a BVH.
 
@@ -680,14 +678,14 @@ ability to remove candidate space from the query, yet a voxel can only
 accomplish this if rays strike the voxel. The result is that one measure of a
 voxel's value can be described by the ratio of its probability of an
 intersection check to the space it will exclude from the query search or its
-volume. In a problem with a uniform ray distribution, the probablity of a ray to
+volume. In a problem with a uniform ray distribution, the probability of a ray to
 intersect a given voxel can be related to a voxel's surface area as seen in the
 SAH. Thus cubic voxels have the most favorable ratio possible based on their
 geometry. The uniformity of voxel properties provide a predictable nature of the
 octree which is advantageous when traversing the data structure as well.
 
 The predictable size and location of any given node in the tree determined from
-the root node properties also provides a fast lookup of the deepest node in the
+the root node properties also provides a fast look-up of the deepest node in the
 tree containing a point in space. This is helpful in providing a starting point
 for ray traversal which is deeper than the root node, allowing one to
 potentially avoid some traversal steps in the shallow levels of the
@@ -696,7 +694,7 @@ efficient traversal schemes similar to the neighbor linked traversal done in
 KD-trees. These traversals are conceptually similar to that of the KD-tree's but
 typically employ some form of Morton encoding to determine which node in the
 octree the ray should visit next \cite{Revelles_2000}. Other traversal
-techniques allow the octree to avoid creating and traversing nodes containing
+techniques allow the Octree to avoid creating and traversing nodes containing
 empty space which can significantly reduce its memory footprint in cases where
 internal nodes of the tree aren't required to define some spatial dataset as
 mentioned above \cite{Samet_1989}. These methods are often applied in GPU
@@ -715,31 +713,32 @@ capability for ray tracing.
 \label{subsec:arch}
 
 
-This section focuses on the impace of CPU architecture evolution on ray tracing
-data structure design and implemenation. More specifically, it emphasizes the
+This section focuses on the impact of CPU architecture evolution on ray tracing
+data structure design and implementation. More specifically, it emphasizes the
 advantages of using vectorization-oriented implementations or Single Instruction
-Multiple Data (SIMD) programming in the field of ray tracing. When considering
-the problem of parallelism in computing, programmers focus on one of two areas:
-\textit{functional parallelism} or \textit{data parallelism}. Functional
-parallelism describes the method of performing multiple operations in parallel
-on many processors while data parllelism describes operation on multiple data
-sets at the same time on a single processor. SIMD is a form of data parllelism
-in which, as the name indicates, the same set of numerical operations are
-performed on multiple sets of data in parallel. Chipsets with support for SIMD
-instructions became very popular in the mid-1990s as home PCs became more common
-and demand for multimedia-related performance increased. In response, many CPU
-manufacturers at the time such as Intel, IBM, and Motorola began to release
-products with SIMD instruction sets. The most powerful of which was Intel's
-Streaming SIMD Extensions (SSE). Over time, CPU clock speed became the larger
-focus of many manufacturers as dramatic gains in processor speed took
-precedence in the field. As processor speed increases began to wane, pushing the
-limit of current cooling technology in the early 2000's, a new shift toward
-mult-core designs occurred. Currently, as CPU clock speeds remain somewhat
-steady in multi-core systems, a focus on single-thread performance via SIMD has
-returned to great effect. Newer SIMD instruction sets such as Intel's Advanced
-Vector Extensions (AVX or AVX2) have doubled the width of
-operable data, allowing for a theoretical doubling of performance in codes
-relying on SIMD instructions \cite{Hughes_2015}.
+Multiple Data (SIMD) programming in the field of ray tracing.
+
+When considering the problem of parallelism in computing, programmers focus on
+one of two areas: \textit{functional parallelism} or \textit{data
+  parallelism}. Functional parallelism describes the method of performing
+multiple operations in parallel on many processors while data parallelism
+describes operation on multiple data sets at the same time on a single
+processor. SIMD is a form of data parallelism in which, as the name indicates,
+the same set of numerical operations are performed on multiple sets of data in
+parallel under a single CPU process. Chip-sets with support for SIMD instructions became very popular in the
+mid-1990s as home PCs became more common and demand for multimedia-related
+performance increased. In response, many CPU manufacturers at the time such as
+Intel, IBM, and Motorola began to release products with SIMD instruction
+sets. The most powerful of which was Intel's Streaming SIMD Extensions
+(SSE). Over time, CPU clock speed became the larger focus of many manufacturers
+as dramatic gains in processor speed took precedence in the field. As processor
+speed increases began to wane, pushing the limit of current cooling technology
+in the early 2000's, a new shift toward multi-core designs occurred. Currently,
+as CPU clock speeds remain somewhat steady in multi-core systems, a focus on
+single-thread performance via SIMD has reemerged. Newer SIMD
+instruction sets such as Intel's Advanced Vector Extensions (AVX or AVX2) have
+doubled the width of operable data, allowing for a theoretical doubling of
+performance in codes relying on SIMD instructions \cite{Hughes_2015}.
 
 SIMD execution has found use in many different areas including medical imaging,
 financial analysis, database management, computer visualization, and physical
@@ -754,7 +753,7 @@ operations as it relies heavily on the performance of a few key operations:
 ray-node intersections and ray-primitive intersections. The ability to perform
 intersection checks of many nodes at once or many triangles at once has clear
 benefit when satisfying geometric queries in simulations or renderings which may
-require several billion of these operations. Several demonstrations of ray-tracing data
+require several billion such operations. Several demonstrations of ray-tracing data
 structures adapted to take advantage of SIMD-enabled optimization on modern CPUs
 have already been developed.
 
@@ -787,7 +786,7 @@ very similar traversal paths through the hierarchy so they may be grouped
 together in a packet for a narrow traversal path. This property is known as
 often described as ray coherence. Branching off of Hurley's work, Wald
 demonstrated that rays can be effectively grouped into packets and traversed in
-a binary space partitioning tree (a modified KD-Tree) to achieve performance
+a binary space partitioning tree (a modified KD-Tree) to achieve CPU performance
 equal to that the high-end graphics hardware of the time \cite{Wald_2001}.
 
 As more realistic physical effects are being applied to ray tracing kernels
@@ -800,7 +799,7 @@ a single step has been revisited. Wald wisely observed that taking advantage of
 SIMD operations in traversal of a KD-Tree is difficult due to the nature of the
 partition. He goes on to state that the KD-Tree's superior serial performance in
 comparison to that of serial BVH implementations drove reluctance to move away
-from the KD-Tree and resulted in the establishment of ray packets, a product of
+from the KD-Tree and resulted in the establishment of ray packets, or
 the 1:N approach. \cite{Wald_2008} Both Wald and Dammertz \cite{Dammertz_2008},
 concurrently presented implementations of SIMD enabled traversal and primitive
 intersection on multi-branching BVHs in 2008 with N:1 approaches. Both
@@ -825,7 +824,7 @@ more shallow trees, AABBs are generally more favorable in SIMD
 implementations. First, OBBs require more information to be stored. This extra
 information can limit how many nodes will fit into a single SIMD step and it is
 often more beneficial to check more AABBs than fewer OBBs despite the tighter
-fitting to geometric primitives. This is in part because axis aligned boxes have
+fitting to geometric primitives. This is in part because AABBs boxes have
 faster ray intersection tests without the re-orientation of the ray information
 to the box coordinates, but also because more nodes can be fit into the SIMD
 register to be visited at once. Secondly, though OBB hierarchies are more
@@ -842,8 +841,9 @@ to the higher n-ary structure of the trees used in these implementations.
     K - & \, number \, of \, desired \, children \, per \, interior \, node \\
     T - & \, number \, of \, triangles \, in \, SIMD \, register
   \end{align*}
-  \caption[Form of the surface area heuristic for an n-ary tree.]{An adjusted form of the surface area heuristic as presented by Wald
-    in \cite{Wald_2008}. \protect\footnotemark}
+  \caption[Form of the surface area heuristic for an n-ary tree.]{An adjusted
+    form of the surface area heuristic for an n-ary BVH branching ratio as
+    presented by Wald in \cite{Wald_2008}. \protect\footnotemark}
   \label{adjusted_SAH}
 \end{figure}
 
@@ -859,20 +859,18 @@ worth noting that while the KD-Tree is restricted to a binary hierarchy, another
 variation, the bounding interval hierarchy, might be compatible with higher
 branching ratios and thus SIMD traversal of the hierarchy \cite{Watcher_2006}.
 
-\section{Other Visualization Data Structures}
-
 \subsection{Signed Distance Fields}
 
 Signed Distance Fields (SDFs) are commonly derived from implicit surface
 functions and variations on these functions are known as level-set
-functions. Both offer a rich and versatile representation of closed manifolds
+functions \cite{Osher_2003}. Both offer a rich and versatile representation of closed manifolds
 used for modeling, simulation, and rendering. As discussed in Section
 \ref{subsec:implicit_surfaces}, Constructive Solid Geometry (CSG)
 representations seen in native Monte Carlo codes are formed from Boolean
 combinations of predefined implicit surfaces at their core. While these
 predefined surfaces do not give the freedom of model creation and manipulation
 found in many CAD systems, important geometric information required for
-visualization and simulation can be readily recovered from these implicit
+visualization and simulation can be readily recovered from implicit
 surfaces.
 
 \begin{figure}[H]
@@ -908,7 +906,7 @@ surfaces.
 
 Signed distance field generation from implicit surfaces is a particularly
 valuable property of this geometric representation. A signed distance field,
-$SDF(v)$, meets the following requirements for any vertex, $v$, in the
+meets the following requirements for any vertex, $v$, in the
 total set of locations, $V$, in the field:
 
 \begin{itemize}
@@ -934,9 +932,9 @@ process called ray marching \cite{Tomczak_2012}.
 
 This discussion of the CAD-based MCRT via the DAGMC toolkit, hierarchical
 spatial data structures, and SDF generation in this chapter provides a basis for
-the work performed in the remainder of this document. The following chapter,
-Chapter \ref{ch:preconditioning} discusses the implementation and application of
-SDFs in DAGMC's framework. Next, Chapter \ref{ch:simd_bvh} presents work on BVHs
+the work performed in the remainder of this document. Chapter
+\ref{ch:preconditioning} discusses the implementation and application of SDFs in
+DAGMC's framework. Next, Chapter \ref{ch:simd_bvh} presents work on BVHs
 optimized for use in DAGMC and extensions of those methods to provide robust
 transport in production simulations. Chapter \ref{ch:high_valence} discusses the
 effects of splitting heuristics and hierarchy construction surrounding

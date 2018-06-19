@@ -57,7 +57,8 @@ which are often used as native representations of Monte Carlo geometry.
 
 \subsection{Implicit Surfaces}\label{subsec:implicit_surfaces}
 
-An implicit surface is a multivariate function defined over an $ R^3 $ domain as:
+An implicit surface is a multivariate function defined over an $ R^3 $ domain
+onto the one-dimensional space, $ R $:
 
 \begin{equation}
     \Omega(R^3)\rightarrow R
@@ -128,7 +129,7 @@ These forms of implicit surface functions can be modified or selected such that 
 conditions are met:\footnote{The sign convention shown here is opposed to the
   sign convention commonly used for interior and exterior points in space. This
   sign convention is arbitrary and has been reversed for clarity in radiation
-  transport where physical phenomenon are simulated in the interior of objects
+  transport where physical phenomena are simulated in the interior of objects
   rather than the space between them in rendering applications.}
 
 \begin{figure}[H]
@@ -206,7 +207,7 @@ design iteration.
   \centering
   \includegraphics[scale=0.4]{cad_fnsf.png}
   \caption[CAD image of the FNSF facility.]{The Fusion Neutron Science Facility (FNSF)\cite{Kessel_2017} model
-    displayed in the CUBIT \cite{Blacker_1994} CAD system.}
+    displayed in the CUBIT geometry and mesh generation toolkit \cite{Blacker_1994}.}
   \label{fig:cad_fnsf}
 \end{figure}
 
@@ -252,15 +253,15 @@ can be seen in Figure \ref{fig:dagmc_geom_example}.
   \label{fig:dagmc_geom_example}
 \end{sidewaysfigure}
 
-It is important that geometric relationships of the mesh are maintained to
-accelerate certain geometric queries on the surface mesh. For example,
-\textit{Next Volume} (see Figure \ref{fig:Next Volume}) queries are accelerated
-by using these relationships to directly determine which volume a particle is
-passing into upon crossing a surface. In CSG, a surface crossing can require a
-series of point containment checks for each volume to update the logical
-position of a particle in another volume. Other queries become more complicated,
-however, due to the sheer number of triangles needed to properly define volumes
-with detailed features.
+It is important that topological relationships of the geometry-based Meshsets
+are maintained to accelerate certain geometric queries on the surface mesh. For
+example, \textit{Next Volume} (see Figure \ref{fig:Next Volume}) queries are
+accelerated by using these relationships to directly determine which volume a
+particle is passing into upon crossing a surface. In CSG, a surface crossing can
+require a series of point containment checks for each volume to update the
+logical position of a particle in another volume. Other queries become more
+complicated, however, due to the sheer number of triangles needed to properly
+define volumes with detailed features.
 
 \textit{Next Surface} and \textit{Closest Surface} (see Figures \ref{fig:Next
   Surface} and \ref{fig:Closest Surface}) geometry queries, for example, can be
@@ -357,14 +358,17 @@ There are two critical components that go into the creation of spatial
 partitions in ray tracing hierarchies. The first is the selection of a candidate
 splitting plane which is used to separate entities into one partition or
 another. The second is the evaluation of the ``cost'' of that split. This cost
-is representative of the comparison between a division of the node for several
-candidate split planes and forming a leaf from the current node.  Because there
-is no way to know exactly how expensive or inexpensive the cost of a split will
-be for the particular simulation at hand, heuristics are used to estimate this
-cost and determine the optimal splitting plane using limited information about
-the local nodes in the tree. More specifically, this information is typically
-limited to the number of primitives being split, bounds of the parent partition,
-and bounds of the candidate child partitions.
+is a purely relative measure used to compare candidate splits for selection of a
+best split curing construction. Because there is no way to know exactly how
+expensive or inexpensive the cost of a split will be for the particular
+simulation at hand, heuristics are used to estimate this cost and determine the
+optimal splitting plane using limited information about the local nodes in the
+tree. More specifically, this information is typically limited to the number of
+primitives being split, bounds of the parent partition, and bounds of the
+candidate child partitions. Split costs are compared to the relative cost of
+forming a leaf node as well. If the cost of all splits is larger than that of
+the current node, then it is declared a leaf node and the build process
+continues in other areas of the hierarchy.
 
 A virtually infinite number of planes could be tested to find the optimal plane for
 dividing the entities between the child bounding volumes, but even if one were to
@@ -431,7 +435,8 @@ the surface area heuristic was introduced in 1987 by Goldsmith and Salmon
   \label{fig:SAH}
 \end{figure}
 
-For the general case, ERH has not proved to be as effective as the SAH \cite{Bittner_2013}, but as
+For the general case, ERH has not proved to be as effective as the SAH
+\cite{Bittner_2013}, but as
 seen in Chapter \ref{ch:high_valence} it is a useful tool in correcting the
 surface area heuristic for triangle mesh features of a specific type. This
 scenario will be discussed further in Chapter \ref{ch:high_valence}.

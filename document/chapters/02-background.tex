@@ -19,7 +19,7 @@ queries shown in Figures \ref{fig:Point Containment} - \ref{fig:Measure}.
 
 \geomQuery{Point Containment}{plc_query}{0.5}{
 Given a set of volumes and particle location, $\mathbf{x}$, determine if the
-point is inside, outside, or on the boundary of that volume.
+point is inside, outside, or on the boundary of a volume.
 }
 
 \geomQuery{Next Surface}{dtb_query}{0.3}{
@@ -36,8 +36,7 @@ volume in any direction.
 }
 
 \geomQuery{Next Volume}{next_vol_query}{0.5}{
-Given a particle at location, \boldmath$x$, in volume, \boldmath$V_1$, traveling
-in a direction, \boldmath$\Omega$, and crossing a surface, \boldmath$S$,
+Given a particle in volume, \boldmath$V_1$, and crossing a surface, \boldmath$S$,
 determine the correct adjacent volume, \boldmath$V_2$.
 }
 

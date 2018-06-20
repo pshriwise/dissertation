@@ -345,8 +345,9 @@ DAG-MCNP is found in Table \ref{fngemdag}.
 Again, significant gains in performance are seen using EmDAG in comparison to
 DAGMC and less than a factor of two is found in the ratio of the FNG runtime
 compared to native DAGMC. Several particles were lost in the EmDAG simulation,
-however. The cause of these lost particles is discussed further in Section
-\ref{sec:emdag_limitations}.
+however. The cause of these lost particles, which make it impossible for DAGMC
+to rely on Embree's existing constructs as a robust ray tracing tool, is
+discussed further in Section \ref{sec:emdag_limitations}.
 
 \subsection{Limitations}\label{sec:emdag_limitations}
 
@@ -363,7 +364,7 @@ robustly track particles through such a model with no lost particles. While the
 lost particle rate for the EmDAG FNG test relatively low, they in theory should
 not occur at all as was shown by the DAGMC runs. After a considerable amount of
 investigation as to the nature of these lost particles, their cause was
-determined to be systematic problem not encountered in the nested volume cases
+determined to be a systematic problem not encountered in the nested volume cases
 due to the simple nature of their geometric topology.
 
 In the DAGMC workflow, a required step for a watertight model is to imprint and
@@ -387,9 +388,9 @@ refers to shared connectivity of mesh elements between surfaces. This is
 distinctly different than watertight by proximity or by points of triangles
 being ``close enough'' to one another. Topological watertightness of triangles
 refers to surfaces meshes which share vertex connectivity at their boundary with
-other surfaces. These triangles reference then share mesh vertices in MOAB whose
+other surfaces. These triangles then share mesh vertices in MOAB whose
 coordinates in virtual space are represented using the exact same floating point
-representation in the database.  In this way particles cannot be lost through
+representation in the database. In this way particles cannot be lost through
 gaps in surfaces and firing a ray from any position inside a topologically
 watertight volume should always result in a triangle intersection. Despite the
 topological watertightness of the triangle meshes used in EmDAG, particles were
@@ -409,17 +410,18 @@ lost in the transport process.
 
 Some detailed debugging of this problem revealed that this occurs in a
 systematic fashion within the FNG model at intersections of 3 or more
-volumes. The scenario is that a particle moves into the intersection between two
-surfaces. When this occurs, an intersection with either surface connected to
-that interface is valid. The particle will then logically move into the volume
-on the other side of the hit surface. EmDAG handles most of these cases well
-with the exclusion of scenarios in which a particle will have a zero track
-length inside one of the volumes. A zero track length in this case meaning that
-the particles trajectory is such that it will only glance a volume without
-having any appreciable track length inside of it. An example of this particle
-tracking pathology can be found i Figure \ref{emdag-lost-particles}. In this
-case, the EmDAG system may be unable to find a hit whereas DAGMC's tracking is
-robust enough to find the triangle intersection on this volume and move on.
+volumes. The scenario is that a particle moves onto a triangle edge which is
+part of the boundary between two surfaces. When this occurs, an intersection
+with either surface connected to that interface is valid. The particle will then
+logically move into the volume on the other side of the hit surface. EmDAG
+handles most of these cases well with the exclusion of scenarios in which a
+particle will have a zero track length inside one of the volumes. A zero track
+length in this case meaning that the particles' trajectory is such that it will
+only glance a volume without having any track length inside of
+it. An example of this particle tracking pathology can be found in Figure
+\ref{emdag-lost-particles}. In this case, the EmDAG system may be unable to find
+a hit whereas DAGMC's tracking is robust enough to find the triangle
+intersection on this volume and move on.
 
 \begin{figure}[h!]
   \begin{centering}
@@ -443,11 +445,12 @@ robust enough to find the triangle intersection on this volume and move on.
 
 By isolating this particle's history and producing the particle history with
 locations precise enough to detect the discrepancies between EmDAG and DAGMC, it
-was found that the position of the particle in EmDAG was numerically too far
-outside of a volume to produce the correct triangle hit in either EmDAG or
-DAGMC's ray fire systems. The cause of this discrepancy is believed to have to
-do with the necessary conversion between double and single floating point
-precision in the EmDAG system.
+was found that the position of the particle in EmDAG was numerically outside of
+the new volume after crossing the surface. The particle's position and direction
+were such the correct triangle hit could not be found in either EmDAG or DAGMC's
+ray fire systems. The cause of this discrepancy is believed to have to do with
+the necessary conversion between double and single floating point precision in
+the EmDAG system.
 
 As previously mentioned, EmDAG uses single floating point representation in its ray
 tracing kernel while DAGMC uses a double precision representation of the
@@ -455,7 +458,7 @@ geometry and particle information. In order to accommodate Embree's
 representation, properties of the particle location and direction are converted
 to single precision for ray tracing queries in Embree and back to double
 precision when in DAGMC. When changing the floating point representation,
-rounding rules based on the computing environment are used to determine the new
+truncation rules based on the computing environment are used to determine the new
 representation according to IEEE standards for conversion between precision
 levels \cite{IEEE_STD_2008}. These changes in the particle's location and
 direction are small, but in the scenario described above it seems that the
@@ -468,22 +471,22 @@ description of the different pathologies encountered in tracking particles
 through a surface mesh representation of a geometric model. Briefly mentioned in
 this chapter is the possibility of a lost particle due to numerical error in the
 particle's position orthogonal to the particle's trajectory. Lost particles
-caused by this pathology are not covered however as the double floating point
-representation does not allow the particle position to change enough for this
-case to occur in practice. EmDAG is vulnerable to this particular pathology due
-to the constant conversion from single to double precision values between DAGMC
-and Embree. In order to avoid this problem moving forward, any improvements to
-DAGMC's ray tracing kernel for particle tracking will need to maintain use of
-double precision representations for mesh elements for robust coupling of
-numerical and logical particle positions and directions along with unmodified
-tally results in simulation.
+caused by this pathology are not covered however as the double precision
+floating point representation does not allow the particle position to change
+enough for this case to occur in practice. EmDAG is vulnerable to this
+particular pathology due to the constant conversion from single to double
+precision values between DAGMC and Embree. In order to avoid this problem moving
+forward, any improvements to DAGMC's ray tracing kernel for particle tracking
+will need to maintain use of double precision representations for mesh elements
+for robust coupling of numerical and logical particle positions and directions
+along with unmodified tally results in simulation.
 
 \section{Mixed Precision Bounding Volume Hierarchy}\label{sec:MPBVH}
 
 A SIMD-oriented version of DAGMC, EmDAG, was implemented and tested in
 DAGMC. Unfortunately, this system was inherently limited by conversion from
 single to double precision values. The use of double precision intersections is
-required for DAGMC to successfully interface with any of the Monte Carlo codes it
+required for DAGMC to robustly interface with any of the Monte Carlo codes it
 supports. As a result, reduction of the triangle primitives to single precision
 is not an option.
 
@@ -504,19 +507,22 @@ features can be found in Embree's documentation \cite{Embree}. Several such
 design elements found in both the Embree and the MPBVH include:
 
 \begin{itemize}
+  \item AABBs
   \item single-precision bounding entities
   \item bit-encoding of BVH node types
   \item type-agnostic vectors for support of SIMD instruction sets
-  \item memory pre-fetching of node memory during traversal
+  \item memory pre-fetching of tree node memory during traversal
   \item pre-computation of near and far box boundaries
   \item vectorized node intersection
 \end{itemize}
 
-
 The kernel created by the author is a lightweight version of the Embree kernel
-focused on static triangle meshses and access to an external mesh database used
-in engineering analysis. This allowed for several improvements in robustness in
-comparison to the EmDAG system. The remainder of this section will address some
+focused on static triangle meshes and access to an external mesh database used
+in engineering analysis. The kernel was implemented outside the context of MOAB
+allowing it to freely implement many of the performance related concepts found
+in Embree, but it relies on unique characteristics of MOAB that allow the kernel
+to access the database's memory directly to about duplication of information in
+memory. The remainder of this section will address some
 of these features and design alterations.
 
 \subsubsection{MOAB Direct Access}
@@ -534,8 +540,9 @@ The MPBVH uses these methods to populate references to triangles in the BVH
 without duplication of their coordinate values or connectivity. Access to these
 locations in memory is handled by a direct access manager object which protects
 the mesh information from modification during the building and traversal of the
-BVH. All coordinate and connectivity information accessed through this manager,
-which protects against accidental modification of values in MOAB's memory space.
+BVH. All coordinate and connectivity information can be accessed through this
+manager, which protects against accidental modification of values in MOAB's
+memory space.
 
 Mesh information is retrieved via offset values using indices for triangle and
 vertex entities. This later allows coordinates values for triangle intersections
@@ -546,10 +553,15 @@ entity handle space regardless of the contiguity at the time the file was
 written to disk. This guarantees that the set of entity handles representing
 DAGMC geometries will be contiguous when loading a geometry for simulation. If
 the mesh data is modified, in particular if entities are deleted, then this
-requirement will be broken and it may not be possible to use the direct access
-methods robustly. DAGMC does not modify mesh data once the file has been loaded
-for simulation. MOAB provides tools for collapsing or modifying the entity
-handle space if this becomes necessary in future applications of this design in DAGMC.
+condition will be broken and it may not be possible to use the direct access
+methods robustly without accounting for gaps in the array space. Accounting for
+these holes will have an unknown affect on the performance of ray tracing
+queries when triangle coordinates are fetched from MOAB's memory space and will
+vary depending on the number of holes in the space. MOAB provides tools for
+collapsing or modifying the entity handle space if this becomes necessary in
+future applications of this design in DAGMC. Currently, DAGMC does not modify
+mesh data once the file has been loaded for simulation, so the effect of these
+gaps and the collapsing of the entity handle space is not explored in this work.
 
 \subsubsection{Reduced-Precision Ray Tracing}\label{subsubsec:reduced_precision}
 
@@ -567,8 +579,10 @@ applied in which a traversal ray data structure is used represent the ray origin
 and direction in single precision alongside the double precision ray. This
 greatly accelerates the traversal process moving through the hierarchy of
 bounding boxes. Once leaf nodes are reached in the tree, the original double
-precision values of the ray and double precision triangle coordinates are used
-to calculate intersections and return more precise distances to the surface.
+precision values of the origin, direction, and vertex coordinates are used to
+calculate intersections and return more precise distances to the surface. A
+visualization of this proposed ray traversal scheme can be found in Figure
+\ref{fig:reduced_precision_scheme}.
 
 \begin{figure}[H]
   \centering
@@ -593,7 +607,7 @@ are introduced. This effect is illustrated in Figure
   \includesvg{../images/double_ray_float_ray}{width=0.5\textwidth}
   \caption[Reduced precision directional alterations.]{A representation of the
     directional change due to conversion of a ray's origin and direction from
-    double to single precision. Where capital letters indicate double precision
+    double to single precision, where capital letters indicate double precision
     values.}
   \label{fig:double_to_single_ray}
 \end{figure}
@@ -618,7 +632,7 @@ and the traversal ray, in single precision, be $\vec{r}$ where its direction is
 \end{equation}
 
 
-Where the distance between these two vectors at their unit length
+where the distance between these two vectors at their unit length
 can be described as
 
 \begin{equation}
@@ -785,9 +799,9 @@ By neglecting the traversal cost, the cost of the node can be broken into two
 components, the cost of the intersection, $C_{i}$ and the geometric cost,
 $C_{g}$. Because these values are used in a purely relative manner to compare
 the costs of candidate splits, the constant factor of the primitive intersection
-is can be ignored during evaluation of the cost. This form of the heuristic is
+can be ignored during evaluation of the cost. This form of the heuristic is
 purely a weighted geometric evaluation without estimation of
-implementation-based valued which can vary based on machine architecture, build
+implementation-based value which can vary based on machine architecture, build
 settings, etc.
 
 \subsubsection{Surface Root Nodes}\label{sec:surface_roots}
@@ -814,15 +828,17 @@ for SIMD traversals.
   \label{fig:surface_root_example}
 \end{sidewaysfigure}
 
-BVH nodes in both Embree and the MPBVH are represented by a node
-reference construct which stores a single pointer value as an integer
-representation. All BVH constructs, namely the bounding nodes and primitive
-references, in the BVH are designed to be 16-byte aligned in memory, leaving the
-4 least significant bits of the integer-stored pointer value unused. These bits
-are used to encode information about leaf nodes in the tree. When the
-pointer to either an interior node or leaf node is needed, the pointer value is
-recovered by masking out these bits to zero and casting the pointer to the
-appropriate object type.
+BVH nodes in both Embree and the MPBVH are represented by a node reference
+construct which stores a single pointer value as an integer representation. All
+BVH constructs, namely the bounding nodes and primitive references, in the BVH
+are designed to be 16-byte aligned in memory. As a result, the addresses of
+these structures in memory will be consistently offset by 16 units, leaving the
+4 least significant bits of the address unused when stored as integers. By using
+these integer representations of memory addresses as references to tree nodes,
+these bits are used to encode information about leaf nodes in the tree. When the
+integer-pointer to either an interior node or leaf node is needed, the pointer
+value is recovered by masking out these bits to zero and casting the pointer to
+the appropriate object type.
 
 %% \begin{figure}[H]
 %%   \centering
@@ -866,18 +882,17 @@ used to automatically adjust the returned triangle normals for any intersections
 with that surface, and avoids the duplication of triangle connectivity that was
 necessary in the EmDAG implementation.
 
-The set leaf node reference is identified by toggling the least significant bit in
-the reference's integer value. Because only this first bit is altered, the node
-is not recognized as a leaf containing primitives but rather a leaf of the
-volume tree. Information about the current surface being visited and the sense
-information is updated on the traversal ray and used to set any hit information
-on the returned ray. The pointer value stored by the node reference is a pointer
-to the node reference for the bounding element at the top of the
-surface tree. This node is pushed onto the stack and the traversal continues
-uninterrupted. The depth-first traversal of the hierarchy protects against
-any invalid surface information being set on the ray as the all nodes underneath
-that surface will be visited before moving on to the next surface, at which
-point the traversal ray information will be updated.
+The surface root node reference is identified by toggling the least significant
+bit in the reference's integer value to recover the location of the node's
+location in memory. Because only this first bit is altered, the node can be
+differentiated from leaf nodes containing primitives. Information about the
+current surface being visited and the sense information is updated on the
+traversal ray and used to set any hit information on the ray. The node is then
+pushed onto the stack and the traversal continues uninterrupted. The depth-first
+traversal of the hierarchy protects against any invalid surface information
+being set on the ray as the all nodes underneath that surface will be visited
+before moving on to another surface, at which point the traversal ray
+information will be updated.
 
 \begin{figure}
   \includesvg{../images/set_leaf_encoding}{width=1.0\textwidth}
@@ -889,7 +904,7 @@ point the traversal ray information will be updated.
 This node type also provides the ability to avoid duplication of triangle
 connectivity to represent sense-adjusted triangle normals as was required in the
 EmDAG system. A MOAB look-up of this sense information after returning ray hits
-is also a viable option, but it would be relatively expensive to in comparison
+is also a viable option, but it would be relatively expensive in comparison
 to adjusting triangle normals on the fly.
 
 \subsection{Robustness Criterion}
@@ -932,12 +947,13 @@ quite successful.
 
 The MPBVH kernel has been coupled to DAGMC as a numerically based particle
 tracking tool using a simple algorithm for determining \textit{Next Surface}
-queries and \textit{Point Containment} queries. Previously, additional logical
-work was used to avoid lost particles and infinite loops in particle
+queries and \textit{Point Containment} queries. The current particle tracking
+algorithm in DAGMC \cite{Smith_2011} applies additional logic related to
+previously hit triangles to avoid lost particles and infinite loops in particle
 histories. This tracking algorithm uses structures known as the \textbf{MBRay}
 (short for MOAB Ray) and \textbf{MBAccumulatorRay}. Both of these structures
-(depicted in Figure \ref{fig:mpbvh_ray_structures}) are critical to the use of the
-MPBVH as a robust particle tracking tool.
+(depicted in Figure \ref{fig:mpbvh_ray_structures}) are critical to the use of
+the MPBVH as a robust particle tracking tool.
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={Algorithm used in \textit{Next Surface} queries.},captionpos=b,label={alg:Next Surface Pseudo Code}]
   
@@ -960,7 +976,7 @@ MPBVH as a robust particle tracking tool.
     
       # if the ray missed and overlaps are allowed in the model
       # fire a ray in the opposite direction
-      if ray.missed and overlap_thickness != 0.0: {
+      if ray.surfID == -1 and overlap_thickness != 0.0: {
         small_val = overlap_thickness * 0.01
         ray.direction *= -1
         # apply some small space at the beginning of the ray
@@ -980,8 +996,8 @@ MPBVH as a robust particle tracking tool.
     
       # if we have a hit at this point, set the returned
       # surface ID and distance
-      if !ray.missed:
-        next_surf = ray.surface
+      if ray.surfID != -1:
+        next_surf = ray.surfID
         next_surf_distance = ray.tfar
         
       # otherwise the particle is lost,
@@ -997,20 +1013,20 @@ MPBVH as a robust particle tracking tool.
       # if the ray direction opposes the hit triangle's
       # normal vector, reject the ray hit
       if dot_product(mbray.dir, mbray.norm) < 0.0:
-          ray.continue = True
+          ray.surfID = -1
 
       return
 
 \end{lstlisting}
 
 The algorithm in Figure \ref{alg:Next Surface Pseudo Code} avoids many logical
-checks and the classification of hit locations i the current DAGMC algorithm. It
+checks and the classification of hit locations in the current DAGMC algorithm. It
 also avoids mesh database look-ups of adjacent triangles for edge and node
 hits. This used to be necessary due to the ray history passed into the
 \textit{Next Surface} query, causing rays to sometimes become stuck in infinite
-or near-infinite loops. The ray history is as an optimization to avoid repeated
+or near-infinite loops. The ray history is an optimization to avoid repeated
 intersections with the same triangle. By abandoning this construct and relying
-entirely on the performance of the underlying ray tracing kernel, the algorithm
+more on the performance of the underlying ray tracing kernel, the algorithm
 can be simplified to always return the nearest intersection. Infinite loops in
 which particles oscillate between volumes on a surface boundary are addressed by
 returning exiting intersections only.
@@ -1039,7 +1055,7 @@ The algorithm presented here addresses \textbf{a)} by using the watertight
 Pl\"{u}cker intersection test and extending ray boxes to ensure the correct
 triangle is checked for intersection. Part \textbf{b)} is addressed by firing a
 ray in the opposite direction if the initial ray does not find an
-intersection. The scenario here being that the particle is inside a
+intersection. The scenario of concern being that in which the particle is inside a
 self-intersecting or overlapping volume. To avoid a zero-distance hit when
 firing in the opposite direction, a small value is also set as the ray's
 near-side parameter. In traversal, any hits closer than this value will be
@@ -1138,7 +1154,7 @@ following conditions are true:
   \item the overlap tolerance is non-zero
 \end{itemize}
 
-Then ray hits are accumulated by firing a \textbf{MBAccumulatorRay} in both the
+then ray hits are accumulated by firing a \textbf{MBAccumulatorRay} in both the
 positive and negative direction. All hits are registered on the ray as exiting
 or entering based on the dot product calculation of the direction and triangle
 normal (see the \textit{count\_hits} function). If no hits are found, then the
@@ -1163,17 +1179,17 @@ expected based on the difference in pure ray fire times from Section
 \begin{table}[H]
   \small
   \begin{center}
-    \begin{tabular}{lccc}
+    \begin{tabular}{lcccc}
 
       \toprule
-      Test Model & MCNP & DAG-MCNP & DAG-MCNP (w/ MPBVH) \\
+      Test Model & MCNP & DAG-MCNP & EmDAG-MCNP & DAG-MCNP (w/ MPBVH) \\
       %%\hline
-      & \multicolumn{3}{c}{\textbf{run time (min)/ ratio to MCNP}} \\
+      & \multicolumn{4}{c}{\textbf{run time (min)/ ratio to MCNP}} \\
       \hline
-      Sphere         & 2.93 / 1.00 & 25.13 / 8.58  & 9.38 / 3.2  \\
-      Cube           & 5.03 / 1.00 & 10.56 / 2.10 & 5.46 / 1.08 \\
-      Nested Spheres & 4.35 / 1.00  & 50.82 / 11.68  & 9.88 / 2.27 \\
-      Nested Cubes   & 4.73 / 1.00 & 9.26 / 1.96 & 4.09 / 0.86 \\
+      Sphere         & 2.93 / 1.00 & 25.13 / 8.58  & 4.73 / 1.61 & 9.38 / 3.2  \\
+      Cube           & 5.03 / 1.00 & 10.56 / 2.10 & 5.80 / 1.15 & 5.46 / 1.08  \\
+      Nested Spheres & 4.35 / 1.00  & 50.82 / 11.68  & 7.94 / 1.82 & 9.88 / 2.27 \\
+      Nested Cubes   & 4.73 / 1.00 & 9.26 / 1.96 &  4.35 / 0.92 & 4.09 / 0.86 \\
       \bottomrule
     \end{tabular}
   \end{center}

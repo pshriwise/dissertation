@@ -5,19 +5,20 @@
 
 As established in Section \ref{sec:problem-statement}, the dominant source of
 additional runtime in DAGMC is spent in the ray tracing process used to satisfy
-the set of Monte Carlo geometry queries outlined in Section \ref{sec:mc-geom-queries}.
-The focus of the work in this chapter is improvements on the performance of the
-ray tracing process through the application of SIMD-oriented programming for the
-bounding volume hierarchies in DAGMC. Some preliminary work was performed
-in this area by replacing the ray tracing kernel used in DAGMC (MOAB's oriented
-bounding box tree) with a kernel produced by Intel, called Embree. All of the
-simulation and ray fire results presented in this chapter and Chapter
-\ref{ch:high_valence} were performed using a 3.4 GHz Intel Core i7 processor on
-a Haswell desktop with AVX2 vectorization instruction sets.
+the set of Monte Carlo geometry queries outlined in Section
+\ref{sec:mc-geom-queries}.  The focus of the work in this chapter is
+improvements on the performance of the ray tracing process through the
+application of SIMD-oriented programming for the bounding volume hierarchies in
+DAGMC. Some preliminary work was performed in this area by replacing the ray
+tracing kernel used in DAGMC (MOAB's oriented bounding box tree) with a kernel
+produced by Intel, called Embree. This work is outlined in Section
+\ref{sec:embree}. All of the simulation and ray fire results presented in this
+chapter and Chapter \ref{ch:high_valence} were performed using a 3.4 GHz Intel
+Core i7 processor on a Haswell desktop with AVX2 vectorization instruction sets.
 
 \section{Linking DAGMC with Intel's Embree}\label{sec:embree}
 
-Embree is the result of a an effort to produce a performant CPU-based ray tracer
+Embree is the result of an effort to produce a performant CPU-based ray tracer
 as a demonstration of the expanding capabilities of modern CPU architectures
 \cite{Wald_2014}. In both construction and traversal of its BVHs, Embree takes
 advantage of many of the latest developments in BVH research by using modern
@@ -43,13 +44,13 @@ level representation in Embree is referred to as a scene. Each scene may contain
 many geometries or triangle surface meshes. Fortunately, this system is enough
 to create a functional representation of DAGMC geometries in which MOAB volumes
 are the equivalent of Embree scenes and MOAB surfaces are represented in their
-respective scenes as surfaces. This mapping is more clearly illustrated in Figure
-\ref{fig:emdag_mapping} This method provides a one-to-one mapping of MOAB
-volumes and surfaces to their corresponding entities in Embree and allows all
-topology-based operations to proceed inside of DAGMC in their usual manner. In
-this way, the requirement for topological information in DAGMC at the surface
-and volume level is met. Next, transfer of the primitive mesh data is
-considered.
+respective scenes as surfaces. This mapping is more clearly illustrated in
+Figure \ref{fig:emdag_mapping} This method provides a one-to-one mapping of MOAB
+volumes and surfaces to their corresponding entities in Embree (geometries and
+scenes, respectively). The mapping allows all topology-based operations to
+proceed inside of DAGMC in their usual manner. In this way, the requirement for
+topological information in DAGMC at the surface and volume level is met. Next,
+transfer of the primitive mesh data is considered.
 
 Scenes do not share mesh data in the same way volume sets are able to in MOAB,
 so the triangle connectivity of each surface is reproduced for each scene they
@@ -74,7 +75,7 @@ representation in MOAB.
   \label{fig:emdag_mapping}
 \end{figure}
 
-The representation of triangle normals is critical to the DAGMC particle
+The computation of triangle normals is critical to the DAGMC particle
 tracking algorithm established by Smith et. al. in 2011 \cite{Smith_2011}. In
 DAGMC, particles on or just outside the surface of a volume are handled by
 ignoring the near-surface intersection upon being placed in a new volume. This
@@ -93,19 +94,19 @@ in EmDAG via the use of Embree's filter functions. Filter functions allow for a
 user-defined callback method which allows users to validate a ray hit inside of
 Embree before returning a final result. Embree will return its most recent
 intersection with the scene to the filter function (the triangle's unnormalized
-vector included) and allow a method to either accept the hit or instruct Embree
-to continue tracing the ray path based on the outcome of the filter function. In
-MOAB, triangle normals are set in a global manner and adjusted using stored
-information within MOAB based on what volume is being queried at the
-moment. This is referred to as the surface's sense with respect to that
+normal vector included) and allow a method to either accept the hit or instruct
+Embree to continue tracing the ray path based on the outcome of the filter
+function. In MOAB, triangle normals are set in a global manner and adjusted
+using stored information within MOAB based on what volume is being queried at
+the moment. This is referred to as the surface's sense with respect to that
 volume. Because surface triangle connectivity is duplicated when transferring
 mesh entities to Embree, triangle normals are pre-oriented depending its sense
 with respect to the volume is being transferred to Embree at load time. This
 saves steps in gathering this information upon traversal. By matching DAGMC's
 data model in the areas of topology, watertight representation, and hit
-acceptance/rejection based on triangle normals, Embree provides DAGMC with all
-the information needed to perform geometric operations needed for Monte Carlo
-simulations.
+acceptance/rejection based on triangle normals, the customized Embree instance
+can provide DAGMC with all the information needed to perform geometric
+operations needed for Monte Carlo simulations.
 
 \subsection{Ray Fire Performance}\label{subsubsec:emdag_rf_performance}
 
@@ -135,27 +136,27 @@ rays is fired in each ray tracing system.
 
 Each geometry used in these tests presents its own challenges with increasing
 faceting tolerance. The sphere is a good control case for an increasing number
-of triangles without change in complexity or exacerbation of pathological mesh
-features. The number of triangles generated in the spherical case will tend
-toward a maximum value with decreasing faceting tolerance, but the general
-nature of the triangulated surface (triangle density, structure, etc.)  will
-remain the same. This is not true of geometries with planar surfaces which may
-be able to be resolved exactly using some finite number of triangles making the
-sphere a valuable test model in that regard. In the case of the notched sphere,
-high-valence regions are generated by the faceting engine as a result of its
-underlying algorithms for planar surfaces meeting curves surfaces. The high
-triangle density of high valence regions causes overlaps in bounding volumes
-which become larger as the faceting tolerance decreases. This results in
-inefficient hierarchy traversal. Additionally, and perhaps more importantly than
-the presence of high valence regions, rays being fired with a point of origin at
-the center of the model causes them to travel either exactly along or very near
-to the surfaces of the planar slots in the sphere. Such a ray query will visit
-many internal nodes of the hierarchy during traversal, creating what is referred
-to as a very wide traversal through the BVH as opposed to a narrow traversal in
-which fewer branches and fewer nodes of the tree are visited. In this way, the
-slotted sphere provides a good measure for the performance of a wide traversal
-through the hierarchy in a situation for which many of the internal nodes are
-required to be visited. The two sets of timing results can be found in Figure
+of triangles with a well-behaved tessellation. The number of triangles generated
+in the spherical case will tend toward a maximum value with decreasing faceting
+tolerance, but the general nature of the triangulated surface (triangle density,
+structure, etc.)  will remain the same. This is not true of geometries with
+planar surfaces which may be able to be resolved exactly using some finite
+number of triangles making the sphere a valuable test model in that regard. In
+the case of the notched sphere, high-valence regions are generated by the
+faceting engine as a result of its underlying algorithms for planar surfaces
+meeting curves surfaces. The high triangle density of high valence regions
+causes overlaps in bounding volumes which become larger as the faceting
+tolerance decreases. This results in inefficient hierarchy
+traversal. Additionally, and perhaps more importantly than the presence of high
+valence regions, rays being fired with a point of origin at the center of the
+model causes them to travel either exactly along or very near to the surfaces of
+the planar slots in the sphere. Such a ray query will visit many internal nodes
+of the hierarchy during traversal, creating what is referred to as a very wide
+traversal through the BVH as opposed to a narrow traversal in which fewer
+branches and fewer nodes of the tree are visited. In this way, the slotted
+sphere provides a good measure for the performance of a wide traversal through
+the hierarchy in a situation for which many of the internal nodes are required
+to be visited. The two sets of timing results can be found in Figure
 \ref{fig:rf_test_results}.
 
 \begin{sidewaysfigure}[]
@@ -175,32 +176,34 @@ required to be visited. The two sets of timing results can be found in Figure
 \end{sidewaysfigure}
 
 Both MOAB and EmDAG scale relatively well for the HAR cylinder model with
-decreasing faceting tolerance. This indicates that both systems are capable of
-building efficient BVHs for a model with long, skinny triangles. The scaling of
-the spherical case with increasing triangles is slightly worse than the HAR
-cylinder most likely because the BVH tree is unavoidably going to become
-gradually deeper as more and more triangles exist in the model. Finally, the
-slotted sphere contains many high valence regions and as expected it scales the
-worst with decreasing faceting tolerance as the valence of these regions
-increases. Due to the very similar scaling of each test model, it can be stated
-that the majority of the discrepancy in the ray fire timings between the two
-systems occurs in the traversal methods employed by both systems and isn't
-likely due to a significant difference in the quality of the BVH being built
-by either system. Changes in the way the BVH is built typically accounts for
-anywhere from 30-40\% difference in ray fire timings whereas the discrepancy
-seen here between MOAB and Embree is on average \textbf{an order of magnitude
-  better} when using Embree. To some degree, this has to do with Embree's freedom
-of design without the restriction of a ray tracing implementation inside the
-context of another application. The flexibility of MOAB's core design allows for the
-robust implementation of an oriented bounding box tree within this context, but
-comes with the overhead of database calls to retrieve stored information which
-can be undesirable for a high-performance system and doesn't allow MOAB to take
-advantage of some implementation optimization available in Embree. The
-vectorization of Embree's traversal through its BVH contributes greatly to its
-speed. This can be also considered a part of the design freedom allowed when
-designing an independent ray tracing system that cannot not be afforded using
-only MOAB's database interface. However, a property unique to MOAB may allow for
-an implementation with performance comparable to Embree's.
+decreasing faceting tolerance. Though MOAB is using OBBs and Embree uses AABBs,
+this indicates that both systems are capable of building efficient BVHs for a
+model with long, skinny triangles. For both MOAB and Embree, the scaling of the
+spherical case with increasing triangles is slightly worse than the HAR cylinder
+most likely because the BVH tree is unavoidably going to become deeper as more
+and more triangles exist in the model, requiring more traversal steps to reach
+leaf nodes. Finally, the slotted sphere contains many high valence regions and
+as expected it scales the worst with decreasing faceting tolerance as the
+valence of these regions increases. Due to the very similar scaling of each test
+model, it can be stated that the majority of the discrepancy in the ray fire
+timings between the two systems occurs in the traversal methods employed by both
+systems and isn't likely due to a significant difference in the quality of the
+BVH being built by either system. Changes in the way the BVH is built typically
+accounts for anywhere from 30-40\% difference in ray fire timings whereas the
+discrepancy seen here between MOAB and Embree is on average \textbf{an order of
+  magnitude better} when using Embree. To some degree, this has to do with
+Embree's freedom of design without the restriction of a ray tracing
+implementation inside the context of another application. The flexibility of
+MOAB's core design allows for the robust implementation of an oriented bounding
+box tree within this context, but comes with the overhead of database calls to
+retrieve stored information which can be undesirable for a high-performance
+system and doesn't allow MOAB to take advantage of some implementation
+optimization available in Embree. The vectorization of Embree's traversal
+through its BVH contributes greatly to its speed. This can be also considered a
+part of the design freedom allowed when designing an independent ray tracing
+system that cannot not be afforded using only MOAB's database
+interface. However, a property unique to MOAB may allow for an implementation
+with performance comparable to Embree's.
 
 \subsection{Transport Tests}
 \label{subsec:emdag_transport}
@@ -261,34 +264,37 @@ fact that very few triangles are needed to represent the surfaces of
 parallel-piped volumes. Exactly two triangles are needed to represent each face
 of the box. The resulting BVHs of these structures are very simple, often
 composed entirely of leaf nodes.  The fact that these volumes have multiple
-surfaces is also of importance. MCNP searches linearly through a given
-volume's surfaces to determine the intersection of a particle with the
-nearest surface whereas both DAG-MCNP and EmDAG-MCNP perform this search
-spatially. In the nested cubes model, it is likely that the number of surfaces
-relative to the number of triangles in their representation is high enough to
-allow EmDAG-MCNP to overtake MCNP's CSG calculations. This is a good
-demonstration of how CSG implementations suffer from the lack of a spatial
-search component when creating volumes from Boolean combination of surfaces as
-mentioned in Section \ref{subsec:csg}.
+surfaces is also of importance. MCNP searches linearly through a given volume's
+surfaces to determine the intersection of a particle with the nearest surface
+whereas both DAG-MCNP and EmDAG-MCNP perform this search for all surfaces
+bounding the volume simultaneously by joining surface BVHs into volume
+BVHs. This process is discussed in detail in Section \ref{sec:surface_roots}. In
+the nested cubes model, it is likely that the number of surfaces relative to the
+number of triangles in their representation is high enough to allow EmDAG-MCNP
+to overtake MCNP's CSG calculations. This is a good demonstration of how CSG
+implementations suffer from the lack of a spatial search component when creating
+volumes from Boolean combination of surfaces as mentioned in Section
+\ref{subsec:csg}.
 
 The results of the single-volume test cases for native MCNP differ slightly from
-the tally results from the DAGMC-based systems, which are the same. This is not
-surprising as DAGMC is known to report statistically similar results to those of
-native MCNP. Comparisons of DAGMC to native codes are not the concern of this
-study, only a comparison of the values returned by EmDAG in comparison to DAGMC
-is considered. Differences in the tally results between DAG-MCNP and EmDAG-MCNP
-are present only in the nested spheres transport model. There is a small
-difference in the flux tally for the outermost volume as can be seen in Table
-\ref{nestedspheres} of Appendix \ref{ch:appendix-b}. By examining the number of
-particle tracks in each cell, it was determined via debugging values that this
-discrepancy is caused by a single particle ending in EmDAG-MCNP near a surface
-of cell 2 while in DAG-MCNP the particle crosses into cell 3 before abruptly
-terminating though it still contributing slightly to the tally in cell 3. It is
-believed that this difference in tally result is the result of a systematic
-difference between Embree and MOAB's ray fire conventionality rather than being
-result of the double to single floating point conversion of the model that
-occurs when using EmDAG - though this conversion in precision is shown to be
-problematic in other ways in Section \ref{sec:emdag_limitations}.
+the results from the DAGMC-based systems, which match each other exactly. This
+is not surprising as DAG-MCNP is known to report statistically similar, but not
+exactly the same, results as native MCNP. Comparisons of DAG-MCNP to native
+codes are not the concern of this study, only a comparison of the values
+returned by EmDAG-MCNP in comparison to DAG-MCNP is considered. Differences in
+the tally results between DAG-MCNP and EmDAG-MCNP are present only in the nested
+spheres transport model. There is a small difference in the flux tally for the
+outermost volume as can be seen in Table \ref{nestedspheres} of Appendix
+\ref{ch:appendix-b}. By examining the number of particle tracks in each cell, it
+was determined via debugging values that this discrepancy is caused by a single
+particle ending in EmDAG-MCNP near a surface of cell 2 while in DAG-MCNP the
+particle crosses into cell 3 before abruptly terminating though it still
+contributing slightly to the tally in cell 3. It is believed that this
+difference in tally result is the result of a systematic difference between
+Embree and MOAB's ray fire conventionality rather than being result of the
+double to single floating point conversion of the model that occurs when using
+EmDAG - though this conversion in precision is shown to be problematic in other
+ways in Section \ref{sec:emdag_limitations}.
 
 Finally, a production test of EmDAG was conducted on the FNG model using the
 same volumetric source as in the performance benchmarking tests described
@@ -784,7 +790,7 @@ purely a weighted geometric evaluation without estimation of
 implementation-based valued which can vary based on machine architecture, build
 settings, etc.
 
-\subsubsection{Surface Root Nodes}
+\subsubsection{Surface Root Nodes}\label{sec:surface_roots}
 
 In DAGMC, trees exist for each volume and surface in the geometry. Rather
 than duplicate surface trees for each volume they appear in, one tree is created

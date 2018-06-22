@@ -927,12 +927,15 @@ values. It can also trace rays at any time via a method in which the ray length
 is repeatedly clipped using signed distance values to approach a surface in a
 process called ray marching \cite{Tomczak_2012}.
 
-\section{Memory Considerations}
+\section{Monte Carlo Memory Considerations}
 
-\subsection{Monte Carlo Sources}
-  
-Monte Carlo memory consumption is normally attributed to cross-section data and
-tally data structures. Cross-section data is necessary to represent the physicsl
+The bulk of Monte Carlo memory consumption in native calculations is attributed
+to nuclear cross-section data and tally data structures with the analytic CSG
+geometry representation taking up a small portion of the overall program memory.
+
+\subsection{Cross-Section Data}
+
+Cross-section data is necessary to represent the physicsl
 processes governing particle transport through the virtual geometry. Various
 formats of this data exist with both continuous and discrete representation of
 cross section information. Continuous representations of data are compact in
@@ -944,22 +947,87 @@ dependent on the number of unique materials used in the problem and material
 composition as well. This data can occupy the majority of simulation memory for
 large problems with many materials.
 
+\subsection{Tally Data Structures}
+
+Results of the Monte Carlo calculation are kept as tallies of particle
+contributions to physical quantities at various locations in the physical
+model. Tallies on surfaces or in cells change the memory usage of the simulation
+insignificantly, unless additional data is needed to calculate derived
+quantities. Mesh-based tallies on the other hand can dominate the memory
+usage. In MCNP and many other Monte Carlo codes, mesh tallies are defined by the
+user as structured grids in either Cartesian, cylindrical, or spherical
+coordinates. These tallies are often used for better spatial resoluion of
+physical data in the simulation and for coupling to analysis in other
+engineering domains. Tetrahedral mesh tallies are also supported by several
+Monte Carlo codes DAGMC interacts with, including MCNP
+\cite{LANL_MCNP5_VOLIII}. The size of these tallies vary based on the needs of
+the user and the tradeoffs associated with spatial resolution of solutions and
+statistical convergence related to mesh element sizes.
+
 \subsection{Parallel Computation Schemes}
 
-For the Monte Carlo code used in this work, MCNP, is a parallelism method
-applied is a master/slave scheme standard for many Message Passing Interface
-(MPI) applications. The master process is responsible for initializing the
-problem, determining the load balance for the number of parallel processess
-requested by the user, and collecting/accumulating information at the end of the
-simulation.
+For the Monte Carlo code used in this work, MCNP, the parallelism method applied
+is a master/slave scheme standard for many applications using the Message
+Passing Interface (MPI) \cite{Forum_1994}. The master process is responsible for
+initializing the problem, determining the load balance for the number of
+parallel processess requested by the user, and collecting/accumulating
+information at the end of the simulation. In MCNP, particle histories are
+divided into equal segments among the slave processes for evaluation. More
+information on the method for particle history division and random number
+sequence assignment was detailed by Deng and Xie \cite{Deng_1999}. For each
+slave process, a corresponding set of the nuclear data, tally data structures,
+and geometry representation are created. Duplication of the geometry
+representation has a significant implications for the use of CAD-based
+tessellations.
 
-\subsection{Geometric Representation}
+\subsection{Impact on CAD-Base Geometry}
+
+The tesselations resulting from CAD geometries consume much more memory than
+corresponding CSG representations. This must be taken into consideration when
+planning parallel simulations clusters where the limitation for the number of
+processes per CPU can be limited by the memory used in a single process. Because
+DAGMC's CAD-based particle tracking is an addition to MCNP, it has no influence
+on the parallelism data model. Given that geometry representations are required
+to exist in each process of the parallel simluation, memory usage in DAGMC is
+closely monitored. Some of this memory usage is largely uncontrollable due to
+the reliance on CUBIT or Trelis and their's underlying tessellation algorithms,
+but additional data used to maintain geometric relationships and build acceleration data
+structures are kept to a minimum if possible.
+
+\begin{table}[H]
+    \centering
+  \begin{tabular}{l c c c}
+    \toprule
+    Model & Tessellation (MB) & MOAB BVH (MB) \\
+    \hline
+    FNG   & 92           & 168 \\
+    ATR   & 294          & 675 \\
+    UWNR  & 213          & 435 \\
+    nTOF  & 56           & 88  \\
+    \hline
+  \end{tabular}
+  \caption[Memory summary of performance benchmark models.]{A summary of the
+    memory usage for the performance benchmark models shown in Table
+    \ref{dag-mcnp-benchmarks} both with and without accelleration data structures.}
+  \label{tab:dag-mcnp-benchmarks-mem}
+\end{table}
+
+Table \ref{tab:dag-mcnp-benchmarks-mem} shows the memory usage for all of the
+benchmark models used to assess DAG-MCNP's performance relative to native MCNP
+geometry representations in Section \ref{sec:problem-statement}. All of the
+models consume relatively low amounts of memory compared to the storage found on
+many CPUs in High Performance Computing (HPC) environments, but the addition of
+accelleration data structures, in this instance MOAB's BVH of OBBs, can more
+than double the memory occupied for the geometry representation. This effect
+becomes even more pronounced in larger production models seen in Chapters
+\ref{ch:simd_bvh} and \ref{ch:high_valence}.
 
 \section{Summary}
 
 This discussion of the CAD-based MCRT-t via the DAGMC toolkit, hierarchical
-spatial data structures, and SDF generation in this chapter provides a basis for
-the work performed in the remainder of this document. Chapter
+spatial data structures, SDF generation, and context for memory use in parallel
+simulations with MCNP in this chapter provides a basis for the work performed in
+the remainder of this document. Chapter
 \ref{ch:preconditioning} discusses the implementation and application of SDFs in
 DAGMC's framework. Next, Chapter \ref{ch:simd_bvh} presents work on BVHs
 optimized for use in DAGMC and extensions of those methods to provide robust

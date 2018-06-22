@@ -935,7 +935,7 @@ geometry representation taking up a small portion of the overall program memory.
 
 \subsection{Cross-Section Data}
 
-Cross-section data is necessary to represent the physicsl
+Cross-section data is necessary to represent the physical
 processes governing particle transport through the virtual geometry. Various
 formats of this data exist with both continuous and discrete representation of
 cross section information. Continuous representations of data are compact in
@@ -956,12 +956,12 @@ insignificantly, unless additional data is needed to calculate derived
 quantities. Mesh-based tallies on the other hand can dominate the memory
 usage. In MCNP and many other Monte Carlo codes, mesh tallies are defined by the
 user as structured grids in either Cartesian, cylindrical, or spherical
-coordinates. These tallies are often used for better spatial resoluion of
+coordinates. These tallies are often used for better spatial resolution of
 physical data in the simulation and for coupling to analysis in other
 engineering domains. Tetrahedral mesh tallies are also supported by several
 Monte Carlo codes DAGMC interacts with, including MCNP
 \cite{LANL_MCNP5_VOLIII}. The size of these tallies vary based on the needs of
-the user and the tradeoffs associated with spatial resolution of solutions and
+the user and the trade-offs associated with spatial resolution of solutions and
 statistical convergence related to mesh element sizes.
 
 \subsection{Parallel Computation Schemes}
@@ -970,7 +970,7 @@ For the Monte Carlo code used in this work, MCNP, the parallelism method applied
 is a master/slave scheme standard for many applications using the Message
 Passing Interface (MPI) \cite{Forum_1994}. The master process is responsible for
 initializing the problem, determining the load balance for the number of
-parallel processess requested by the user, and collecting/accumulating
+parallel processes requested by the user, and collecting/accumulating
 information at the end of the simulation. In MCNP, particle histories are
 divided into equal segments among the slave processes for evaluation. More
 information on the method for particle history division and random number
@@ -982,15 +982,15 @@ tessellations.
 
 \subsection{Impact on CAD-Base Geometry}
 
-The tesselations resulting from CAD geometries consume much more memory than
+The tessellations resulting from CAD geometries consume much more memory than
 corresponding CSG representations. This must be taken into consideration when
 planning parallel simulations clusters where the limitation for the number of
 processes per CPU can be limited by the memory used in a single process. Because
 DAGMC's CAD-based particle tracking is an addition to MCNP, it has no influence
 on the parallelism data model. Given that geometry representations are required
-to exist in each process of the parallel simluation, memory usage in DAGMC is
+to exist in each process of the parallel simulation, memory usage in DAGMC is
 closely monitored. Some of this memory usage is largely uncontrollable due to
-the reliance on CUBIT or Trelis and their's underlying tessellation algorithms,
+the reliance on CUBIT or Trelis' underlying tessellation algorithms,
 but additional data used to maintain geometric relationships and build acceleration data
 structures are kept to a minimum if possible.
 
@@ -1008,7 +1008,7 @@ structures are kept to a minimum if possible.
   \end{tabular}
   \caption[Memory summary of performance benchmark models.]{A summary of the
     memory usage for the performance benchmark models shown in Table
-    \ref{dag-mcnp-benchmarks} both with and without accelleration data structures.}
+    \ref{dag-mcnp-benchmarks} both with and without acceleration data structures.}
   \label{tab:dag-mcnp-benchmarks-mem}
 \end{table}
 
@@ -1017,7 +1017,7 @@ benchmark models used to assess DAG-MCNP's performance relative to native MCNP
 geometry representations in Section \ref{sec:problem-statement}. All of the
 models consume relatively low amounts of memory compared to the storage found on
 many CPUs in High Performance Computing (HPC) environments, but the addition of
-accelleration data structures, in this instance MOAB's BVH of OBBs, can more
+acceleration data structures, in this instance MOAB's BVH of OBBs, can more
 than double the memory occupied for the geometry representation. This effect
 becomes even more pronounced in larger production models seen in Chapters
 \ref{ch:simd_bvh} and \ref{ch:high_valence}.

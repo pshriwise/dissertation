@@ -927,6 +927,33 @@ values. It can also trace rays at any time via a method in which the ray length
 is repeatedly clipped using signed distance values to approach a surface in a
 process called ray marching \cite{Tomczak_2012}.
 
+\section{Memory Considerations}
+
+\subsection{Monte Carlo Sources}
+  
+Monte Carlo memory consumption is normally attributed to cross-section data and
+tally data structures. Cross-section data is necessary to represent the physicsl
+processes governing particle transport through the virtual geometry. Various
+formats of this data exist with both continuous and discrete representation of
+cross section information. Continuous representations of data are compact in
+terms of memory requirements, but are more computationally expensive to evaluate
+when sampling these probability distribution functions. Discrete representations
+of this data consume more memory in simulation, but require less computation
+when extracting data. The amount of memory consumed for nuclear data is
+dependent on the number of unique materials used in the problem and material
+composition as well. This data can occupy the majority of simulation memory for
+large problems with many materials.
+
+\subsection{Parallel Computation Schemes}
+
+For the Monte Carlo code used in this work, MCNP, is a parallelism method
+applied is a master/slave scheme standard for many Message Passing Interface
+(MPI) applications. The master process is responsible for initializing the
+problem, determining the load balance for the number of parallel processess
+requested by the user, and collecting/accumulating information at the end of the
+simulation.
+
+\subsection{Geometric Representation}
 
 \section{Summary}
 

@@ -64,10 +64,11 @@ systems. A few have the capability to perform simulations directly on CAD
 geometries as well \cite{Leppanen_2015}.
 
 The Direct Accelerated Geometry Monte Carlo (DAGMC) \cite{Tautges_2009} toolkit
-is one of several software packages which enables Monte Carlo simulations on
-CAD-based tessellations. DAGMC's design allows it to serve as a particle tracking
-and geometry kernel for all Monte Carlo codes listed
-in Table \ref{tab:dagmc_implementations}.
+is one of several software packages which enables Monte Carlo Radiation
+Transport on tessellated surfaces (MCRT-t) originating from CAD
+geometries. DAGMC's design allows it to serve as a particle tracking and
+geometry kernel for all Monte Carlo codes listed in Table
+\ref{tab:dagmc_implementations}.
 
 \begin{table}[H]
   \centering
@@ -135,7 +136,7 @@ Science and International Security.
     \hline
   \end{tabular}
   \caption[DAG-MCNP performance benchmarking.]{Table comparing the performance of DAG-MCNP to native MCNP for the
-    same models after translation to a CAD-based surface mesh.}
+    same models after translation to a CAD-based tessellated surface mesh.}
   \label{dag-mcnp-benchmarks}  
 \end{table}
 
@@ -183,7 +184,7 @@ satisfy the geometric queries of the underlying Monte Carlo code it is coupled
 to. Looking more closely at the underlying calls in DAGMC, one can see that this
 time is collectively spent in the DAGMC \textit{ray\_fire} method,
 indicating that a significant amount of additional time is spent in
-CAD-based geometry queries.
+MCRT-t geometry queries.
 
 %% Function names
 %% like \textit{RayIntersectSets} and \textit{preorder\_traverse} indicate that
@@ -201,7 +202,7 @@ A background and literature review of CAD-based transport methods and associated
 acceleration techniques is provided in Chapter \ref{ch:background}. First, it
 outlines required capabilities for particle tracking in MCRT. Next it describes 
 commonly used geometry representations in MCRT codes followed by a description
-of the CAD-based particle tracking systems of interest for this work. Lastly,
+of the MCRT-t particle tracking systems of interest for this work. Lastly,
 associated acceleration data structures and techniques which enable highly performant
 computation of transport on CAD models are discussed.
 
@@ -227,8 +228,8 @@ system are presented for several production models, including several of the
 models used in benchmark comparison found in Chapter \ref{ch:introduction}.
 
 Chapter \ref{ch:high_valence} addresses a long-standing issue in CAD-based
-MCRT. Performance degradation caused by problematic features of the CAD-based
-mesh geometry are characterized using a contrived model for all ray tracing
+MCRT-t. Performance degradation caused by problematic features of the CAD-based
+tessellation are characterized using a contrived model for all ray tracing
 implementations in Chapter \ref{ch:simd_bvh}. A solution using on-the-fly
 detection of and adaptation to of this feature during construction of particle
 tracking acceleration data structures is presented. Characterization of the

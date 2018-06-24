@@ -493,10 +493,9 @@ Hierarchy (MPBVH).
 
 The MPBVH was created by the author as an independent project which draws on
 design elements from Embree while interfacing with MOAB to optimize CPU-based
-ray tracing for the application of CAD-based Monte Carlo Radiation
-Transport. The details of these features can be found in Embree's documentation
-\cite{Embree}. Several such design elements found in both the Embree and the MPBVH
-include:
+ray tracing for the application of CAD-based MCRT-t. The details of these
+features can be found in Embree's documentation \cite{Embree}. Several such
+design elements found in both the Embree and the MPBVH include:
 
 \begin{itemize}
   \item single-precision bounding entities
@@ -1289,7 +1288,7 @@ such as DAGMC. The demonstration of this capability is enabled by the direct
 access methods available in MOAB, but the methods described in this work could
 in theory be applied to other spatial databases with contiguous memory designs.
 
-For the purposes of CAD-based MCRT, the MPBVH kernel's design, inspired largely
+For the purposes of CAD-based MCRT-t, the MPBVH kernel's design, inspired largely
 by Embree, allows for a simple yet robust tracking algorithm in DAGMC. These
 methods have been demonstrated on production models used in verification and
 analysis applications of DAGMC. The combination of this algorithm and the

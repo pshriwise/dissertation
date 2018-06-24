@@ -27,11 +27,10 @@
 \chapter{Signed Distance Field Preconditioning}\label{ch:preconditioning}
 
 This chapter describes the adaptation of a rendering data structure, the Signed
-Distance Field (SDF), as a tool for accelerating CAD-based transport in the Direct
-Accelerated Monte Carlo (DAGMC) toolkit. A model for predicting the data
-structure's utilization in simulation is also introduced. Finally,
-demonstrations of its effectiveness for a number of simple problems and
-production models are shown and discussed.
+Distance Field (SDF), as a tool for accelerating MCRT-t in DAGMC. A model for
+predicting the data structure's utilization in simulation is also
+introduced. Finally, demonstrations of its effectiveness for a number of simple
+problems and production models are shown and discussed.
 
 Signed distance fields are typically represented using a mesh-based structure
 such as a Cartesian grid as depicted in Figure
@@ -163,12 +162,12 @@ values and used to avoid more computationally expensive ray fire calls in DAGMC.
              }
              
 Using these methods, signed distance fields can act as a preconditioning tool
-for the relatively expensive ray fire process to accelerate CAD-based MCRT by
+for the relatively expensive ray fire process to accelerate CAD-based MCRT-t by
 using an $O(1)$ process to establish that the conditions of a geometric query
 are such that a more computationally expensive ray fire is necessary before
 performing the ray tracing operation. It is hypothesized that for some Monte
-Carlo problems this process can be used to avoid $O(log \, N_{triangles})$ ray fire calls to
-significantly reduce the runtime of the simulation.
+Carlo problems this process can be used to avoid $O(log \, N_{triangles})$ ray
+fire calls to significantly reduce the runtime of the simulation.
 
 \section{Implementation}
 
@@ -1229,7 +1228,7 @@ effectiveness of the SDF regardless of the utilization.
 
 \section{Summary}
 
-This chapter presented a novel approach to accelerating CAD-based MCRT through
+This chapter presented a novel approach to accelerating CAD-based MCRT-t through
 use of signed distance fields to precondition relatively expensive ray fire
 calls in the DAGMC geometry kernel. An analytic model was developed to predict
 the utilization of this method based on dimensionless geometric and

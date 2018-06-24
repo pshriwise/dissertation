@@ -347,7 +347,7 @@ structure relationships used in rendering and scientific simulation
 today. Next, two splitting heuristics used to build these data structures, the Entity Ratio Heuristic (ERH) and
 Surface Area Heuristic (SAH) are discussed. After that, several common spatial
 hierarchies are described including the KD-Tree, Bounding Volume Hierarchy
-(BVH), and the Octree. The remainder of this chapter describes CPU architecture
+(BVH), and the octree. The remainder of this chapter describes CPU architecture
 characteristics which allow adaptations of these hierarchical data structures to
 achieve improved performance. This description includes a commentary on the
 relevance of specific design elements in these accelerations to MCRT.
@@ -662,17 +662,17 @@ times if they intersect multiple nodes thus increasing the required memory
 storage with the same consequence as seen in KD-Tree traversal with the
 possibility of a primitive being checked more than once upon traversal. The
 memory footprint is mostly of concern in applications for visualization on GPUs
-- though specialized methods for Octree applications on these architectures do
+- though specialized methods for octree applications on these architectures do
 exist.
 
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.7]{octree_2d_ex.eps}
-  \caption[A 2D Octree example.]{Depiction of a two dimensional Octree example of a top-down ray fire traversal for a simple geometric object.}
+  \caption[A 2D octree example.]{Depiction of a two dimensional octree example of a top-down ray fire traversal for a simple geometric object.}
   \label{fig:2D_octree}
 \end{figure}
 
-One advantage of Octrees is the regular nature of the partitions. The value of a
+One advantage of octrees is the regular nature of the partitions. The value of a
 node in hierarchies such as these (or in the BVH for that matter) lies in its
 ability to remove candidate space from the query, yet a voxel can only
 accomplish this if rays strike the voxel. The result is that one measure of a
@@ -689,12 +689,12 @@ the root node properties also provides a fast look-up of the deepest node in the
 tree containing a point in space. This is helpful in providing a starting point
 for ray traversal which is deeper than the root node, allowing one to
 potentially avoid some traversal steps in the shallow levels of the
-tree. Additionally, Octrees have non-overlapping nodes which allows for
+tree. Additionally, octrees have non-overlapping nodes which allows for
 efficient traversal schemes similar to the neighbor linked traversal done in
 KD-trees. These traversals are conceptually similar to that of the KD-tree's but
 typically employ some form of Morton encoding to determine which node in the
 octree the ray should visit next \cite{Revelles_2000}. Other traversal
-techniques allow the Octree to avoid creating and traversing nodes containing
+techniques allow the octree to avoid creating and traversing nodes containing
 empty space which can significantly reduce its memory footprint in cases where
 internal nodes of the tree aren't required to define some spatial dataset as
 mentioned above \cite{Samet_1989}. These methods are often applied in GPU
@@ -703,7 +703,7 @@ to store spatial data fields as well and naturally provide a higher resolution
 of the field near boundaries of volume as the voxels become smaller in that
 region which can be seen in Figure \ref{fig:2D_octree}.
 
-As mentioned above, Octrees are known for having large memory footprints
+As mentioned above, octrees are known for having large memory footprints
 compared to other acceleration data structures, but they can also be used
 advantageously for a combined purpose if a problem requires the storage of one
 or more well-resolved data fields near volume boundaries as well as the
@@ -852,7 +852,7 @@ to the higher n-ary structure of the trees used in these implementations.
 
 % NOT SURE THIS IS NECESSARY %
 For completeness of all ray tracing data structures discussed in this chapter,
-SIMD implementations of Octree's were sought out in literature, but none were
+SIMD implementations of octrees were sought out in literature, but none were
 found. This is likely due to the fact that SIMD registers on common
 architectures wide enough to accommodate 8 nodes are not yet common. It is also
 worth noting that while the KD-Tree is restricted to a binary hierarchy, another

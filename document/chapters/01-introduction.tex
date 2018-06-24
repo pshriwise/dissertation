@@ -65,7 +65,7 @@ geometries as well \cite{Leppanen_2015}.
 
 The Direct Accelerated Geometry Monte Carlo (DAGMC) \cite{Tautges_2009} toolkit
 is one of several software packages which enables Monte Carlo simulations on
-CAD-based geometries. DAGMC's design allows it to serve as a particle tracking
+CAD-based tessellations. DAGMC's design allows it to serve as a particle tracking
 and geometry kernel for all Monte Carlo codes listed
 in Table \ref{tab:dagmc_implementations}.
 
@@ -98,7 +98,7 @@ intersections with surfaces to intersections with a set of planar
 surfaces. However, a large number of triangles are needed to maintain an
 accurate representation of surfaces throughout the model. As a result, the
 costly search for surface crossings and other fundamental geometry
-queries cause simulations on CAD-bas ed geometries
+queries cause simulations on CAD-based tessellations
 to take much longer than native CSG models.
 
 The intersection of a particle and trajectory with a triangulated surface is a
@@ -191,12 +191,11 @@ CAD-based geometry queries.
 
 \section{Statement of Thesis}
 
-The purpose of this dissertation is to discover new pathways toward
-improving the performance of CAD-based Monte Carlo radiation transport
-in a manner that is widely accessible to analysts. The result is a
-compilation of adaptive data structure construction, data structure
-redesign, and alternative methods to reduce simulation times in
-DAGMC.
+The purpose of this dissertation is to discover new pathways toward improving
+the performance of Monte Carlo radiation transport in CAD-based tessellations in
+a manner that is widely accessible to analysts. The result is a compilation of
+adaptive data structure construction, data structure redesign, and alternative
+methods to reduce simulation times in DAGMC.
 
 A background and literature review of CAD-based transport methods and associated
 acceleration techniques is provided in Chapter \ref{ch:background}. First, it
@@ -214,28 +213,29 @@ and physics. Finally, results of this
 method's application in both contrived and production models are discussed along
 with limitations of the method and aforementioned analytic model.
 
-Chapter \ref{ch:simd_bvh} demonstrates the integration of nuclear engineering simulation with state-of-the-art
-computer graphics tools. Significant improvements in performance are demonstrated in both test and production models
+Chapter \ref{ch:simd_bvh} demonstrates the integration of nuclear engineering
+simulation with state-of-the-art computer graphics tools. Significant
+improvements in performance are demonstrated in both test and production models
 by adapting data structures discussed in Chapter \ref{ch:background} for optimal
-efficiency on modern CPU architectures. Robustness limitations of the computer graphics
-tools as applied to engineering analysis are discussed, and extensions of these tools are
-presented to address those limitations. Critical implementation details and
-algorithmic adjustments of these
-extensions are outlined, and performance comparisons are drawn in terms of the
-raw query speed between all particle tracking implementations. Finally results,
-of the extended system are presented for several production models,
-including several of the models used in benchmark comparison found in Chapter
-\ref{ch:introduction}.
+efficiency on modern CPU architectures. Robustness limitations of the computer
+graphics tools as applied to engineering analysis are discussed, and extensions
+of these tools are presented to address those limitations. Critical
+implementation details and algorithmic adjustments of these extensions are
+outlined, and performance comparisons are drawn in terms of the raw query speed
+between all particle tracking implementations. Finally results, of the extended
+system are presented for several production models, including several of the
+models used in benchmark comparison found in Chapter \ref{ch:introduction}.
 
 Chapter \ref{ch:high_valence} addresses a long-standing issue in CAD-based
-MCRT. Performance degradation caused by problematic features of the CAD-based mesh geometry
-are characterized using a contrived model for all ray tracing
+MCRT. Performance degradation caused by problematic features of the CAD-based
+mesh geometry are characterized using a contrived model for all ray tracing
 implementations in Chapter \ref{ch:simd_bvh}. A solution using on-the-fly
-detection of and adaptation to of this feature during construction of particle tracking
-acceleration data structures is presented. Characterization of the performance
-both with and without the adaptive construction
-technique are presented and discussed. Finally, results of this technique as applied to the same set of
-production models shown in Chapter \ref{ch:simd_bvh} are presented and discussed.
+detection of and adaptation to of this feature during construction of particle
+tracking acceleration data structures is presented. Characterization of the
+performance both with and without the adaptive construction technique are
+presented and discussed. Finally, results of this technique as applied to the
+same set of production models shown in Chapter \ref{ch:simd_bvh} are presented
+and discussed.
 
 The conclusion statements in Chapter \ref{ch:conclusion} discuss the
 contributions of this work to MCRT for CAD geometries, its broader impacts, and

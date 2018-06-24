@@ -164,7 +164,7 @@ values and used to avoid more computationally expensive ray fire calls in DAGMC.
              
 Using these methods, signed distance fields can act as a preconditioning tool
 for the relatively expensive ray fire process to accelerate CAD-based MCRT by
-using an $O(1)$ process by establishing that the conditions of a geometric query
+using an $O(1)$ process to establish that the conditions of a geometric query
 are such that a more computationally expensive ray fire is necessary before
 performing the ray tracing operation. It is hypothesized that for some Monte
 Carlo problems this process can be used to avoid $O(log \, N_{triangles})$ ray fire calls to

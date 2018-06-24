@@ -383,11 +383,11 @@ Two heuristics will now be discussed - the Entity Ratio Heuristic (ERH) and the
 Surface Area Heuristic (SAH). The ERH uses the resulting number of primitives in
 each child node to determine the cost of a split. The philosophy behind this
 heuristic is to maintain the expected $O(log(N_{primitives}))$ cost of a ray
-traversal by ensuring that the number primitives are split as evenly as possible from
+traversal by ensuring that the number of primitives are split as evenly as possible from
 parent to child node. A form of this heuristic is presented in Equation
 \eqref{eq:ERH}. The ERH cost is unit-less and bounded by zero and one. This
 heuristic provides a finite limit on the expected cost, and makes it possible to
-set both an upper and lower bound as both an unacceptably high and ``good enough''
+set both an upper and lower bound as both an unacceptably high and a ``good enough''
 cost, respectively.
 
 \begin{figure}[H]
@@ -527,16 +527,16 @@ so as not to have parent volumes containing large amounts of empty space.
 
 In Weghorst's exploration of sphere and box bounding volumes it was found that
 while spherical bounding volumes are not as computationally expensive to check
-for ray intersections compared to bounding boxes the latter generally provide a
+for ray intersections compared to bounding boxes, the latter generally provide a
 tighter fit to the objects they contain. This decreases the chance of wasted
 ray-volume intersection checks for rays which intersect the bounding volume but
 not the object it contains. When considering the application of bounding volumes
 to a discretized analytic surface represented by a triangle mesh, this becomes
- more important as BVHs become deeper and more ray-volume intersection checks are performed to
-reach leaf nodes. Even applied to analytic objects, this effect was reflected
-in the results of Weghorts's work strongly enough to show that bounding boxes
-provided better performance in accelerating the ray intersection process than
-bounding spheres.
+more important as BVHs become deeper and more ray-volume intersection checks are
+performed to reach leaf nodes. Even applied to analytic objects, this effect was
+reflected in the results of Weghorts's work strongly enough to show that
+bounding boxes provided better performance in accelerating the ray intersection
+process than bounding spheres.
 
 Two forms of BVHs are commonly applied in ray tracing problems: Axis-Aligned
 Bounding Boxes (AABBs) and Oriented Bounding Boxes (OBBs). AABBs are boxes whose

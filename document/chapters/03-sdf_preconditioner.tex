@@ -6,8 +6,8 @@
   \begin{adjustwidth}{1em}{0pt}
     \begin{figure}[h]
       \begin{center}
-        \includesvg{../images/#2}{width=0.65\textwidth}
-        \caption[Depiction of SDF usage for the \textit{#1} geometry query.]{#3}
+        \includesvg{../images/#2}{width=0.75\textwidth}
+        \caption[Depiction of SDF preconditioning for the \textit{#1} geometry query.]{#3}
         \label{fig:#2}
       \end{center}
     \end{figure}
@@ -27,21 +27,21 @@
 \chapter{Signed Distance Field Preconditioning}\label{ch:preconditioning}
 
 This chapter describes the adaptation of a rendering data structure, the Signed
-Distance Field (SDF), as a tool for accelerating CAD-based transport in the Direct
-Accelerated Monte Carlo (DAGMC) toolkit. A model for predicting the data
-structure's utilization in simulation is also introduced. Finally,
-demonstrations of its effectiveness for a number of simple problems and
-production models are shown and discussed.
+Distance Field (SDF), as a tool for accelerating MCRT-t in DAGMC. A model for
+predicting the data structure's utilization in simulation is also
+introduced. Finally, demonstrations of its effectiveness for a number of simple
+problems and production models are shown and discussed.
 
 Signed distance fields are typically represented using a mesh-based structure
 such as a Cartesian grid as depicted in Figure
-\ref{fig:preconditioner_datastruct} or an Octree. Associated with each vertex in
-the mesh is a signed value representing the distance to the nearest surface of
-the geometry. Signed distance values can be constructed for arbitrary locations
-within the mesh by interpolating the stored values of the vertices for the mesh
-element containing the point. These interpolated signed distance values can then
-be used to quickly provide local geometric information for Monte Carlo queries
-in simulation.
+\ref{fig:preconditioner_datastruct} or an octree. Associated with each vertex in
+the mesh is a signed value whose sign indicates its containment by the surface
+and whose magnitude represents the distance to the nearest surface of the
+geometry from its associated location. Signed distance values can be constructed
+for arbitrary locations within the mesh by interpolating the stored values of
+the vertices for the mesh element containing the point. These interpolated
+signed distance values can then be used to quickly provide local geometric
+information for Monte Carlo queries in simulation.
 
 \section{Preconditioning Theory}\label{sec:preconditioner_theory}
 
@@ -52,12 +52,12 @@ queries in DAGMC with $O(log \, N_{triangles})$ complexity using MOAB's BVH, but
 hypothesized that these queries can be accelerated in many cases. For each of
 the fundamental Monte Carlo geometries outlines below, signed distance values
 are recovered from the signed distance field via interpolation of the field
-values and used to precondition ray fire calls in DAGMC.
+values and used to avoid more computationally expensive ray fire calls in DAGMC.
 
 
 \precondQuery{Point Containment}
               {point_containment_sdf}
-              {Examples of scenarios for point containment preconditioning using
+              {Examples of scenarios for \textit{point containment} preconditioning using
                 signed distance values. For locations far from the surface
                 boundary, the sign of interpolated signed distance value can be
                 used to determine point containment. Locations close to the
@@ -65,24 +65,22 @@ values and used to precondition ray fire calls in DAGMC.
                 error, $\epsilon$, cannot be used to determine point
                 containment. }
               {
-                \textit{Point Containment} queries can be preconditioning by examining
-                the interpolated signed distance value for the current particle
-                location. If the point's value is negative (or outside of the
-                SDF), then the point is considered to be outside of the
+                \textit{Point Containment} queries can be preconditioning by
+                examining the interpolated signed distance value for the current
+                particle location. If the point's value is negative (or outside
+                of the SDF), then the point is considered to be outside of the
                 volume. If the point's value is positive, then the point is
-                determined to be inside the volume.
-
-                Given that there is error associated with each of these
-                interpolated values, the result of this method should only be
-                trusted if the absolute value of the signed distance is greater
-                than the expected error associated with the value. If
-                this is not the case, then a ray must be fired to determine the
-                particle's containment with respect to the volume in
-                question. In effect, this verifies that the location is far
-                enough from the boundary of the volume to make a definitive
-                statement about whether it is inside or outside of the volume
-                based on the sign of its interpolated signed distance value.
-                Figure \ref{fig:point_containment_sdf} graphically describes the
+                determined to be inside the volume. Given that there is error
+                associated with each of these interpolated values, the result of
+                this method should only be trusted if the absolute value of the
+                signed distance is greater than the expected error associated
+                with the value. If this is not the case, then a ray must be
+                fired to determine the particle's containment with respect to
+                the volume in question. In effect, this verifies that the
+                location is far enough from the boundary of the volume to make a
+                definitive statement about whether it is inside or outside of
+                the volume based on the sign of the interpolated value.  Figure
+                \ref{fig:point_containment_sdf} graphically describes the
                 outcome of these different cases in two dimensions.
               }
 
@@ -95,11 +93,11 @@ values and used to precondition ray fire calls in DAGMC.
                crossing between the particle's current location and physics
                event location. } {
                \textit{Next Surface} intersection queries are the most common
-               geometry query in Monte Carlo simulations as demonstrated in
-               Table \ref{tab:geom_query_ratios}. These queries are initiated by
+               geometry query in Monte Carlo simulations as demonstrated by data
+               in Table \ref{tab:geom_query_ratios}. These queries are initiated by
                native Monte Carlo codes to determine if a particle will cross a
                surface before reaching its next physics event location. Normally
-               in DAGMC a ray is fired each time this query is called. This can
+               in DAGMC at least one ray fired each time this query is called. This can
                be avoided by using the signed distance field to exclude the
                possibility of a surface crossing without explicitly determining
                the next surface intersection. If the sum of the signed distance
@@ -111,7 +109,7 @@ values and used to precondition ray fire calls in DAGMC.
                distance to any surface for a given location. The signed distance
                value of the current location ensures that some portion of the
                particle's track from the current location to the physics even
-               location is empty space. The signed distance value of the physics
+               location is open space. The signed distance value of the physics
                event location also ensures that a portion of the particle's
                track is empty space. If the entire track length can be accounted
                for, then no surface crossing exists between the two
@@ -164,12 +162,12 @@ values and used to precondition ray fire calls in DAGMC.
              }
              
 Using these methods, signed distance fields can act as a preconditioning tool
-for the relatively expensive ray fire process to accelerated CAD-based MCRT by
+for the relatively expensive ray fire process to accelerate CAD-based MCRT-t by
 using an $O(1)$ process to establish that the conditions of a geometric query
 are such that a more computationally expensive ray fire is necessary before
 performing the ray tracing operation. It is hypothesized that for some Monte
-Carlo problems this process can be used to avoid $O(log \, N_{triangles})$ ray fire calls to
-significantly reduce the runtime of the simulation.
+Carlo problems this process can be used to avoid $O(log \, N_{triangles})$ ray
+fire calls to significantly reduce the runtime of the simulation.
 
 \section{Implementation}
 
@@ -229,10 +227,8 @@ Signed distance values can be retrieved from the structured mesh by determining
 which mesh voxel the point lies within. The point's element is accessed by
 determining an $<i,j,k>$ index using the point's x, y, and z values divided by
 the structured mesh step size. A tri-linear interpolation of the mesh element's 8
-vertex coordinates and their signed distance values is then used to provide the
-signed distance value for the location of interest. As a result, the complexity
-of a signed distance value look-up from the signed distance field is an
-$O(1)$ operation.
+vertex coordinates and their signed distance values are then used to provide the
+signed distance value for the location of interest.
 
 \subsection{Population}
 
@@ -257,13 +253,13 @@ outward from the volume they represent. In the rare cases for which the dot
 product of these vectors is ambiguous, or zero, DAGMC's point containment
 algorithm is used to disambiguate the value's sign.
 
-\section{Preconditioner Utilization}\label{sec:preconditioner_utilization}
+\section{Preconditioning Utilization}\label{sec:preconditioner_utilization}
 
 In effect, the preconditioner is attempting to check whether or not the particle
 will actually cross a surface before explicitly searching for the particle's
 intersection with a surface along its current trajectory. If the result of this
 preconditioning check is always false and a ray is always fired, then these
-checks are only adding to the computational cost of the problem. This will
+checks only add to the computational cost of the problem. This will
 always occur in volumes filled with void, for example, as particles immediately
 travel from one side of a volume to another. To avoid low-utilization scenarios,
 the signed distance field should be applied selectively depending on each
@@ -286,7 +282,7 @@ utilization measurement for the remainder of this section.
 
 The utilization of the SDF preconditioning method, conceptually defined in
 Equation \eqref{eq:preconditioner_utilization}, can be described as the number of
-ray fire calls related to the \textit{Next Surface} intersection queries that
+ray fire calls related to \textit{Next Surface} intersection queries that
 are avoided divided by the total number of next surface intersection queries
 made by the Monte Carlo code. This value can be quantified using this definition
 using debugging tools, such as Valgrind \cite{Pena_2016}, to determine the
@@ -315,8 +311,7 @@ shows the utilization results of this study.
 \begin{figure}[ht]
   \centering
   \includesvg{../images/sdf_hydrogen_density_study_perf}{width=1.1\textwidth}
-  \caption[A DAG-MCNP test simulation applying the signed distance
-    field.]{Performance results for a 5 MeV neutron source at the origin of a 10
+  \caption[A DAG-MCNP test simulation using SDF preconditioning.]{Performance results for a 5 MeV neutron source at the origin of a 10
     cm radius sphere. Hydrogen density was varied from 0.0 to 1.0
     $\frac{g}{cm^3}$. Simulations of 100M histories at each density were
     performed using native MCNP5, DAG-MCNP5 without the signed distance field,
@@ -548,7 +543,7 @@ approach the idealized analytic model for the preconditioner utilization.
 \begin{figure}[H]
   \centering
   \includesvg{../images/alpha_r}{width=1\textwidth}
-  \caption[Plot of $\alpha_{min}$.]{Plot of minimum angle of departure
+  \caption[Plot of $\alpha_{min}$ condition.]{Plot of minimum angle of departure
     restriction for particles with various radial positions between 0 cm and 100
     cm and various distanced traveled.}
  \label{fig:alpha_min}
@@ -756,7 +751,7 @@ $\epsilon$, which is a function of the mesh step size, $h$.
 %% significance of using both the current position signed distance value as well as the
 %% next event location's signed distance value to precondition ray fire calls in DAGMC.
 
-\subsection{Applying SDF Error Evaluation}
+\subsection{Applying Error Evaluation}
 
 Thus far, the error associated with the tri-linear interpolation used to recover
 signed distance values from the signed distance field has been ignored. In order
@@ -867,7 +862,7 @@ Section \ref{sec:sdf_other_geoms}.
 \begin{figure}[H]
   \centering
   \includesvg{../images/sdf_util_sampled_distance_w_error}{width=\textwidth}
-  \caption[Preconditioner utilization model accounting for interpolation
+  \caption[Preconditioner utilization model including interpolation
     error.]{Theoretical limits for SDF utilization accounting for error
     evaluation plotted with simulation results for varying mesh step sizes.}
   \label{fig:sdf_util_sampled_distance_w_error}
@@ -1135,7 +1130,7 @@ runtime.
 \begin{figure}
 \centering
 \includegraphics[width=0.4\textwidth]{SHINE.eps}
-\caption[A cutaway of the SHINE CAD model.]{A cutaway view of the SHINE model
+\caption[A cutaway view of the SHINE CAD model.]{A cutaway view of the SHINE model
   used for demonstration of the SDF data structure.}
 \label{fig:shine_sdf}
 \end{figure}
@@ -1143,7 +1138,7 @@ runtime.
 For the majority of the production test cases, the preconditioner utilization
 model is relatively accurate for the widely varying geometries of the DAGMC
 production models.  There are cases in which the model struggles to accurately
-predict SDF usage and ray fire query avoidance, however. This an other
+predict preconditioner usage and ray fire query avoidance, however. This an other
 observations about the limited effects of the preconditioning method will now be
 addressed.
 
@@ -1233,7 +1228,7 @@ effectiveness of the SDF regardless of the utilization.
 
 \section{Summary}
 
-This chapter presented a novel approach to accelerating CAD-based MCRT through
+This chapter presented a novel approach to accelerating CAD-based MCRT-t through
 use of signed distance fields to precondition relatively expensive ray fire
 calls in the DAGMC geometry kernel. An analytic model was developed to predict
 the utilization of this method based on dimensionless geometric and

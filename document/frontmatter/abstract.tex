@@ -12,7 +12,7 @@
 
 The performance of CAD-based Monte Carlo Radiation Transport (MCRT) relies
 heavily on its ability to return geometric queries robustly via ray
-tracing. Current methods of ray tracing for MCRT are robust given that certain
+tracing methods. Current applications of ray tracing for MCRT are robust given that certain
 requirements are met \cite{Smith_2011}, but cause simulations to run much longer
 than native code geometry representations. This work explores alternate geometry
 query methods aimed at reducing the complexity of these operations as well as
@@ -20,7 +20,7 @@ algorithmic optimization by adapting recent developments in CPU ray
 tracing for use in engineering analysis. A preconditioning scheme is presented
 aimed at avoiding unnecessary ray queries for volumes with high collision
 densities. A model is also developed to inform application of the
-preconditioning data structure with a \textit{a posteriori} analysis. Next, a
+preconditioning data structure with a \textit{post facto} analysis. Next, a
 specialized ray tracing kernel for MCRT is presented. As new ray tracing kernels
 are developed for real-time, photo-realistic rendering, algorithmic approaches
 have appeared which are believed to be advantageous in radiation transport. In
@@ -28,9 +28,9 @@ particular, the application of data parallelism in ray tracing for Monte Carlo
 is demonstrated - resulting in significant performance improvements. Finally,
 model features resulting in systematic performance degradation commonly found in
 CAD models for MCRT are studied. Methods are proposed and demonstrated to
-improve performance of ray tracing kernels for these features. The combination
-of this work is shown to provide improvements by 30-400\% in simulation runtime
-without loss of robustness for several production scale models. The final impact
+improve performance of ray tracing kernels in models with these features. The combination
+of this work is shown to provide improvement factors ranging from 1.1 to 9.5 in simulation run time
+without loss of robustness for several production analysis models. The final impact
 of this work is the alleviation of concern for additional computational time in
 using CAD geometries for MCRT while maintaining the benefit of reduced human
-time and effort in model preparation.
+time and effort in model preparation and design.

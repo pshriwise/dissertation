@@ -4,9 +4,10 @@
 \section{Impact on CAD-Based MCRT}
 
 This work provides a set of methods and implementations which significantly
-improves the performance of DAGMC's particle tracking capability. Performance
-improvements varied from 30-500+\% for all tests presented, without no change in
-the results from unmodified DAGMC code.
+improves the performance of DAGMC's particle tracking
+capability. Performance improvements varied from factors of 1.1 to
+9.54 for all tests presented, without no change in the results from
+unmodified DAGMC code. 
 
 The SDF implementation in DAGMC showed promising results for contrived test
 cases, but at most provided a 30\% improvement in performance for production
@@ -56,7 +57,7 @@ optimal performance in DAGMC models.
   \label{tab:the_rub}
 \end{table}
 
-The overall impact of this work on CAD-based Monte Carlo Radiation Transport is
+The overall impact of this work on CAD-based MCRT-t is
 summarized in Table \ref{tab:the_rub}. Coputational savings of 2x at a minimum
 when applying the MPBVH were observed, with greater benefits of >5x seen in one
 test case. For access to all open source code, raw data, and results presented
@@ -99,7 +100,7 @@ architectures used in high performance computing clusters provide wider
 registers than the AVX2 instructions used in this work. This creates the
 possibility of creating tree branching ratio of 8 or 16 for even more shallow
 trees and lower memory footprints. Higher branching ratios also allow the MPBVH
-to extend naturally to other hierarchies like the Octree which has other
+to extend naturally to other hierarchies like the octree which has other
 benefits in particle tracking and data field storage.
 
 As suggested in Chapter \ref{ch:simd_bvh}, box extension values could be applied

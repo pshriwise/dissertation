@@ -13,10 +13,10 @@ Methods for modeling radiation transport to determine particle flux, or derived
 quantities, across space, angle, energy and time known as \textit{phase
   space}. The behavior of these particles is described by the linear Boltzmann
 transport equation \cite{Ulam_1949}. Deterministic codes solve this transport
-equation by discretizing the phase space of the problem, but time and memory
+equation by discretizing the phase space of the problem domain, but time and memory
 constraints often limit the resolution of phase space in practical problems.
 
-The Monte Carlo approach to modeling Radiation transport simulates the
+Monte Carlo Radiation transport (MCRT) simulates the
 interaction of individual particles across phase space \cite{Lewis_1993}. This
 method was developed at Los Alamos National Laboratory (LANL) during World War
 II by Fermi, von Neumann, Ulam, Metropolis, and Richtmyer \cite{LANL_1987}. It
@@ -50,7 +50,7 @@ space using Boolean combinations of half spaces defined by quadratic
 surfaces. To define the geometry, the surface and volume definitions are typically entered
 into a text file. This format for geometry is robust once defined properly, but it is difficult to manage for large models and
 limited in representation compared to more modern geometric modeling tools
-like Computer-Aided Design (CAD).
+available in Computer-Aided Design (CAD).
 
 In contrast to CSG, CAD allows for increased accuracy in model representation and better human
 efficiency. CAD engines are capable of representing higher-order surfaces and provides access
@@ -64,10 +64,11 @@ systems. A few have the capability to perform simulations directly on CAD
 geometries as well \cite{Leppanen_2015}.
 
 The Direct Accelerated Geometry Monte Carlo (DAGMC) \cite{Tautges_2009} toolkit
-is one of several software packages which enables Monte Carlo simulations on
-CAD-based geometries. DAGMC's design allows it to serve as a particle tracking
-and geometry kernel for a variety of Monte Carlo codes listed
-in Table \ref{tab:dagmc_implementations}.
+is one of several software packages which enables Monte Carlo Radiation
+Transport on tessellated surfaces (MCRT-t) originating from CAD
+geometries. DAGMC's design allows it to serve as a particle tracking and
+geometry kernel for all Monte Carlo codes listed in Table
+\ref{tab:dagmc_implementations}.
 
 \begin{table}[H]
   \centering
@@ -97,7 +98,8 @@ analytic CAD surfaces into a triangle surface mesh. This generalizes
 intersections with surfaces to intersections with a set of planar
 surfaces. However, a large number of triangles are needed to maintain an
 accurate representation of surfaces throughout the model. As a result, the
-costly search for surface crossings causes simulations on CAD-based geometries
+costly search for surface crossings and other fundamental geometry
+queries cause simulations on CAD-based tessellations
 to take much longer than native CSG models.
 
 The intersection of a particle and trajectory with a triangulated surface is a
@@ -114,7 +116,7 @@ DAGMC coupled with MCNP, or DAG-MCNP. For smaller problems with simple
 geometries and relatively low numbers of histories required to reach a low level
 of statistical uncertainty, this might not pose as much of a problem to
 users. As problem geometries become more complicated and the number of histories
-becomes larger however, the difference in computing time becomes important when
+becomes larger, however, the difference in computing time becomes important when
 run times extend to days or weeks longer than they would using the native MCNP
 CSG geometry representation. These models include the Frascati Neutron Generator
 (FNG), the Advanced Test Reactor (ATR), the University of Wisconsin Nuclear
@@ -133,8 +135,8 @@ Science and International Security.
     nTOF  & 167.52            & 295.13              & 1.8   \\
     \hline
   \end{tabular}
-  \caption[Performance benchmarking of DAG-MCNP.]{Table comparing the performance of DAG-MCNP to native MCNP for the
-    same models after translation to a CAD-based surface mesh.}
+  \caption[DAG-MCNP performance benchmarking.]{Table comparing the performance of DAG-MCNP to native MCNP for the
+    same models after translation to a CAD-based tessellated surface mesh.}
   \label{dag-mcnp-benchmarks}  
 \end{table}
 
@@ -146,7 +148,7 @@ the time is being spent there, but it is practical to confirm this and useful to
 know more specifically where in the query system this is occurring. All
 callgraphs are displayed with the MCNP \textit{history\_} subroutine at the
 top. It is inside this subroutine that MCNP calls DAGMC methods to fulfill geometric
-queries about the model. It should also be noted that only time spent simulating
+queries as particles move through the model. It should also be noted that only time spent simulating
 particle histories is reported in Table \ref{dag-mcnp-benchmarks}, not including
 setup operations for simulation such as nuclear cross section loading and
 acceleration data structure construction.
@@ -161,17 +163,16 @@ calculating cross sections under the \textit{acetot\_} subroutine.
 
 \begin{figure}[H]
   \centering
-  \caption[Callgraph of a DAG-MCNP simulation.]{Callgraph of DAG-MCNP FNG run for \num{1E7} histories. (Processes taking
-    $<$10\% of the run time are filtered out in order to simplify the callgraph.)}
+  \caption[Callgraph of a DAG-MCNP simulation.]{Callgraph of DAG-MCNP FNG run for \num{1E7} histories. Processes taking
+    $<$10\% of the run time are filtered out in order to simplify the graph.}
   \label{dagmc-fng-coarse}
   \includegraphics[scale=0.3]{dagmc_fng_cg_coarse.png}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \caption[Callgraph of a DAG-MCNP simulation.]{Callgraph of native MCNP FNG run for \num{1E7} histories. Processes taking
-    $<$10\% of the run time are filtered out in order to simplify the call
-    graph.}
+  \caption[Callgraph of a native MCNP simulation.]{Callgraph of native MCNP FNG run for \num{1E7} histories. Processes taking
+    $<$10\% of the run time are filtered out in order to simplify the graph.}
   \label{mcnp-fng-coarse}
   \includegraphics[scale=0.3]{native_fng_cg_coarse.png}
 \end{figure}
@@ -181,24 +182,27 @@ tracking particles in DAGMC along with the difference in absolute simulation tim
 confirms that the performance bottleneck of DAGMC lies in its ability to quickly
 satisfy the geometric queries of the underlying Monte Carlo code it is coupled
 to. Looking more closely at the underlying calls in DAGMC, one can see that this
-time is collectively spent in the DAGMC \textit{ray\_fire} method. Function names
-like \textit{RayIntersectSets} and \textit{preorder\_traverse} indicate that
-this time is spent in MOAB's database-oriented ray tracing implementation.
+time is collectively spent in the DAGMC \textit{ray\_fire} method,
+indicating that a significant amount of additional time is spent in
+MCRT-t geometry queries.
+
+%% Function names
+%% like \textit{RayIntersectSets} and \textit{preorder\_traverse} indicate that
+%% this time is spent in MOAB's database-oriented ray tracing implementation.
 
 \section{Statement of Thesis}
 
-The purpose of this dissertation is to improve the performance of CAD-based
-Monte Carlo radiation transport in a manner that is widely accessible to
-analysts. The result is a compilation of adaptive data structure construction,
-data structure redesign, and alternative methods to reduce simulation times in
-DAGMC.
+The purpose of this dissertation is to discover new pathways toward improving
+the performance of Monte Carlo radiation transport in CAD-based tessellations in
+a manner that is widely accessible to analysts. The result is a compilation of
+adaptive data structure construction, data structure redesign, and alternative
+methods to reduce simulation times in DAGMC.
 
 A background and literature review of CAD-based transport methods and associated
 acceleration techniques is provided in Chapter \ref{ch:background}. First, it
-outlines required capabilities for particle tracking in Monte Carlo Radiation
-Transport (MCRT). Next it describes 
+outlines required capabilities for particle tracking in MCRT. Next it describes 
 commonly used geometry representations in MCRT codes followed by a description
-of the CAD-based particle tracking systems of interest for this work. Lastly,
+of the MCRT-t particle tracking systems of interest for this work. Lastly,
 associated acceleration data structures and techniques which enable highly performant
 computation of transport on CAD models are discussed.
 
@@ -210,29 +214,29 @@ and physics. Finally, results of this
 method's application in both contrived and production models are discussed along
 with limitations of the method and aforementioned analytic model.
 
-The integration of nuclear engineering simulation with state-of-the-art
-computer graphics tools is demonstrated in Chapter \ref{ch:simd_bvh}. Significant
+Chapter \ref{ch:simd_bvh} demonstrates the integration of nuclear engineering
+simulation with state-of-the-art computer graphics tools. Significant
 improvements in performance are demonstrated in both test and production models
 by adapting data structures discussed in Chapter \ref{ch:background} for optimal
-efficiency on modern CPU architectures. Robustness limitations of the computer graphics
-tools for engineering analysis are discussed, and extensions of these tools are
-presented to address those limitations. Critical implementation details and
-algorithmic adjustments of these
-extensions are outlined, and performance comparisons are drawn in terms of the
-raw query speed between all particle tracking implementations. Finally results,
-of the extended, and robust, system are presented for several production models,
-including several of the models used as an initial comparison in Chapter
-\ref{ch:introduction}.
+efficiency on modern CPU architectures. Robustness limitations of the computer
+graphics tools as applied to engineering analysis are discussed, and extensions
+of these tools are presented to address those limitations. Critical
+implementation details and algorithmic adjustments of these extensions are
+outlined, and performance comparisons are drawn in terms of the raw query speed
+between all particle tracking implementations. Finally results, of the extended
+system are presented for several production models, including several of the
+models used in benchmark comparison found in Chapter \ref{ch:introduction}.
 
 Chapter \ref{ch:high_valence} addresses a long-standing issue in CAD-based
-MCRT. Performance degradation caused by problematic features of the CAD-based mesh geometry
-are characterized using a contrived model for all ray tracing
+MCRT-t. Performance degradation caused by problematic features of the CAD-based
+tessellation are characterized using a contrived model for all ray tracing
 implementations in Chapter \ref{ch:simd_bvh}. A solution using on-the-fly
-detection and adaptation of this feature during construction of particle tracking
-acceleration data structures is presented. Characterization of the performance
-both with and without the adaptive construction
-technique are presented and discussed. Finally, results of this technique as applied to the same set of
-production models shown in Chapter \ref{ch:simd_bvh} are presented and discussed.
+detection of and adaptation to of this feature during construction of particle
+tracking acceleration data structures is presented. Characterization of the
+performance both with and without the adaptive construction technique are
+presented and discussed. Finally, results of this technique as applied to the
+same set of production models shown in Chapter \ref{ch:simd_bvh} are presented
+and discussed.
 
 The conclusion statements in Chapter \ref{ch:conclusion} discuss the
 contributions of this work to MCRT for CAD geometries, its broader impacts, and

@@ -199,11 +199,12 @@ box tree within this context, but comes with the overhead of database calls to
 retrieve stored information which can be undesirable for a high-performance
 system and doesn't allow MOAB to take advantage of some implementation
 optimization available in Embree. The vectorization of Embree's traversal
-through its BVH contributes greatly to its speed. This can be also considered a
+through its BVH contributes greatly to its speed. This can also be considered a
 part of the design freedom allowed when designing an independent ray tracing
 system that cannot not be afforded using only MOAB's database
-interface. However, a property unique to MOAB may allow for an implementation
-with performance comparable to Embree's.
+interface. MOAB's interface for direct memory access allows for similar freedom
+in BVH design, however. This will be discussed further in Section
+\ref{sec:direct_access}.
 
 \subsection{Transport Tests}
 \label{subsec:emdag_transport}
@@ -521,11 +522,11 @@ focused on static triangle meshes and access to an external mesh database used
 in engineering analysis. The kernel was implemented outside the context of MOAB
 allowing it to freely implement many of the performance related concepts found
 in Embree, but it relies on unique characteristics of MOAB that allow the kernel
-to access the database's memory directly to about duplication of information in
+to access the database's memory directly without duplication of information in
 memory. The remainder of this section will address some
 of these features and design alterations.
 
-\subsubsection{MOAB Direct Access}
+\subsubsection{MOAB Direct Access}\label{sec:direct_access}
 
 MOAB provides a rich interface used to create, modify, and query both structured
 and unstructured mesh representations. It supports many meta-data types as well

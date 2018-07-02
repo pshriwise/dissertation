@@ -290,12 +290,12 @@ outermost volume as can be seen in Table \ref{nestedspheres} of Appendix
 was determined via debugging values that this discrepancy is caused by a single
 particle ending in EmDAG-MCNP near a surface of cell 2 while in DAG-MCNP the
 particle crosses into cell 3 before abruptly terminating though it still
-contributing slightly to the tally in cell 3. It is believed that this
-difference in tally result is the result of a systematic difference between
-Embree and MOAB's ray fire conventionality rather than being result of the
-double to single floating point conversion of the model that occurs when using
-EmDAG - though this conversion in precision is shown to be problematic in other
-ways in Section \ref{sec:emdag_limitations}.
+contributing slightly to the tally in cell 3. This difference is caused by a
+difference in ray fire convention between MOAB and Embree rather than being
+result of the double to single floating point conversion of the model that
+occurs when using EmDAG. Ray-triangle intersection results for rays with origins
+numerically on a triangle are considered intersecting in MOAB but not in Embree.
+
 
 Finally, a production test of EmDAG was conducted on the FNG model using the
 same volumetric source as in the performance benchmarking tests described

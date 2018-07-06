@@ -1004,6 +1004,7 @@ data structures are kept to a minimum if possible.
     ATR   & 294          & 675 & 865  \\
     UWNR  & 213          & 435 & 1250 \\
     nTOF  & 56           & 88  & 416  \\
+    ITER  & 2592  & 5947 &  6679\\
     \hline
   \end{tabular}
   \caption[Memory summary of performance benchmark models.]{A summary of the
@@ -1023,6 +1024,25 @@ even more pronounced in larger production models seen in Chapters
 \ref{ch:simd_bvh} and \ref{ch:high_valence}, though shared memory
 implementations for higher per-node memory efficiency are on DAGMC's development
 path.
+
+In addition to the benchmark models from Table \ref{dag-mcnp-benchmarks}, Table
+\ref{tab:dag-mcnp-benchmarks-mem} includes a model of the International
+Thermonuclear Experimental Reactor (ITER). ITER is a demonstration nuclear
+fusion device currently under construction in southern France. An analysis of
+DAGMC was performed at the University of Wisconsin - Madison to calculate a
+spatial mapping of the dose rate induced by irradiated components of the machine
+for various cooling times or times after shutdown of the device.  This shutdown
+dose rate calculation was broken into seven spatial source meshes to avoid
+exceeding the memory limits of the HPC cluster used for this analysis. The
+values displayed in the table represent the memory usage for one of the seven
+simulations required to complete the analysis. This model was included as a
+current representation of the analysis work being performed in DAGMC. It was not
+included in the comparative benchmark analysis of DAGMC because no native MCNP
+counterpart of this model exists. This model contains components created in CAD
+with no analogous MCNP representation, another reason CAD-based tessellations
+are desirable for MCRT. The simulation memory footprint of the ITER model is
+much larger in simulation, so much so that the number of processes allocated to
+a node was memory-limited rather than core-limited during analysis.
 
 \section{Summary}
 

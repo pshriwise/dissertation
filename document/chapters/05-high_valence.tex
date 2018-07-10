@@ -688,3 +688,19 @@ impact was found for some models while a significant reduction was seen in
 others. It was also was found that these run times are significantly reduced
 despite the fact that a very small number of rays are intersected with triangles
 in HV regions as shown in Table \ref{tab:bvhrefine_production_results}.
+
+\section{Future Work}
+
+For the models studied in this chapter, any HV detection parameter below 1.0 was
+shown to be effective in reducing simulation run times. This parameter could be
+studied and optimized using a broad range of test cases to determine the best
+value for use in the general case.
+
+Alternative methods to reducing the HV performance pathology could be explored
+as well. Here, BVH data structures were modified to better suit the HV mesh
+feature. Conversely, the HV regions could also be modified to better suit the
+BVH. A re-meshing of the HV region to contain a more uniform tessellation would
+allow a BVH of AABBs to maintain traversal performance without modification to
+the BVH build, though this would presumably come at the cost of more triangles
+in the model. Re-meshing of HV regions was not explored in this work due to the
+concerns for the additional memory cost outlined in Section \ref{sec:mc_mem}.

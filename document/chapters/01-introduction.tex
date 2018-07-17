@@ -9,11 +9,12 @@
 
 \chapter{Introduction}\label{ch:introduction}
 
-Methods for modeling radiation transport to determine particle flux, or derived
-quantities, across space, angle, energy and time known as \textit{phase
-  space}. The behavior of these particles is described by the linear Boltzmann
-transport equation \cite{Ulam_1949}. Deterministic codes solve this transport
-equation by discretizing the phase space of the problem domain, but time and memory
+This work focuses on methods for modeling radiation transport to determine
+particle flux, or derived quantities, across the dimensions of space, angle,
+energy and time known as \textit{phase space}. The behavior of these particles
+is described by the linear Boltzmann transport equation
+\cite{Ulam_1949}. Deterministic codes solve this transport equation by
+discretizing the phase space of the problem domain, but time and memory
 constraints often limit the resolution of phase space in practical problems.
 
 Monte Carlo Radiation transport (MCRT) simulates the
@@ -43,25 +44,25 @@ achieve satisfactory uncertainty in a region of interest.
 
 \section{Monte Carlo Geometry}
 
-
 Historically, Monte Carlo codes use Constructive Solid Geometry (CSG) as their
-native geometry representation. CSG represents 3D regions of virtual
-space using Boolean combinations of half spaces defined by quadratic
-surfaces. To define the geometry, the surface and volume definitions are typically entered
-into a text file. This format for geometry is robust once defined properly, but it is difficult to manage for large models and
-limited in representation compared to more modern geometric modeling tools
-available in Computer-Aided Design (CAD).
+native geometry representation. CSG represents 3D regions of virtual space using
+Boolean combinations of half spaces defined by quadratic surfaces. To define the
+geometry, the surface and volume definitions are typically entered into a text
+file. This format for geometry is robust once defined properly, but it is
+difficult to manage for large models and limited in representation compared to
+more modern geometric modeling tools available in Computer-Aided Design (CAD).
 
-In contrast to CSG, CAD allows for increased accuracy in model representation and better human
-efficiency. CAD engines are capable of representing higher-order surfaces and provides access
-to models used for analysis in other engineering domains. These shared models
-allow for a common problem domain in coupled simulations. CAD systems also
-provide a rich set of tools for model generation, topological representation,
-and design iteration. For highly complex, well-developed models, these tools are
-more intuitive and efficient for human use over alteration of native codes' text-based
-formats. Several tools exist for converting native CSG models to and from CAD
-systems. A few have the capability to perform simulations directly on CAD
-geometries as well \cite{Leppanen_2015}.
+In contrast to CSG, CAD allows for increased accuracy in model representation
+and better human efficiency. CAD engines are capable of representing
+higher-order surfaces and provide access to models used for analysis in other
+engineering domains. These shared models allow for a common problem domain in
+coupled simulations. CAD systems also provide a rich set of tools for model
+generation, topological representation, and design iteration. For highly
+complex, well-developed models, these tools are more intuitive and efficient for
+human use over alteration of native codes' text-based formats. Several tools
+exist for converting native CSG models to and from CAD systems. A few have the
+capability to perform simulations directly on CAD geometries as well
+\cite{Leppanen_2015}.
 
 The Direct Accelerated Geometry Monte Carlo (DAGMC) \cite{Tautges_2009} toolkit
 is one of several software packages which enables Monte Carlo Radiation
@@ -110,7 +111,7 @@ still slower than native geometry implementations in CSG. DAGMC's simulations
 are anywhere from 2.5 to 10 times longer than those of their native
 counterparts.
 
-Table \ref{dag-mcnp-benchmarks} represents a comparison of several
+Table \ref{dag-mcnp-benchmarks} represents a comparison for several
 representative MCNP problems between the native geometry representations and
 DAGMC coupled with MCNP, or DAG-MCNP. For smaller problems with simple
 geometries and relatively low numbers of histories required to reach a low level
@@ -120,8 +121,11 @@ becomes larger, however, the difference in computing time becomes important when
 run times extend to days or weeks longer than they would using the native MCNP
 CSG geometry representation. These models include the Frascati Neutron Generator
 (FNG), the Advanced Test Reactor (ATR), the University of Wisconsin Nuclear
-Reactor (UWNR), and the neutron Time of Flight (nTOF) device at the Institute for
-Science and International Security.
+Reactor (UWNR), and the neutron Time of Flight (nTOF) device at the Institute
+for Science and International Security. It should be noted that only time spent
+simulating particle histories is reported in Table \ref{dag-mcnp-benchmarks},
+not including setup operations for simulation such as nuclear cross section
+loading and acceleration data structure construction.
 
 \begin{table}[H]
   \centering
@@ -132,7 +136,7 @@ Science and International Security.
     FNG   & 5871.92           & 22769.33            & 3.9   \\
     ATR   & 901.68            & 8627.80             & 9.6   \\
     UWNR  & 8767.29           & 69429.60            & 7.9   \\
-    nTOF  & 167.52            & 295.13              & 1.8   \\
+    Nerf  & 167.52            & 295.13              & 1.8   \\
     \hline
   \end{tabular}
   \caption[DAG-MCNP performance benchmarking.]{Table comparing the performance of DAG-MCNP to native MCNP for the
@@ -147,19 +151,16 @@ query system is the only difference between the two models, it is expected that
 the time is being spent there, but it is practical to confirm this and useful to
 know more specifically where in the query system this is occurring. All
 callgraphs are displayed with the MCNP \textit{history\_} subroutine at the
-top. It is inside this subroutine that MCNP calls DAGMC methods to fulfill geometric
-queries as particles move through the model. It should also be noted that only time spent simulating
-particle histories is reported in Table \ref{dag-mcnp-benchmarks}, not including
-setup operations for simulation such as nuclear cross section loading and
-acceleration data structure construction.
+top. It is inside this subroutine that MCNP calls DAGMC methods to fulfill
+geometric queries as particles move through the model.
 
-In Figure \ref{dagmc-fng-coarse} a callgraph for a profiling run of FNG for \num{1E7}
-histories is provided. In this callgraph it is shown that the time spent in
-transport is dominated by MOAB's ray tracing process used by DAGMC to track
-particles as they move through the geometry. About 60\% of the run time  is spent
-in DAGMC's \textit{ray\_fire} while in native MCNP the relative time spent on
-this process is reduced to ~5\% with the majority of the time spent in
-calculating cross sections under the \textit{acetot\_} subroutine.
+In Figure \ref{dagmc-fng-coarse} a callgraph for a profiling run of FNG for
+\num{1E7} histories is provided. In this callgraph it is shown that the time
+spent in transport is dominated by calls in DAGMC used to track particles as
+they move through the geometry. About 60\% of the run time is spent in DAGMC's
+\textit{ray\_fire} while in native MCNP the relative time spent on this process
+is reduced to ~5\% with the majority of the time spent in calculating cross
+sections under the \textit{acetot\_} subroutine.
 
 \begin{figure}[H]
   \centering
@@ -192,11 +193,14 @@ MCRT-t geometry queries.
 
 \section{Statement of Thesis}
 
-The purpose of this dissertation is to discover new pathways toward improving
-the performance of Monte Carlo radiation transport in CAD-based tessellations in
-a manner that is widely accessible to analysts. The result is a compilation of
-adaptive data structure construction, data structure redesign, and alternative
-methods to reduce simulation times in DAGMC.
+The purpose of this dissertation is to discover new pathways toward
+improving the performance of Monte Carlo radiation transport in CAD-based tessellations
+in a manner that is widely accessible to analysts. Toward this end, this
+work aims to improve performance of spatial queries for general purpose mesh
+data structures through adaptation of rendering techniques to suit the purposes
+of engineering analysis and robust particle transport methods. The effect of
+these adaptations is demonstrated in the DAGMC toolkit for the purpose of radiation
+transport to significantly reduce simulation run times in this engineering domain.
 
 A background and literature review of CAD-based transport methods and associated
 acceleration techniques is provided in Chapter \ref{ch:background}. First, it

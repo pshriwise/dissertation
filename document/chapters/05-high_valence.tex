@@ -21,7 +21,7 @@ boundary condition.
 
 These regions are commonly generated in the faceting algorithms used to produce
 DAGMC meshes. This faceting scheme (which comes from ACIS libraries underlying
-the CUBIT/Trelis graphics engine) is designed to produce the smallest number of
+the CUBIT/Trelis geometry engine) is designed to produce the smallest number of
 triangles possible to represent the model within the representation tolerance
 specified in DAGMC's surface mesh generation preprocessing. This restriction is
 favorable to the rasterization process commonly used to display models
@@ -36,12 +36,13 @@ by this faceting scheme.
 
 \section{Previous Work}
 
-A study conducted by Steve Jackson in 2010 on the performance of the MOAB 
-OBB tree revealed a steep degradation in performance with a decreasing faceting
-tolerance or an increasing number of triangles. Using a DAGMC-based ray fire
-test program, the performance of DAGMC's ray fire ability was evaluated for four
-models. These models include a simple sphere, a notched or slotted sphere, and
-an outer volume of an ITER model, shown in Figure \ref{fig:sj_hv_test_models}.
+A study conducted by Steve Jackson in 2010 on the performance of the MOAB OBB
+tree revealed a steep degradation in performance with a decreasing faceting
+tolerance or an increasing number of triangles \cite{Tautges_2009}. Using a
+DAGMC-based ray fire test program, the performance of DAGMC's ray fire ability
+was evaluated for four models. These models include a simple sphere, a notched
+or slotted sphere, and an outer volume of an ITER model, shown in Figure
+\ref{fig:sj_hv_test_models}.
 
 \begin{figure}[H]
   \centering
@@ -54,7 +55,7 @@ an outer volume of an ITER model, shown in Figure \ref{fig:sj_hv_test_models}.
 \end{figure} 
 
 In each of these tests, the models are tessellated with an increasingly smaller
-faceting tolerance where the faceting tolerance being defined as the maximum
+faceting tolerance with the faceting tolerance being defined as the maximum
 distance between the faceted curve or surface and the geometric curve or surface
 it resolves. By this definition, the number of triangles needed to represent a
 model scales inversely with the value of the faceting tolerance. An increase in
@@ -140,11 +141,11 @@ corner vertices. The initial results of this study, shown in Figure
 fire times become far worse with increase in valence, but for a constant
 valence, the smaller relative area models show a longer average ray fire time
 than the models with larger relative areas. This suggests that the presence of a
-HV region in a surface is detrimental to performance regardless of the likely
-hood that a ray intersects with a triangle in that region, which is counter
-intuitive. In order to investigate this matter further, a visualization tool for
-MOAB's BVH was developed to improve the author's intuition about this mesh
-pathology.
+HV region in a surface is detrimental to performance regardless of the
+likelihood that a ray intersects with a triangle in that region, which is
+counter intuitive. In order to investigate this matter further, a visualization
+tool for MOAB's BVH was developed to improve the author's intuition about this
+mesh pathology.
 
 \subsection{Visualization and Diagnosis}\label{subsec:hv_vis}
 
@@ -293,19 +294,19 @@ its effect on simulation run times during transport.
 
 As seen in Table \ref{tab:bvhrefine_production_results}, the ATR and UWNR
 problem run time is decreased only marginally, but in the ITER and FNG models
-the run time is reduced by $\approx\frac{1}{4}$. Given the outcome might seem
-that the high valence regions are visited more often in the, but information
-gathered during simulation using MOAB's mesh tagging interface suggest
-otherwise. A sweep of the high valence parameter, $\alpha$, for these models is
-shown in Figure \ref{fig:hv_parameter_study_moab} which reflects the performance
-impact shown in Table \ref{tab:bvhrefine_production_results}. It also describes
-the relationship between the simulation run time and the high valence parameter
-value in the ITER and FNG models. Even for a relatively high $\alpha$ parameter
-of 0.9, a significant reduction in the run time is seen in these models. As the
-value decreases, the run time is futher reduced to nearly 30\% of the maximum
-run time in the study. The large change at a high value of $\alpha$ indicates
-that even coarse detection of high valence regions has a measurable impact on
-performance.
+the run time is reduced by $\approx\frac{1}{4}$. Given the outcome of this study
+it might seem that the high valence regions are visited more often in the ITER
+and FNG models, but information gathered during simulation using MOAB's mesh
+tagging interface suggests otherwise. A sweep of the high valence parameter,
+$\alpha$, for these models is shown in Figure \ref{fig:hv_parameter_study_moab}
+which reflects the performance impact shown in Table
+\ref{tab:bvhrefine_production_results}. It also describes the relationship
+between the simulation run time and the high valence parameter value in the ITER
+and FNG models. Even for a relatively high $\alpha$ parameter of 0.9, a
+significant reduction in the run time is seen in these models. As the value
+decreases, the run time is futher reduced to nearly 30\% of the maximum run time
+in the study. The large change at a high value of $\alpha$ indicates that even
+coarse detection of high valence regions has a measurable impact on performance.
 
 \begin{figure}[H]
   \centering
@@ -604,7 +605,7 @@ resulting in an overall improvement in the run times for these regions.
 To support a tree containing both AABBs and OBBs, additional encoding of
 interior nodes is required so that the appropriate node intersection methods are
 applied during traversal. Axis-Aligned and Oriented nodes are identified using
-the the two remaining bit configurations available for node definitions by
+the two remaining bit configurations available for node definitions by
 setting the appropriate bits in the node reference objects. These node masks are
 stripped from the node reference's integer value to retrieve the pointer to the
 node objects themselves with little added overhead in the traversal process.
@@ -671,7 +672,7 @@ remove performance degradation of ray tracing performance in these regions. A
 similar process was then repeated for both EmDAG and MPBVH.
 
 In the MPBVH, and presumably in EmDAG, the exclusive use of AABB nodes results
-in large overlaps between child boxes. Many negative triangle intersection
+in large overlaps between child boxes. Many negative triangle intersections
 result from these overlaps, a similar effect to containing many
 triangles in a single leaf node. The solution proposed and verified by the
 author is the use of OBBs only in HV regions by applying the same HV detection

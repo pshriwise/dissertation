@@ -50,7 +50,7 @@ Of the geometric queries that DAGMC supports, \textit{Next Surface},
 called in simulations.  At least one ray is fired to satisfy any of these
 queries in DAGMC with $O(log \, N_{triangles})$ complexity using MOAB's BVH, but it is
 hypothesized that these queries can be accelerated in many cases. For each of
-the fundamental Monte Carlo geometries outlines below, signed distance values
+the fundamental Monte Carlo geometries outlined below, signed distance values
 are recovered from the signed distance field via interpolation of the field
 values and used to avoid more computationally expensive ray fire calls in DAGMC.
 
@@ -108,7 +108,7 @@ values and used to avoid more computationally expensive ray fire calls in DAGMC.
                interpolated signed distance value represents the minimum
                distance to any surface for a given location. The signed distance
                value of the current location ensures that some portion of the
-               particle's track from the current location to the physics even
+               particle's track from the current location to the physics event
                location is open space. The signed distance value of the physics
                event location also ensures that a portion of the particle's
                track is empty space. If the entire track length can be accounted
@@ -119,18 +119,17 @@ values and used to avoid more computationally expensive ray fire calls in DAGMC.
                \ref{fig:next_surface_sdf} depicts these different cases in 2D
                space.
                
-               For robustness, the error for each interpolation should be
-               subtracted from the sum of the signed distance values as a
-               protective measure against invalid surface crossings. If the
+               For robustness, the error for each interpolation, $\epsilon$
+               should be subtracted from the sum of the signed distance values
+               as a protective measure against invalid surface crossings. If the
                expanse between the particle's current location and its next
                physics event location cannot be accounted for by the signed
                distance values of the two points, then the exact next surface
-               intersection will be found using a ray fire
-               call. It is acknowledged that not all
-               Monte Carlo codes provide the next physics event location along
-               with the particle's current location to their geometry
-               kernels. In this case, preconditioning of these queries in this
-               manner will not be possible.
+               intersection will be found using a ray fire call. It is
+               acknowledged that not all Monte Carlo codes provide the next
+               physics event location along with the particle's current location
+               to their geometry kernels. In this case, preconditioning of these
+               queries in this manner will not be possible.
               }
 
 \precondQuery{Closest Surface}
@@ -180,8 +179,8 @@ with a signed distance value at each vertex in the mesh as indicated in Figure
 \ref{fig:sdf_sphere}.
 
 MOAB provides an interface for construction of structured meshes which stores
-explicit vertex coordinates, hex elements, and entity handles. As with any
-entity stored in MOAB, tag data can be applied to these elements. These vertex
+explicit vertex coordinates and hex elements. As with any
+entity stored in MOAB, data can be applied to these vertex elements. These vertex
 coordinates and hex elements can be accessed using $<i,j,k>$ indexing, where the
 coordinate $<0,0,0>$ and $<N_{x}, N_{y}, N_{z}>$ represent the lowest and
 highest corner of the structured mesh in parameter space for a mesh containing
@@ -507,7 +506,7 @@ travel in the sphere and still be preconditioned using signed distance
 values. Intuitively this makes sense as the maximum chord length of a sphere is
 $2R$, and once a particle travels a distance $R$ the sum of the signed distance
 values can then be no larger than $R$. Thus the condition for utilization in
-Equation \eqref{eq:condition} is always violated for distances traveled greater
+Equation \eqref{eq:condition_no_error} is always violated for distances traveled greater
 than $R$. Hence all curves go to zero at $\lambda
 = 100 cm$ in Figure \ref{fig:sdf_fixed_dist}. Substitution of the $\alpha_{min}$
 condition gives
@@ -762,7 +761,7 @@ first order, dependent on the second order partial derivatives of the function
 being approximated and the sampling frequency of the points used for
 interpolation. This relationship is described in two dimensions via the Taylor
 expansion of the formula for a bi-linear interpolation in Figure
-\ref{fig:interpolation_err_2d}. For the case of a signed distance field sampled
+\ref{eq:interpolation_err_2d}. For the case of a signed distance field sampled
 from a surface boundary, the error can be estimated by using the maximum local
 curvature of the surface as a conservative estimate of the partial
 derivative. However, in the case of a discretized mesh, this would be
@@ -770,10 +769,9 @@ prohibitively computationally expensive to evaluate. Instead, a conservative
 estimate of the error based on the mesh size is used to ensure invalid geometric
 information is not returned from signed distance value recovery in the SDF.
 
-\begin{figure}[H]
-  \begin{equation}
+\begin{equation}
     \epsilon = \frac{1}{2} \Delta x (h-\Delta x) \frac{\partial^2 u}{\partial x^2} + \frac{1}{2} \Delta y (h-\Delta y)  \frac{\partial^2 u}{\partial y^2}
-  \end{equation}
+\end{equation}
   \begin{align*}
     h - & \, mesh\, interval\, size \\
     \Delta x - & \, x\, distance\, to\, interpolation\, point\, from\, data\, point \\
@@ -781,11 +779,10 @@ information is not returned from signed distance value recovery in the SDF.
     u(x,y) - &\, sampled\, function\, on\, mesh \\
     \epsilon - & \, error \\
   \end{align*}
-  \caption[Taylor expansion of a bi-linear interpolation.]{Taylor expansion of 2D
-    interpolation equation as an estimate for the error of a function sampled
-    onto a structured Cartesian mesh.}
-  \label{fig:interpolation_err_2d}
-\end{figure}
+  %% \caption[Taylor expansion of a bi-linear interpolation.]{Taylor expansion of 2D
+  %%   interpolation equation as an estimate for the error of a function sampled
+  %%   onto a structured Cartesian mesh.}
+  \label{eq:interpolation_err_2d}
 
 The error estimate used in this work is equal to the largest diagonal of the
 mesh elements in the uniform SDF grid, $\sqrt{3}h$, and ensures that signed
@@ -1025,6 +1022,7 @@ various simulations that as the collision density increases, the proportion of t
 runtime spent querying the geometry is small relative to the time spent calling
 physics subroutines.
 
+\noindent
 The SDF preconditioning method was applied in the following models:
 
 \sdfModel{ITER}{ITER is a demonstration nuclear fusion device currently under
@@ -1055,7 +1053,9 @@ The SDF preconditioning method was applied in the following models:
   (\textasciitilde{}1 GeV) and directed into a mercury target to produce thermal
   neutrons for various research applications.  }
 
-\begin{sidewaystable}
+\setcounter{footnote}{1}
+
+\begin{sidewaystable}[p]
   \small
   \makebox[\textwidth][c]{
     \begin{tabular}{l c c c c}
@@ -1065,7 +1065,7 @@ The SDF preconditioning method was applied in the following models:
       ITER                 & 1M                           & 37.1                                & 40.1                             & 0.86                  \\
       nTOF                 & 10k                          & 62.9                                & 66.2                             & 0.71                  \\
       SHINE                & 500k                         & 60.1                                & 48.2                             & 0.84                  \\
-      SHINE$^{*}$          & 500k                         & 60.1                                & 56.5                             & 0.74                  \\
+      SHINE\protect\footnotemark          & 500k                         & 60.1                                & 56.5                             & 0.74                  \\
       SNS                  & 10k                          & 31.0                                & 2.1                              & 1.00                  \\
       \bottomrule
     \end{tabular}
@@ -1074,6 +1074,10 @@ The SDF preconditioning method was applied in the following models:
       of SDF application to several production DAGMC models.}
     \label{tab:sdf_prod_summary}
 \end{sidewaystable}
+
+\footnotetext{This entry represents a secondary simulation of the SHINE model with modified
+physics cross-sections.}
+
 
 Table \ref{tab:sdf_prod_summary} displays the results of simulations in which
 the SDF was applied. More detailed information on the parameters of the SDFs and
@@ -1085,8 +1089,6 @@ for the hydrogen-filled sphere tests. The results in all simulations were
 identical regardless of SDF application, however, indicating that the
 methodology and error evaluation are robust for at least these production
 scenarios.
-
-\setcounter{footnote}{1}
 
 \begin{table}[H]
   \small
@@ -1105,7 +1107,7 @@ scenarios.
       \bottomrule
     \end{tabular}
   }
-  \caption[A summary of geometric query calls in DAG-MCNP.]{An summary of the
+  \caption[A summary of geometric query calls in DAG-MCNP.]{A summary of the
     relative number of calls to the various Monte Carlo geometric queries for
     several DAGMC production models. \protect\footnotemark}
   \label{tab:geom_query_ratios}
@@ -1168,17 +1170,18 @@ in Table \ref{tab:sdf_prod_summary}.
 The nTOF model was selected as a charged particle transport demonstration. The
 SDF was expected to be extremely beneficial in this scenario due to the high
 collision density of charged particle transport relative to the size of certain
-volumes in the problem. The computational time spent on the detailed of these
+volumes in the problem. The computational time spent on the detailed
 charged particles physics tends to dominate the runtime of the simulation,
 leaving little room for improvement in the overall simulation runtime by
 reducing geometric query costs.
 
-A neutral particle example of this occurs in SHINE as well. In order to
-reduce the amount of time spend in the MCNP kernel for this calculation,
-group-wise cross-sections were specified for all materials in the problem. This
-allowed the SDF to have a more significant impact on the simulation runtime, but
-may not be desirable if continuous energy cross sections are necessary for a
-higher fidelity result.
+A neutral particle example of this occurs in SHINE as well. In order to reduce
+the amount of time spend in the MCNP kernel for this calculation, group-wise
+cross-sections were specified for all materials in the problem. This allowed the
+SDF to have a more significant impact on the simulation runtime, but may not be
+desirable if continuous energy cross sections are necessary for a higher
+fidelity result. A separate entry for this simulation is found in Table
+\ref{tab:sdf_prod_summary}.
 
 \subsection{Utilization Model Assumptions}\label{subsec:sdf_util_model_limits}
 
@@ -1202,7 +1205,7 @@ require a prohibitively small mesh step size in terms of the memory usage of the
 data structure. The combination of these effects result in low utilization of
 the applied SDF and in turn the simulation runtime is reduced only marginally.
 
-\begin{sidewaysfigure}[H]
+\begin{sidewaysfigure}[p]
   \centering
   \includegraphics[width=\textwidth]{sns_vol16_flux.png}
   \caption[Mesh tally results of the SNS model.]{Depiction of utilization model

@@ -1224,12 +1224,15 @@ using the SDF preconditioner.
 \begin{table}[H]
   \centering
   \begin{tabular}{c c c c c}
+    \toprule
     \textbf{Model} & \textbf{Performance Ratio} & \textbf{Fully Sealed Model} & \textbf{Matching Results} & \textbf{No Lost Particles} \\
+    \hline
     ITER & 0.23 & $\times$ & $\times$ & $\times$ \\
     nTOF & 0.46 & $\times$ & $\checkmark$ & $\checkmark$ \\
     SHINE  & 0.86 & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
     SHINE* & 0.51 & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
     SNS    & 0.95 & $\times$ & & $\checkmark$ & $\checkmark$ \\
+    \bottomrule
   \end{tabular}
   \caption[SDF production models using physics distance limit.]{Results of performance improvements, result matching, and lost particle incidence in the SDF production models when using DAGMC's physics distance limit mode.}
   \label{tab:sdf_prod_phys_dist_limit}

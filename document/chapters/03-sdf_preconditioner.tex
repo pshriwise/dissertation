@@ -1186,6 +1186,55 @@ script used to apply the SDF. This estimate should be considered by analysts
 when creating DAGMC problem input, particularly if the simulation is going to be
 run in parallel.
 
+\section{Other Distance Limit Optimizations}
+
+DAGMC supports a mode in which the distance to the next physics event is used to
+limit the length of a ray and optimize the BVH traversal process. Nodes which
+the ray does not reach are not visited, reducing the average traversal time of
+rays in the BVH. If the ray does not intersect a surface, DAGMC returns a next
+surface distance greater than that of the distance to the next physics event so
+the particle can be updated correctly in the physics kernel.
+
+This distance limit optimization is only guaranteed to be robust for fully
+sealed DAGMC geometries. Because rays are not required to return a surface
+intersection in this mode, ray queries which go through gaps in the unsealed
+model will update the paricle's position to the next physics event. If the next
+physics event is outside of the volume, particles will exit the volume without
+error in the particle tracking algorithm. In this scenario, particles can
+numerically leave the volume without updating the material in which the particle
+is interacting in the physics kernel and undergo inaccurate physics events. This
+will continue until the particle is killed due to its low statistical
+contribution to the simulation solution. Occasional \textit{point_containment}
+checks can detect these particles and label them as lost, but this is not
+guaranteed to happen and the simulation may run without reporting any particle
+tracking errors. Creating a fully sealed DAGMC model from a general CAD
+representation is a difficult task, requiring that the CAD model is created in a
+friendly way such that all volumes can be imprinted and merged sucessfully
+without overlaps. Geometric corner cases also exist which are not handled well
+by the \textit{make_watertight} algorithm used to topologically seal DAGMC
+models \cite{Smith_2011}.
+
+In fully sealed models, however, this optimization is robust and can
+significantly decrease simulation times without consequense. This optimization
+has been applied to the same set of production models in Table
+\ref{tab:sdf_prod_summary} to compare the improvement in performance seen when
+using this mode in comparision to the similar implicit tracking method employed
+using the SDF preconditioner.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c}
+    \textbf{Model} & \textbf{Performance Ratio} & \textbf{Fully Sealed Model} & \textbf{Matching Results} & \textbf{No Lost Particles} \\
+    ITER & 0.23 & $\times$ & $\times$ & $\times$ \\
+    nTOF & 0.46 & $\times$ & $\checkmark$ & $\checkmark$ \\
+    SHINE  & 0.86 & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    SHINE* & 0.51 & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    SNS    & 0.95 & $\times$ & & $\checkmark$ & $\checkmark$ \\
+  \end{tabular}
+  \caption[SDF production models using physics distance limit.]{Results of performance improvements, result matching, and lost particle incidence in the SDF production models when using DAGMC's physics distance limit mode.}
+  \label{tab:sdf_prod_phys_dist_limit}
+\end{table}
+
 %% \begin{table}[H]
 %% \centering
 %% \begin{tabular}{c c c}

@@ -1204,14 +1204,14 @@ error in the particle tracking algorithm. In this scenario, particles can
 numerically leave the volume without updating the material in which the particle
 is interacting in the physics kernel and undergo inaccurate physics events. This
 will continue until the particle is killed due to its low statistical
-contribution to the simulation solution. Occasional \textit{point_containment}
+contribution to the simulation solution. Occasional \textit{point\_containment}
 checks can detect these particles and label them as lost, but this is not
 guaranteed to happen and the simulation may run without reporting any particle
 tracking errors. Creating a fully sealed DAGMC model from a general CAD
 representation is a difficult task, requiring that the CAD model is created in a
 friendly way such that all volumes can be imprinted and merged sucessfully
 without overlaps. Geometric corner cases also exist which are not handled well
-by the \textit{make_watertight} algorithm used to topologically seal DAGMC
+by the \textit{make\_watertight} algorithm used to topologically seal DAGMC
 models \cite{Smith_2011}.
 
 In fully sealed models, however, this optimization is robust and can
@@ -1225,18 +1225,45 @@ using the SDF preconditioner.
   \centering
   \begin{tabular}{c c c c c}
     \toprule
-    \textbf{Model} & \textbf{Performance Ratio} & \textbf{Fully Sealed Model} & \textbf{Matching Results} & \textbf{No Lost Particles} \\
+    \textbf{\thead{Model}} & \textbf{\thead{Performance \\ Ratio}} & \textbf{\thead{Fully Sealed \\ Model}} & \textbf{\thead{Matching \\ Results}} & \textbf{\thead{No Lost \\ Particles}} \\
     \hline
     ITER & 0.23 & $\times$ & $\times$ & $\times$ \\
     nTOF & 0.46 & $\times$ & $\checkmark$ & $\checkmark$ \\
     SHINE  & 0.86 & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
     SHINE* & 0.51 & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-    SNS    & 0.95 & $\times$ & & $\checkmark$ & $\checkmark$ \\
+    SNS    & 0.95 & $\times$ & $\checkmark$ & $\checkmark$ \\
     \bottomrule
   \end{tabular}
-  \caption[SDF production simulation times using DAGMC's physics distance optimization.]{Results of performance improvements, result matching, and lost particle incidence in the SDF production models when using DAGMC's physics distance limit mode.}
+  \caption[SDF production simulation times using DAGMC's physics distance
+    optimization.]{Results of performance improvements, result matching, and
+    lost particle incidence in the SDF production models when using DAGMC's
+    physics distance limit mode.}
   \label{tab:sdf_prod_phys_dist_limit}
 \end{table}
+
+Table \ref{tab:sdf_prod_phys_dist_limit} shows the results of this study. For
+all simulations, the run time was substantially reduced using this
+optimization. And for nearly all simulations the results of the two simulations
+matched exactly with the exception of the ITER simulation. In this case,
+particles were lost in the unsealed model, causing a change in the results
+between the two simulations. As stated above, it is also possible that particles
+were incorrectly tracked in other unsealed models (nTOF and SNS), but had no
+effect on the final solution of the simulation. 
+
+It is worth noting that the errant particle pathology associated with the
+physics distance limit is not present when using SDF preconditioning to
+accelerate DAGMC simulations. SDF values are generated using known surface
+locations relative to points in the uniform mesh. As such, information gathered
+from the SDF during preconditioning of particle queries will not allow particles
+to cross surfaces due to the error associated with the interpolation of these
+values so long as the model is well-formed. Rays fired in simulations where SDF
+preconditioning is applied still have an effectively infinite length and thus do
+not invalidate the robust particle tracking process in DAGMC. Particles moving
+through gaps in unsealed volumes will always be reported by DAGMC. 
+
+The SDF also has the potential to avoid lost particles in some scenarios. In its
+standard operation, DAGMC requires that a surface intersection be found for each
+infinite-length ray it fires. 
 
 %% \begin{table}[H]
 %% \centering

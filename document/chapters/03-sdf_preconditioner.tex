@@ -168,7 +168,7 @@ performing the ray tracing operation. It is hypothesized that for some Monte
 Carlo problems this process can be used to avoid $O(log \, N_{triangles})$ ray
 fire calls to significantly reduce the runtime of the simulation.
 
-\section{Implementation}
+\section{Implementation}\label{sec:sdf_implementation}
 
 \subsection{Construction}
 
@@ -986,6 +986,8 @@ a preprocessing before simulation.
 
 \section{Application in DAGMC Simulations}\label{sec:sdf_production}
 
+\subsection{Performance Improvements}
+
 The geometry-agnostic version of the utilization model was used to create a
 \textit{post facto} analysis script for predicting the SDF's utilization in
 production DAG-MCNP models. This analysis uses information about the average
@@ -1141,6 +1143,45 @@ production models.  There are cases in which the model struggles to accurately
 predict preconditioner usage and ray fire query avoidance, however. This an other
 observations about the limited effects of the preconditioning method will now be
 addressed.
+
+\subsection{Memory Usage}
+
+As discussed in Section \ref{sec:sdf_implementation}, the uniform structured
+mesh used to store SDFs in DAGMC can be highly memory intensive. Given the
+memory constraints placed on DAGMC by the context of its application in parallel
+Monte Carlo simulations (see Section \ref{sec:mc_mem}), additional memory
+consumption by DAGMC acceleration data structures must be weighed
+carefully against the benefits in run time reduction. The main concern being
+that per-process memory usage may prevent additional processes from being added
+to a node in parallel simulations. Despite the fact that the SDF has been shown
+to decrease the run time of several production simulations, it is unlikely to be
+more beneficial than additional processes in parallel simulations.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \textbf{Model} & \textbf{Without SDF} & \textbf{With SDF}
+    ITER  & 5971  & 7003   \\
+    nTOF  & 598.3 & 619.2  \\
+    SHINE & 219.3 & 627.12 \\
+    SNS   & 1804  & 3419   \\
+  \end{tabular}
+  \caption[SDF production memory usage.]{Memory usage of the SDF for the various
+    production applications.}
+  \label{tab:sdf_prod_mem}
+\end{table}
+
+The memory usage of the SDF varies greatly between the different production
+models in Table \ref{tab:sdf_prod_mem}. For the nTOF model, the absolute memory
+consumption is very small and the SDF structure adds very little to the
+simulations overall memory footprint. In other simulations, the memory
+footprint is greatly affected, increasing usage by up to 1.2 GB. SDF memory
+usage is largely influenced by the size of the volume it is bounding and the
+mesh step size needed for high utilization of the preconditioning method. An
+estimate of the memory used by the SDF is presented as part of the analysis
+script used to apply the SDF. This estimate should be considered by analysts
+when creating DAGMC problem input, particularly if the simulation is going to be
+run in parallel.
 
 %% \begin{table}[H]
 %% \centering

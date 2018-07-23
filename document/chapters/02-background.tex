@@ -727,7 +727,6 @@ capability for ray tracing.
 \subsection{Architecture-Based Acceleration}%%Status: Pending%%
 \label{subsec:arch}
 
-
 This section focuses on the impact of CPU architecture evolution on ray tracing
 data structure design and implementation. More specifically, it emphasizes the
 advantages of using vectorization-oriented implementations or Single Instruction
@@ -740,20 +739,21 @@ multiple operations in parallel on many processors while data parallelism
 describes operation on multiple data sets at the same time on a single
 processor. SIMD is a form of data parallelism in which, as the name indicates,
 the same set of numerical operations are performed on multiple sets of data in
-parallel under a single CPU process. Chip-sets with support for SIMD instructions became very popular in the
-mid-1990s as home PCs became more common and demand for multimedia-related
-performance increased. In response, many CPU manufacturers at the time such as
-Intel, IBM, and Motorola began to release products with SIMD instruction
-sets, the most powerful of which was Intel's Streaming SIMD Extensions
-(SSE). Over time, CPU clock speed became the larger focus of many manufacturers
-as dramatic gains in processor speed took precedence in the field. As processor
-speed increases began to wane, pushing the limit of current cooling technology
-in the early 2000's, a new shift toward multi-core designs occurred. Currently,
-as CPU clock speeds remain somewhat steady in multi-core systems, a focus on
-single-thread performance via SIMD has reemerged. Newer SIMD
-instruction sets such as Intel's Advanced Vector Extensions (AVX or AVX2) have
-doubled the width of operable data, allowing for a theoretical doubling of
-performance in codes relying on SIMD instructions \cite{Hughes_2015}.
+parallel under a single CPU process. Chip-sets with support for SIMD
+instructions became very popular in the mid-1990s as home PCs became more common
+and demand for multimedia-related performance increased. In response, many CPU
+manufacturers at the time such as Intel, IBM, and Motorola began to release
+products with SIMD instruction sets, the most powerful of which was Intel's
+Streaming SIMD Extensions (SSE). Over time, CPU clock speed became the larger
+focus of many manufacturers as dramatic gains in processor speed took precedence
+in the field. As processor speed increases began to wane, pushing the limit of
+current cooling technology in the early 2000's, a new shift toward multi-core
+designs occurred. Currently, as CPU clock speeds remain somewhat steady in
+multi-core systems, a focus on single-thread performance via SIMD has
+reemerged. Newer SIMD instruction sets such as Intel's Advanced Vector
+Extensions (AVX or AVX2) have doubled the width of operable data, allowing for a
+theoretical doubling of performance in codes relying on SIMD instructions
+\cite{Hughes_2015}.
 
 SIMD execution has found use in many different areas including medical imaging,
 financial analysis, database management, computer visualization, and physical
@@ -886,19 +886,57 @@ worth noting that while the KD-Tree is restricted to a binary hierarchy, another
 variation, the bounding interval hierarchy, might be compatible with higher
 branching ratios and thus SIMD traversal of the hierarchy \cite{Watcher_2006}.
 
+\subsection{Application in Embree}
+
+Many of these concepts have been applied in a ray tracing kernel called Embree.
+Embree is the result of an effort to produce a performant CPU-based ray tracer
+as a demonstration of the expanding capabilities of modern CPU architectures
+\cite{Wald_2014}. In both construction and traversal of its BVHs, Embree takes
+advantage of many of the latest developments in BVH research by using modern
+chipset architecture capabilities via vectorization at an implementation level.
+The combination of these effects leads to a very powerful ray tracing tool in
+terms of performance, as demonstrated by the many projects which have
+incorporated Embree as their production ray tracing kernel such as Corona,
+Autodesk, FluidRay, and Brighter3D. As a result of its success in other areas,
+Embree was selected for application in DAGMC to satisfy geometric queries for
+MCNP. The resulting combination of Embree and DAGMC will be referred to as
+EmDAG. Several critial design features of Embree will be reviewed here and their
+importance to efficient BVH traversal discussed.
+
+\subsubsection{Memory Alignment}
+
+For the CPU architectures used in this work, Embree's quad-tree implementation
+was applied. In order to use this design in a SIMD context, the code constructs
+must be carefully designed for interpretation by the CPU. This defining
+BVH-related structures such that they occupy aligned memory spaces, meaning that
+they are both compact in memory usage and can be read into CPU registers in
+predictible manner. All bounding volumes and the underlying Cartesian vector
+types used to define them are specified as structures aligned to 16 bytes in
+menory. This is important for encoding of node types and leaf sizes, discussed
+in Section \ref{sec:node_encoding}, as well as the ability for these types to be
+operated on as either arrays of floats during BVH construction or as native SIMD
+types during BVH traversal.
+
+\subsubsection{Memory Prefetching}
+
+
+\subsubsection{Non-branching Ray-Box Intersection Tests}
+
+\subsubsection{Node Type Encoding}\label{sec:node_encoding}
+
+
 \subsection{Signed Distance Fields}
 
 Signed Distance Fields (SDFs) are commonly derived from implicit surface
-functions and variations on these functions are known as level-set
-functions \cite{Osher_2003}. Both offer a rich and versatile representation of closed manifolds
-used for modeling, simulation, and rendering. As discussed in Section
+functions and variations on these functions are known as level-set functions
+\cite{Osher_2003}. Both offer a rich and versatile representation of closed
+manifolds used for modeling, simulation, and rendering. As discussed in Section
 \ref{subsec:implicit_surfaces}, Constructive Solid Geometry (CSG)
 representations seen in native Monte Carlo codes are formed from Boolean
 combinations of predefined implicit surfaces at their core. While these
 predefined surfaces do not give the freedom of model creation and manipulation
 found in many CAD systems, important geometric information required for
-visualization and simulation can be readily recovered from implicit
-surfaces.
+visualization and simulation can be readily recovered from implicit surfaces.
 
 \begin{figure}[H]
   \includesvg{../images/preconditioner_datastruct}{width=0.5\textwidth}

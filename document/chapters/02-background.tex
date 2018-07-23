@@ -919,8 +919,32 @@ types during BVH traversal.
 
 \subsubsection{Memory Prefetching}
 
+During traversal of Embree's BVH, nodes at the top of the traversal stack are
+pre-fetched into lower-level CPU registers. This is to reduce time lost in
+memory fetching after passing node information to SIMD operations, which can
+often overshadow the performance improvements resulting in the use of SIMD in
+the first place.
 
 \subsubsection{Non-branching Ray-Box Intersection Tests}
+
+In order to take advantage of compiler optimization and SIMD instructions,
+ray-box tests in Embree contain no branching (if-else statements). This avoids
+any additional memory fetching or re-organizing of CPU registers so that many
+SIMD operations can efficiently performed in sequence. This is accomplished by
+some precomuptation of ray values at the beginning of the BVH traversal such as
+the inverse ray direction, SIMD computation of ray intersection locations for
+each coordinate of the box, and bulk comparison of intersection distances using
+SIMD instructions.
+
+
+
+
+
+
+
+An additional optmization is the precomputation of
+the near and far coordinates of bounding boxes. This is used to precompute which
+of the axis-aligned box coordinates the ray will strike first and last. 
 
 \subsubsection{Node Type Encoding}\label{sec:node_encoding}
 

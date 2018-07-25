@@ -928,23 +928,118 @@ the first place.
 \subsubsection{Non-branching Ray-Box Intersection Tests}
 
 In order to take advantage of compiler optimization and SIMD instructions,
-ray-box tests in Embree contain no branching (if-else statements). This avoids
-any additional memory fetching or re-organizing of CPU registers so that many
-SIMD operations can efficiently performed in sequence. This is accomplished by
-some precomuptation of ray values at the beginning of the BVH traversal such as
-the inverse ray direction, SIMD computation of ray intersection locations for
-each coordinate of the box, and bulk comparison of intersection distances using
-SIMD instructions.
+ray-box tests in Embree contain no branching (if-else statements). Removing
+branching avoids any additional memory fetching or re-organizing of CPU
+registers so that SIMD operations can be efficiently performed in sequence to
+determine intersection locations with the box along each dimension. Underlying
+SIMD computation calculates the intersection of a ray with several boxes at once
+without memory disruption. The distances to intersection along the ray for each
+box coordinate are then compared to find the near and far intersections with
+axis-aligned bounding box planes. If the largest of the near-side intersections
+is smaller than the smallest of the far-side intersections, then the ray strikes
+the box.
 
+To perform this computation efficiently, some information is precomputed and
+added to the ray structure including the inverse of the ray direction and the
+inverse of the ray direction. These values are also duplicated into
+memory-aligned vector types with sizes equal to the n-ary of the BVH, again so
+that memory doesn't need to be allocated and fetched on-the-fly during traversal
+of the data structure. A bit-mask is used to indicate which boxes are hit and
+which are not, along with the distance to each box intersection so that the
+closest boxes can be added at the top of the traversal stack.
 
+\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={A non-branching ray-node intersection test for a quad tree implementation.},
+    label={alg:no-branch ray-box pseudo code},captionpos=b]
 
+  def ray_node_intersection(ray, node):
+      # result - mask (0 - miss, 1 - hit)
+      # inverse direction - ray.invdir
+      # inverse direction times the ray origin - ray.org_invdir
+      # tNear/tFar - parameter value of intersections along ray direction
+  
+      # compute tNear for N nodes
+      tLowerX = node.lowerX * ray.invdir.x - ray.org.x * ray.invdir.x
+      tLowerY = node.lowerY * ray.invdir.y - ray.org.y * ray.invdir.y
+      tLowerZ = node.lowerZ * ray.invdir.z - ray.org.z * ray.invdir.z
 
+      # compute tFar for N nodes
+      tUpperX = node.upperX * ray.invdir.x - ray.org.x * ray.invdir.x
+      tUpperY = node.upperY * ray.invdir.y - ray.org.y * ray.invdir.y
+      tUpperZ = node.upperZ * ray.invdir.z - ray.org.z * ray.invdir.z
 
+      # determine near/far values
+      tNearX = min(tLowerX, tUpperX)
+      tNearY = min(tLowerY, tUpperY)
+      tNearZ = min(tLowerZ, tUpperZ)
+      tFarX =  max(tLowerX, tUpperX)
+      tFarY =  max(tLowerY, tUpperY)
+      tFarZ =  max(tLowerZ, tUpperZ)
+      
+      # compute maximum tnear for all boxes
+      tNear = max(tNearX, tNearY, tNearZ, ray.tNear) 
+      tFar =  min(tFarX,  tFarY,  tFarZ,  ray.tFar )
 
+      # compute a mask indicating which boxes are hit
+      mask = tNear <= tFar
 
-An additional optmization is the precomputation of
-the near and far coordinates of bounding boxes. This is used to precompute which
-of the axis-aligned box coordinates the ray will strike first and last. 
+      # set distances to intersection to optimize traversal (nearest nodes first)
+      dist = tNear
+
+      return mask, dist
+\end{lstlisting}
+
+Further optimization is accomplished by pre-computing the near and far side
+coordinates based on the signs of the ray's unit direction. In this way, the
+near and far coordinates of the box are already known. Thus the near and far
+intersections do not require sorting along each box axis and be directly
+computed. To avoid branching and structure indexing in the ray-box intersection
+computation, byte offsets values are pre-set on the ray. These offset values are
+used during intersection tests to gather the correct coordinate values for the
+child boxes of a node in the hierarcy rather checking Boolean values and adding
+branches to test. After computing the near and far side intersections, the
+maximum near-side and minimum far-side hit distances still need to be found, but
+skipping the comparision of values for each axis removes a considerable portion
+of computation from the test.
+
+\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={A non-branching
+      ray-node intersection test for a quad tree implementation with precomputed
+      near and far box coordinate values.},
+    label={alg:no-branch ray-box optimized},captionpos=b]
+
+  def ray_node_intersection(ray, node):
+      # result - mask (0 - miss, 1 - hit)
+      # inverse direction - ray.invdir
+      # inverse direction times the ray origin - ray.org_invdir
+      # tNear/tFar - parameter value of intersections along ray direction
+  
+      # compute tNear for N nodes
+      tNearX = vecN(&node + ray.nearX) * ray.invdir.x - ray.org.x * ray.invdir.x
+      tNearY = vecN(&node + ray.nearY) * ray.invdir.y - ray.org.y * ray.invdir.y
+      tNearZ = vecN(&node + ray.nearZ) * ray.invdir.z - ray.org.z * ray.invdir.z
+
+      # compute tFar for N nodes
+      tFarX = vecN(&node + ray.farX) * ray.invdir.x - ray.org.x * ray.invdir.x
+      tFarY = vecN(&node + ray.farY) * ray.invdir.y - ray.org.y * ray.invdir.y
+      tFarZ = vecN(&node + ray.farZ) * ray.invdir.z - ray.org.z * ray.invdir.z
+
+      # compute maximum tnear for all boxes
+      tNear = max(tNearX, tNearY, tNearZ, ray.tNear) 
+      tFar =  min(tFarX,  tFarY,  tFarZ,  ray.tFar )
+
+      # compute a mask indicating which boxes are hit
+      mask = tNear <= tFar
+
+      # set distances to intersection to optimize traversal (nearest nodes first)
+      dist = tNear
+
+      return mask, dist
+\end{lstlisting}
+
+It is worth noting that this optimization is not useful for OBBs. The unknown
+orientation of the box axes makes any prediction about which side of the box
+will be intersected first by the ray impossible. In this case the form of the
+ray-box intersection test in Figure \ref{alg:no-branch ray-box pseudo code} must
+be used.
 
 \subsubsection{Node Type Encoding}\label{sec:node_encoding}
 

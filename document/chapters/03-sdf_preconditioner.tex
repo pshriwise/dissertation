@@ -1274,9 +1274,10 @@ in both this mode of operation for DAGMC and when applying SDF preconditioning
 to SNS is discussed in Section \ref{subsec:sdf_util_model_limits}. For fully
 sealed (or topologically watertight) models, the physics event mode is likely to
 provide a performance enhancement equal to or better than that of the SDF
-preconditioning method. In unsealed models, it may be useful to consider
-application of the SDF preconditioner instead, particularly if a majority of
-particle interactions are occurring in an unsealed region of the model. 
+preconditioning method. For models which are unable to be sealed fully, it may
+be useful to consider application of the SDF preconditioner instead,
+particularly if a majority of particle interactions are occurring in an unsealed
+region of the model.
 
 %% The SDF also has the potential to avoid lost particles in certain scenarios. In its
 %% standard operation, DAGMC requires that a surface intersection be found for each

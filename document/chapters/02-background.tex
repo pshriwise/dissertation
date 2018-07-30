@@ -925,7 +925,7 @@ memory fetching after passing node information to SIMD operations, which can
 often overshadow the performance improvements resulting in the use of SIMD in
 the first place.
 
-\subsubsection{Non-branching Ray-Box Intersection Tests}
+\subsubsection{Ray-Box Intersection Tests}
 
 In order to take advantage of compiler optimization and SIMD instructions,
 ray-box tests in Embree contain no branching (if-else statements). Removing
@@ -1042,6 +1042,49 @@ ray-box intersection test in Figure \ref{alg:no-branch ray-box pseudo code} must
 be used.
 
 \subsubsection{Node Type Encoding}\label{sec:node_encoding}
+
+Nodes in Embree's BVH are stored compactly using an encoding scheme which contains
+the memory address of box information as an integer value. Because nodes are
+byte-aligned, memory addresses will be offset by the same amount as the node
+alignment. For example, if nodes are memory aligned to 16 bytes, the four least
+significant bits in the integer representations will be unused. These bits are
+used to encode information about both leaf nodes and empty nodes (nodes
+required as part of the data structure but don't contain primitive entities). Figure
+\ref{fig:leaf_encoding} depicts the bits of a leaf node for reference.
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/node_encoding}{width=1.0\textwidth}
+  \caption[Graphic of leaf node encoding.]{Visual representation of leaf
+    encoding using integer-based pointer values in node references. \textcolor{Dandelion}{Yellow}
+    digits represent bits used to store the address of the first primitive
+    reference in the tree. The \textcolor{BrickRed}{red} digit indicates the fourth least significant
+    digit which is used to indicate that the stored memory address points to a
+    primitive reference rather than another node reference. The final three
+    \textcolor{ForestGreen}{green} digits indicate the number of primitive references in the leaf node.}
+  \label{fig:node_encoding}
+\end{figure}
+
+This representation reduces memory storage of leaf nodes, which can be
+considerable given that the number of leaf nodes in a n-ary tree is
+
+\begin{equation}
+ L = n^{h} 
+\end{equation}
+
+\begin{align*}
+   L - & \textrm{number of leaf nodes in the tree} \\
+   n - & \, \textrm{n-ary  of  the  tree  (branching  ratio)} \\
+   h - &  \textrm{height  of  the  tree  (zero-indexed)} \\
+\end{align*}
+
+meaning a quad tree with a height of ten will contain over one million leaf
+nodes. Avoiding storage of the memory address and leaf node size separately
+reduces memory consumption of the tree and allows the use of fast bit-wise
+operations to differentiate node types when traversing the tree. 
+
+\subsubsection{Vectorized Operations and Data Types}
+
 
 
 \subsection{Signed Distance Fields}

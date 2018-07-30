@@ -1186,7 +1186,7 @@ script used to apply the SDF. This estimate should be considered by analysts
 when creating DAGMC problem input, particularly if the simulation is going to be
 run in parallel.
 
-\section{Other Distance Limit Optimizations}
+\section{Other Distance Limit Optimizations}\label{sec:dist_limit}
 
 DAGMC supports a mode in which the distance to the next physics event is used to
 limit the length of a ray and optimize the BVH traversal process. Nodes which
@@ -1272,12 +1272,11 @@ The improvement in performance using the physics event distance to limit ray
 lengths is substantial for all models except SNS. The reason for this limitation
 in both this mode of operation for DAGMC and when applying SDF preconditioning
 to SNS is discussed in Section \ref{subsec:sdf_util_model_limits}. For fully
-sealed (or topologically watertight) models, the physics event mode is likely to
-provide a performance enhancement equal to or better than that of the SDF
-preconditioning method. For models which are unable to be sealed fully, it may
-be useful to consider application of the SDF preconditioner instead,
-particularly if a majority of particle interactions are occurring in an unsealed
-region of the model.
+sealed (or topologically watertight) models, the physics event mode provides
+a performance enhancement equal to or better than that of the SDF
+preconditioning method. For models which are unable to be sealed fully,
+application of SDF preconditioning may be useful, particularly if a majority of
+particle interactions are occurring in an unsealed region of the model.
 
 %% The SDF also has the potential to avoid lost particles in certain scenarios. In its
 %% standard operation, DAGMC requires that a surface intersection be found for each
@@ -1387,3 +1386,16 @@ method overall was limited by a variety of factors described in Section
 final result were observed.  Enhancement of SDF storage and further model
 development in could increase it's impact on these simulations and allow it to
 be more broadly applied in future studies.
+
+Use of the physics distance limit in DAGMC models which can be made
+topologically watertight is recommended based on its ability to enhance
+query performance throughout the model as seen in Section
+\ref{sec:dist_limit}. For models which cannot be made fully watertight, the SDF
+preconditioning method provides an alternative use of the physics distance limit
+to enhance simulation performance under the conditions described in in Section
+\ref{sec:preconditioner_utilization}. In practice it is recommended that well-formed
+geometries are used in DAGMC, or those with can be made fully watertight, to
+ensure simulation robustness and high fidelity results. Thus, the SDF
+preconditioning method is likely to have a small application space in production
+DAGMC analysis, finding use only in problems where unsealed volumes have high
+particle collision densities relative to the volume size.

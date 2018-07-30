@@ -1219,8 +1219,9 @@ In fully sealed models, however, this optimization is robust and can
 significantly decrease simulation times without consequence. This optimization
 has been applied to the same set of production models in Table
 \ref{tab:sdf_prod_summary} to compare the improvement in performance seen when
-using this mode in comparison to the similar implicit tracking method employed
-using the SDF preconditioner.
+using the distance limit optimization without SDF preconditioning in comparison
+to DAG-MCNP simulations with infinite ray lengths.
+
 
 It is worth nothing that the errant particle pathology associated with the
 physics distance limit is not present when using SDF preconditioning to
@@ -1239,7 +1240,7 @@ reported by DAGMC.
   \centering
   \begin{tabular}{c c c c c}
     \toprule
-    \textbf{\thead{Model}} & \textbf{\thead{Performance \\ Ratio}} & \textbf{\thead{Fully Sealed \\ Model}} & \textbf{\thead{Matching \\ Results}} & \textbf{\thead{No Lost \\ Particles}} \\
+    \textbf{\thead{Model}} & \textbf{\thead{Performance \\ Ratio \\ (Distance Optimization / \\Unmodified)}} & \textbf{\thead{Fully Sealed \\ Model}} & \textbf{\thead{Matching \\ Results}} & \textbf{\thead{No Lost \\ Particles}} \\
     \hline
     ITER & 0.23 & $\times$ & $\times$ & $\times$ \\
     nTOF & 0.46 & $\times$ & $\checkmark$ & $\checkmark$ \\
@@ -1248,10 +1249,11 @@ reported by DAGMC.
     SNS    & 0.95 & $\times$ & $\checkmark$ & $\checkmark$ \\
     \bottomrule
   \end{tabular}
-  \caption[SDF production simulation times using DAGMC's physics distance
-    optimization.]{Results from limiting ray lengths in DAGMC using the distance
-    to the next physics event. Performance ratios are measured as finite ray
-    lengths vs. infinite ray lengths. Matching numerical results, topological
+  \caption[Production simulation times using DAGMC's physics distance
+    optimization.]{Results from limiting ray lengths
+    in DAGMC using the distance to the next physics event. Performance ratios
+    are measured as simulations using finite ray lengths over those using
+    infinite ray lengths. Matching numerical results, topological
     watertightness, and lost particle incidence are also reported for each
     model.}
   \label{tab:sdf_prod_phys_dist_limit}

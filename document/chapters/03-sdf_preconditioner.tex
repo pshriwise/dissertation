@@ -1160,11 +1160,14 @@ more beneficial than additional processes in parallel simulations.
 \begin{table}[H]
   \centering
   \begin{tabular}{c c c}
-    \textbf{Model} & \textbf{Without SDF} & \textbf{With SDF}
+    \toprule
+    \textbf{Model} & \textbf{Without SDF (MB)} & \textbf{With SDF (MB)} \\
+    \hline
     ITER  & 5971  & 7003   \\
     nTOF  & 598.3 & 619.2  \\
     SHINE & 219.3 & 627.12 \\
     SNS   & 1804  & 3419   \\
+    \bottomrule
   \end{tabular}
   \caption[SDF production memory usage.]{Memory usage of the SDF for the various
     production applications.}

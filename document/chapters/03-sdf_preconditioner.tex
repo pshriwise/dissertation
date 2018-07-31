@@ -1186,6 +1186,108 @@ script used to apply the SDF. This estimate should be considered by analysts
 when creating DAGMC problem input, particularly if the simulation is going to be
 run in parallel.
 
+\section{Other Distance Limit Optimizations}\label{sec:dist_limit}
+
+DAGMC supports a mode in which the distance to the next physics event is used to
+limit the length of a ray and optimize the BVH traversal process. Nodes which
+the ray does not reach are not visited, reducing the average traversal time of
+rays in the BVH. If the ray does not intersect a surface, DAGMC returns a next
+surface distance greater than that of the distance to the next physics event. 
+The physics kernel is agnostic to this change, and comparisons of these
+distances are used as they are normally to determine a particle's next event.
+
+This distance limit optimization is only guaranteed to be robust for fully
+sealed DAGMC geometries. Because rays are not required to return a surface
+intersection in this mode, ray queries moving into gaps of the unsealed model
+will update the particle's position to the next physics event. If the next
+physics event is outside of the volume, particles will exit the volume without
+error in the particle tracking algorithm. In this scenario, particles can
+numerically leave the volume without updating the material in which the particle
+is interacting in the physics kernel, resulting in inaccurate physics
+events. This will continue until the particle is killed due to its low
+statistical contribution to the simulation solution. Occasional
+\textit{point\_containment} checks in the particle tracking algorithm can detect
+these particles and label them as lost, but this is not guaranteed to happen and
+the simulation may run without reporting any particle tracking errors. Creating
+a fully sealed DAGMC model from a general CAD representation is a difficult task
+for many complex production models, requiring that the model is created in a
+friendly way such that all volumes can be imprinted and merged successfully
+without overlaps. Corner cases also exist in which the \textit{make\_watertight}
+algorithm fails to fully seal tessellations of the CAD model \cite{Smith_2011}.
+
+In fully sealed models, however, this optimization is robust and can
+significantly decrease simulation times without consequence. This optimization
+has been applied to the same set of production models in Table
+\ref{tab:sdf_prod_summary} to compare the improvement in performance seen when
+using the distance limit optimization without SDF preconditioning in comparison
+to DAG-MCNP simulations with infinite ray lengths.
+
+
+It is worth nothing that the errant particle pathology associated with the
+physics distance limit is not present when using SDF preconditioning to
+accelerate DAGMC simulations. SDF values are generated using known surface
+locations relative to points in the uniform mesh. As such, information gathered
+from the SDF during preconditioning of particle queries will not allow particles
+to cross surfaces so long as the model is well-formed. This pathology is avoided
+by accounting for the interpolation error associated with signed distance value
+calculation to avoid incorrectly preconditioned ray queries. Rays fired in
+simulations where SDF preconditioning is applied still have an effectively
+infinite length and thus do not invalidate the robust particle tracking process
+in DAGMC. Particles moving through gaps in unsealed volumes will always be
+reported by DAGMC.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c}
+    \toprule
+    \textbf{\thead{Model}} & \textbf{\thead{Performance \\ Ratio \\ (Distance Optimization / \\Unmodified)}} & \textbf{\thead{Fully Sealed \\ Model}} & \textbf{\thead{Matching \\ Results}} & \textbf{\thead{No Lost \\ Particles}} \\
+    \hline
+    ITER & 0.23 & $\times$ & $\times$ & $\times$ \\
+    nTOF & 0.46 & $\times$ & $\checkmark$ & $\checkmark$ \\
+    SHINE  & 0.86 & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    SHINE* & 0.51 & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    SNS    & 0.95 & $\times$ & $\checkmark$ & $\checkmark$ \\
+    \bottomrule
+  \end{tabular}
+  \caption[Production simulation times using DAGMC's physics distance
+    optimization.]{Results from limiting ray lengths
+    in DAGMC using the distance to the next physics event. Performance ratios
+    are measured as simulations using finite ray lengths over those using
+    infinite ray lengths. Matching numerical results, topological
+    watertightness, and lost particle incidence are also reported for each
+    model.}
+  \label{tab:sdf_prod_phys_dist_limit}
+\end{table}
+
+Table \ref{tab:sdf_prod_phys_dist_limit} shows the results of this study. For
+all simulations, the run time was substantially reduced using this
+optimization. And for nearly all simulations the results of the two simulations
+matched exactly with the exception of the ITER simulation. In this case,
+particles were lost in the unsealed model, causing a change in the results
+between the two simulations. As stated above, it is also possible that particles
+were incorrectly tracked in other unsealed models (nTOF and SNS), but had no
+effect on the final solution of the simulation.
+
+The improvement in performance using the physics event distance to limit ray
+lengths is substantial for all models except SNS. The reason for this limitation
+in both this mode of operation for DAGMC and when applying SDF preconditioning
+to SNS is discussed in Section \ref{subsec:sdf_util_model_limits}. For fully
+sealed (or topologically watertight) models, the physics event mode provides
+a performance enhancement equal to or better than that of the SDF
+preconditioning method. For models which are unable to be sealed fully,
+application of SDF preconditioning may be useful, particularly if a majority of
+particle interactions are occurring in an unsealed region of the model.
+
+%% The SDF also has the potential to avoid lost particles in certain scenarios. In its
+%% standard operation, DAGMC requires that a surface intersection be found for each
+%% infinite-length ray it fires. Rays entering gaps in unsealed volumes will
+%% trigger lost particles in simulations even if the particle will not cross the
+%% surface before reaching the physics event location. SDF preconditioning can
+%% determine there is no surface crossing for this same ray trajectory without
+%% triggering a lost particle. This of course assumes that the volume is unsealed
+%% but still well-formed, meaning that the gaps between surfaces are caused by
+%% numerical roundoff rather than errors in geometry definitions or tessellation.
+
 %% \begin{table}[H]
 %% \centering
 %% \begin{tabular}{c c c}
@@ -1284,3 +1386,16 @@ method overall was limited by a variety of factors described in Section
 final result were observed.  Enhancement of SDF storage and further model
 development in could increase it's impact on these simulations and allow it to
 be more broadly applied in future studies.
+
+Use of the physics distance limit in DAGMC models which can be made
+topologically watertight is recommended based on its ability to enhance
+query performance throughout the model as seen in Section
+\ref{sec:dist_limit}. For models which cannot be made fully watertight, the SDF
+preconditioning method provides an alternative use of the physics distance limit
+to enhance simulation performance under the conditions described in in Section
+\ref{sec:preconditioner_utilization}. In practice it is recommended that well-formed
+geometries are used in DAGMC, or those with can be made fully watertight, to
+ensure simulation robustness and high fidelity results. Thus, the SDF
+preconditioning method is likely to have a small application space in production
+DAGMC analysis, finding use only in problems where unsealed volumes have high
+particle collision densities relative to the volume size.

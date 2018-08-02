@@ -895,7 +895,7 @@ worth noting that while the KD-Tree is restricted to a binary hierarchy, another
 variation, the bounding interval hierarchy, might be compatible with higher
 branching ratios and thus SIMD traversal of the hierarchy \cite{Watcher_2006}.
 
-\subsection{Application in Embree}
+\subsubsection{Application in Embree}
 
 Many of these concepts have been applied in a ray tracing kernel called Embree.
 Embree is the result of an effort to produce a performant CPU-based ray tracer
@@ -912,7 +912,7 @@ MCNP. The resulting combination of Embree and DAGMC will be referred to as
 EmDAG. Several critial design features of Embree will be reviewed here and their
 importance to efficient BVH traversal discussed.
 
-\subsubsection{Memory Alignment}
+\paragraph{Memory Alignment}
 
 For the CPU architectures used in this work, Embree's quad-tree implementation
 was applied. In order to use this design in a SIMD context, the code constructs
@@ -926,7 +926,7 @@ in Section \ref{sec:node_encoding}, as well as the ability for these types to be
 operated on as either arrays of floats during BVH construction or as native SIMD
 types during BVH traversal.
 
-\subsubsection{Memory Prefetching}
+\paragraph{Memory Prefetching}
 
 During traversal of Embree's BVH, nodes at the top of the traversal stack are
 pre-fetched into lower-level CPU registers. This is to reduce time lost in
@@ -934,7 +934,7 @@ memory fetching after passing node information to SIMD operations, which can
 often overshadow the performance improvements resulting in the use of SIMD in
 the first place.
 
-\subsubsection{Ray-Box Intersection Tests}
+\paragraph{Ray-Box Intersection Tests}
 
 In order to take advantage of compiler optimization and SIMD instructions,
 ray-box tests in Embree contain no branching (if-else statements). Removing
@@ -1050,7 +1050,7 @@ will be intersected first by the ray impossible. In this case the form of the
 ray-box intersection test in Figure \ref{alg:no-branch ray-box pseudo code} must
 be used.
 
-\subsubsection{Node Type Encoding}\label{sec:node_encoding}
+\paragraph{Node Type Encoding}\label{sec:node_encoding}
 
 Nodes in Embree's BVH are stored compactly using an encoding scheme which contains
 the memory address of box information as an integer value. Because nodes are

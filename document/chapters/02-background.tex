@@ -7,6 +7,15 @@
   \end{figure}
 }
 
+\newcommand{\vecdatatype}[2]{
+  \null
+  \textbf{#1}
+  \begin{adjustwidth}{1em}{0pt}
+    #2
+  \end{adjustwidth}
+  \null
+}
+
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
 
@@ -1082,10 +1091,6 @@ meaning a quad tree with a height of ten will contain over one million leaf
 nodes. Avoiding storage of the memory address and leaf node size separately
 reduces memory consumption of the tree and allows the use of fast bit-wise
 operations to differentiate node types when traversing the tree. 
-
-\subsubsection{Vectorized Operations and Data Types}
-
-
 
 \subsection{Signed Distance Fields}
 

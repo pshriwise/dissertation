@@ -901,16 +901,16 @@ Many of these concepts have been applied in a ray tracing kernel called Embree.
 Embree is the result of an effort to produce a performant CPU-based ray tracer
 as a demonstration of the expanding capabilities of modern CPU architectures
 \cite{Wald_2014}. In both construction and traversal of its BVHs, Embree takes
-advantage of many of the latest developments in BVH research by using modern
+advantage of many of the latest developments in BVH research and using modern
 chipset architecture capabilities via vectorization at an implementation level.
 The combination of these effects leads to a very powerful ray tracing tool in
 terms of performance, as demonstrated by the many projects which have
 incorporated Embree as their production ray tracing kernel such as Corona,
 Autodesk, FluidRay, and Brighter3D. As a result of its success in other areas,
 Embree was selected for application in DAGMC to satisfy geometric queries for
-MCNP. The resulting combination of Embree and DAGMC will be referred to as
-EmDAG. Several critial design features of Embree will be reviewed here and their
-importance to efficient BVH traversal discussed.
+attached physics kernels. The resulting combination of Embree and DAGMC will be
+referred to as EmDAG. Several critial design features of Embree will be reviewed
+here and their importance to efficient BVH traversal discussed.
 
 \paragraph{Memory Alignment}
 
@@ -919,34 +919,136 @@ was applied. In order to use this design in a SIMD context, the code constructs
 must be carefully designed for interpretation by the CPU. This defining
 BVH-related structures such that they occupy aligned memory spaces, meaning that
 they are both compact in memory usage and can be read into CPU registers in
-predictible manner. All bounding volumes and the underlying Cartesian vector
+a predictible manner. All bounding volumes and the underlying Cartesian vector
 types used to define them are specified as structures aligned to 16 bytes in
-menory. This is important for encoding of node types and leaf sizes, discussed
+memory. This is important for encoding of node types and leaf sizes, discussed
 in Section \ref{sec:node_encoding}, as well as the ability for these types to be
 operated on as either arrays of floats during BVH construction or as native SIMD
 types during BVH traversal.
 
+\paragraph{Node Type Encoding}\label{sec:node_encoding}
+
+Nodes in Embree's BVH are stored compactly using an encoding scheme which contains
+the memory address of box information as an integer value. Because nodes are
+byte-aligned, memory addresses will be offset by the same amount as the node
+alignment. For example, if nodes are memory aligned to 16 bytes, the four least
+significant bits in the integer representations will be unused. These bits are
+used to encode information about both leaf nodes and empty nodes (nodes
+required as part of the data structure but don't contain primitive entities). Figure
+\ref{fig:leaf_encoding} depicts the bits of a leaf node for reference.
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/node_encoding}{width=1.0\textwidth}
+  \caption[Graphic of leaf node encoding.]{Visual representation of leaf
+    encoding using integer-based pointer values in node references. \textcolor{Dandelion}{Yellow}
+    digits represent bits used to store the address of the first primitive
+    reference in the tree. The \textcolor{BrickRed}{red} digit indicates the fourth least significant
+    digit which is used to indicate that the stored memory address points to a
+    primitive reference rather than another node reference. The final three
+    \textcolor{ForestGreen}{green} digits indicate the number of primitive references in the leaf node.}
+  \label{fig:node_encoding}
+\end{figure}
+
+This representation reduces memory storage of leaf nodes, which can be
+considerable given that the number of leaf nodes in a n-ary tree is
+
+\begin{equation}
+ L = n^{h} 
+\end{equation}
+
+\begin{align*}
+   L - & \textrm{number of leaf nodes in the tree} \\
+   n - & \, \textrm{n-ary  of  the  tree  (branching  ratio)} \\
+   h - &  \textrm{height  of  the  tree  (zero-indexed)} \\
+\end{align*}
+
+meaning a quad tree with a height of ten will contain over one million leaf
+nodes. Avoiding storage of the memory address and leaf node size separately
+reduces memory consumption of the tree and allows the use of fast bit-wise
+operations to differentiate node types when traversing the tree. 
+
 \paragraph{Memory Prefetching}
 
+While CPUs clock speeds are getting faster each generation, memory latency is
+often the limiting factor in the performance of many algorithms (see Figure
+\ref{fig:memory_latency}). To account for this latency, modern CPUs allow
+compilers and code writers to initiate requests for memory access before it's
+needed. This technique, known as memory prefetching, avoids memory latency by
+populating low level memory caches with data before it is required by the
+CPU. 
+
+\begin{figure}[H]
+\centering
+\includesvg{../images/mem_latency.png}{width=0.9\textwidth}
+\caption[Memory latency comparison over time.]{Trends in CPU vs. memory
+  performance over time. The processor line shows the increase in memory
+  requests per second on average. The memory line shows the increase in memory
+  accesses per second. \cite{Henessy_2012}}
+\label{fig:memory_latency}
+\end{figure}
+
+
+%TIMING%
+
+Memory prefetching is applied automatically by compilers in situations where the
+compiler can clearly determine the next blocks of memory needed by the
+CPU. Several common patterns are used by compilers to predict memory access
+including next-line and stride prefetching. These patterns are
+often applied when looping over large arrays of data. Stride prefetching is used
+when many elements of an array are operated at the same time and the next stride
+of elements is needed in the next iteration. Examples of both next-line and stride
+prefetching can be seen in \ref{fig:prefetching examples}. Modern copmilers are
+becoming increasingly adept at predicting memory access for these cases and will
+apply prefetching as part of resulting instruction sets.
+
+Memory prefetching can also be applied manually in situations where the user is
+aware of the next memory block to be used by the CPU as well. One example of a
+user-informed prefetching method is pointer-based prefetching. In this method,
+memory locations pointed to by locally accessed data structures are known to be
+operated on soon by the CPU are prefetched. This method is commonly applied when
+traversing hierarchical data structures or linked lists. An example of
+pointer-based prefetching can be found in \ref{fig:pointer_prefetching}. The
+traversal of the BVH in Embree takes advantage of this particular prefetching
+pattern to reduce memory latency. Because of the indirection involved in
+traversal of data structures by pointer and the result-based operations at each
+node in the structure, it is very difficult for compilers to predict memory
+access patterns and apply prefetching automatically. Application of these
+pointer-based methods are nearly always applied manually.
+
+\begin{figure}[H]
+\centering
+\includesvg{../images/prefetch-loop}{width=0.8\textwidth}
+\caption[Manual memory prefetching example.]{Example of manually implemented
+  memory prefetching for a standard loop performing a vector operation.}
+\label{fig:prefetch_examples}
+\end{figure}
+
+\begin{figure}[H]
+\caption[]{}
+\label{fig:pointer_prefetching}
+\end{figure}
+
+Embree manually prefetches node information 
 During traversal of Embree's BVH, nodes at the top of the traversal stack are
 pre-fetched into lower-level CPU registers. This is to reduce time lost in
 memory fetching after passing node information to SIMD operations, which can
 often overshadow the performance improvements resulting in the use of SIMD in
-the first place.
+the first place. 
 
-\paragraph{Ray-Box Intersection Tests}
+\paragraph{Vectorized Ray-Box Intersection Tests}
 
 In order to take advantage of compiler optimization and SIMD instructions,
-ray-box tests in Embree contain no branching (if-else statements). Removing
-branching avoids any additional memory fetching or re-organizing of CPU
-registers so that SIMD operations can be efficiently performed in sequence to
-determine intersection locations with the box along each dimension. Underlying
-SIMD computation calculates the intersection of a ray with several boxes at once
-without memory disruption. The distances to intersection along the ray for each
-box coordinate are then compared to find the near and far intersections with
-axis-aligned bounding box planes. If the largest of the near-side intersections
-is smaller than the smallest of the far-side intersections, then the ray strikes
-the box.
+ray-box tests in Embree contain a no branching (if-else statements) version of
+Kay's slab box intersection test \ref{Kay_1986}. Removing branching avoids any
+additional memory fetching or re-organizing of CPU registers so that SIMD
+operations can be efficiently performed in sequence to determine intersection
+locations with the box along each dimension. Underlying SIMD computation
+calculates the intersection of a ray with several boxes at once without memory
+disruption. The distances to intersection along the ray for each box coordinate
+are then compared to find the near and far intersections with axis-aligned
+bounding box planes. If the largest of the near-side intersections is smaller
+than the smallest of the far-side intersections, then the ray strikes the box.
 
 To perform this computation efficiently, some information is pre-computed and
 added to the ray structure including the inverse of the ray direction and the
@@ -1050,47 +1152,6 @@ will be intersected first by the ray impossible. In this case the form of the
 ray-box intersection test in Figure \ref{alg:no-branch ray-box pseudo code} must
 be used.
 
-\paragraph{Node Type Encoding}\label{sec:node_encoding}
-
-Nodes in Embree's BVH are stored compactly using an encoding scheme which contains
-the memory address of box information as an integer value. Because nodes are
-byte-aligned, memory addresses will be offset by the same amount as the node
-alignment. For example, if nodes are memory aligned to 16 bytes, the four least
-significant bits in the integer representations will be unused. These bits are
-used to encode information about both leaf nodes and empty nodes (nodes
-required as part of the data structure but don't contain primitive entities). Figure
-\ref{fig:leaf_encoding} depicts the bits of a leaf node for reference.
-
-\begin{figure}[H]
-  \centering
-  \includesvg{../images/node_encoding}{width=1.0\textwidth}
-  \caption[Graphic of leaf node encoding.]{Visual representation of leaf
-    encoding using integer-based pointer values in node references. \textcolor{Dandelion}{Yellow}
-    digits represent bits used to store the address of the first primitive
-    reference in the tree. The \textcolor{BrickRed}{red} digit indicates the fourth least significant
-    digit which is used to indicate that the stored memory address points to a
-    primitive reference rather than another node reference. The final three
-    \textcolor{ForestGreen}{green} digits indicate the number of primitive references in the leaf node.}
-  \label{fig:node_encoding}
-\end{figure}
-
-This representation reduces memory storage of leaf nodes, which can be
-considerable given that the number of leaf nodes in a n-ary tree is
-
-\begin{equation}
- L = n^{h} 
-\end{equation}
-
-\begin{align*}
-   L - & \textrm{number of leaf nodes in the tree} \\
-   n - & \, \textrm{n-ary  of  the  tree  (branching  ratio)} \\
-   h - &  \textrm{height  of  the  tree  (zero-indexed)} \\
-\end{align*}
-
-meaning a quad tree with a height of ten will contain over one million leaf
-nodes. Avoiding storage of the memory address and leaf node size separately
-reduces memory consumption of the tree and allows the use of fast bit-wise
-operations to differentiate node types when traversing the tree. 
 
 \subsection{Signed Distance Fields}
 

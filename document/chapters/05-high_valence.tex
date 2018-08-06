@@ -657,6 +657,36 @@ ability to mark HV leaf nodes in the MPBVH system.
 %  \label{tab:hv_simulation_stats}
 %\end{table}
 
+\subsubsection{Alternative Surface Meshing Methods}
+
+In addition to the faceting tolerance discussed in Section \ref{sec:CAD-MCRT},
+other parameters can be applied to the faceting process. One such parameter is
+the length tolerance. The length tolerance places an upper limit on the edge
+length for any triangle in the resulting surface mesh. This parameter tends to
+make triangle sizes more uniform. Limited edge lengths also have the effect of
+reducing the size of HV regions as seen in Figure \ref{fig:fng_ft-lt} where both
+the faceting tolerance and length tolerance were applied to the FNG model.
+
+\begin{figure}[H]
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[scale=0.25, trim = 10 10 10 10]{fng_facet_tol.png}
+    \caption{Faceting Tolerance Only}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[scale=0.2]{fng_len_tol.png}
+    \caption{Faceting and Length Tolerance}
+  \end{subfigure}
+  \caption[Length tolerance faceting example.]{The effect of applying only the
+    faceting tolernce (a) vs. the application of both a faceting tolerance
+    and length tolerance (b) when generating CAD-based surface meshes.}
+\end{figure}
+
+Ray fire times have been shown to scale proportionally to both the valence and
+area of high valence regions.
+
 \section{Summary}
 
 This chapter introduced performance degradation caused by a tessellation feature

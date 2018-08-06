@@ -1162,7 +1162,7 @@ maximum near-side and minimum far-side hit distances still need to be found, but
 skipping the comparison of values for each axis removes a considerable portion
 of computation from the test. An example of this method is shown in Figure
 \ref{alg:no-branch ray-box optimized}. It is worth noting that this optimization
-is not useful for OBBs. The unknown orientation of the box axes makes any
+is not applicable when using OBBs. The unknown orientation of the box axes makes any
 prediction about which side of the box will be intersected first by the ray
 impossible. In this case the ray-box intersection must include an additional
 step to sort the near and far side hits before checking for intersection.

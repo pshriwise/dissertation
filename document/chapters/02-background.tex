@@ -1068,8 +1068,8 @@ than the smallest of the far-side intersections, then the ray strikes the box.
 To perform this computation efficiently, some information is pre-computed and
 added to the ray structure including the inverse of the ray direction. These
 values are also duplicated into memory-aligned vector types with sizes equal to
-the n-ary of the BVH, again so that memory doesn't need to be allocated and
-fetched on-the-fly during traversal of the data structure. A bit-mask is used to
+the n-ary of the BVH, again so that memory doesn't need to be allocated
+on-the-fly during traversal of the data structure. A bit-mask is used to
 indicate which boxes are hit and which are not, along with the distance to each
 box intersection so that the closest boxes can be added at the top of the
 traversal stack.

@@ -935,7 +935,7 @@ alignment. For example, if nodes are memory aligned to 16 bytes, the four least
 significant bits in the integer representations will be unused. These bits are
 used to encode information about both leaf nodes and empty nodes (nodes
 required as part of the data structure but don't contain primitive entities). Figure
-\ref{fig:leaf_encoding} depicts the bits of a leaf node for reference.
+\ref{fig:node_encoding} depicts the bits of a leaf node for reference.
 
 \begin{figure}[H]
   \centering
@@ -1055,7 +1055,7 @@ in the next step of the BVH traversal.
 
 In order to take advantage of compiler optimization and SIMD instructions,
 ray-box tests in Embree contain a no branching (if-else statements) version of
-Kay's slab box intersection test \ref{Kay_1986}. Removing branching avoids any
+Kay's slab box intersection test \cite{Kay_1986}. Removing branching avoids any
 additional memory fetching or re-organizing of CPU registers so that SIMD
 operations can be efficiently performed in sequence to determine intersection
 locations with the box along each dimension. Underlying SIMD computation

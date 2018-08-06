@@ -1074,58 +1074,45 @@ indicate which boxes are hit and which are not, along with the distance to each
 box intersection so that the closest boxes can be added at the top of the
 traversal stack.
 
-\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={A non-branching ray-node intersection test for a quad tree implementation.},
-    label={alg:no-branch ray-box pseudo code},captionpos=b]
+%% \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={A non-branching ray-node intersection test for a quad tree implementation.},
+%%     label={alg:no-branch ray-box pseudo code},captionpos=b]
 
-  def ray_node_intersection(ray, node):
-      # result - mask (0 - miss, 1 - hit)
-      # inverse direction - ray.invdir
-      # inverse direction times the ray origin - ray.org_invdir
-      # tNear/tFar - parameter value of intersections along ray direction
+%%   def ray_node_intersection(ray, node):
+%%       # result - mask (0 - miss, 1 - hit)
+%%       # inverse direction - ray.invdir
+%%       # inverse direction times the ray origin - ray.org_invdir
+%%       # tNear/tFar - parameter value of intersections along ray direction
   
-      # compute tNear for N nodes
-      tLowerX = node.lowerX * ray.invdir.x - ray.org.x * ray.invdir.x
-      tLowerY = node.lowerY * ray.invdir.y - ray.org.y * ray.invdir.y
-      tLowerZ = node.lowerZ * ray.invdir.z - ray.org.z * ray.invdir.z
+%%       # compute tNear for N nodes
+%%       tLowerX = node.lowerX * ray.invdir.x - ray.org.x * ray.invdir.x
+%%       tLowerY = node.lowerY * ray.invdir.y - ray.org.y * ray.invdir.y
+%%       tLowerZ = node.lowerZ * ray.invdir.z - ray.org.z * ray.invdir.z
 
-      # compute tFar for N nodes
-      tUpperX = node.upperX * ray.invdir.x - ray.org.x * ray.invdir.x
-      tUpperY = node.upperY * ray.invdir.y - ray.org.y * ray.invdir.y
-      tUpperZ = node.upperZ * ray.invdir.z - ray.org.z * ray.invdir.z
+%%       # compute tFar for N nodes
+%%       tUpperX = node.upperX * ray.invdir.x - ray.org.x * ray.invdir.x
+%%       tUpperY = node.upperY * ray.invdir.y - ray.org.y * ray.invdir.y
+%%       tUpperZ = node.upperZ * ray.invdir.z - ray.org.z * ray.invdir.z
 
-      # determine near/far values
-      tNearX = min(tLowerX, tUpperX)
-      tNearY = min(tLowerY, tUpperY)
-      tNearZ = min(tLowerZ, tUpperZ)
-      tFarX =  max(tLowerX, tUpperX)
-      tFarY =  max(tLowerY, tUpperY)
-      tFarZ =  max(tLowerZ, tUpperZ)
+%%       # determine near/far values
+%%       tNearX = min(tLowerX, tUpperX)
+%%       tNearY = min(tLowerY, tUpperY)
+%%       tNearZ = min(tLowerZ, tUpperZ)
+%%       tFarX =  max(tLowerX, tUpperX)
+%%       tFarY =  max(tLowerY, tUpperY)
+%%       tFarZ =  max(tLowerZ, tUpperZ)
       
-      # compute maximum tnear for all boxes
-      tNear = max(tNearX, tNearY, tNearZ, ray.tNear) 
-      tFar =  min(tFarX,  tFarY,  tFarZ,  ray.tFar )
+%%       # compute maximum tnear for all boxes
+%%       tNear = max(tNearX, tNearY, tNearZ, ray.tNear) 
+%%       tFar =  min(tFarX,  tFarY,  tFarZ,  ray.tFar )
 
-      # compute a mask indicating which boxes are hit
-      mask = tNear <= tFar
+%%       # compute a mask indicating which boxes are hit
+%%       mask = tNear <= tFar
 
-      # set distances to intersection to optimize traversal (nearest nodes first)
-      dist = tNear
+%%       # set distances to intersection to optimize traversal (nearest nodes first)
+%%       dist = tNear
 
-      return mask, dist
-\end{lstlisting}
-
-Further optimization is accomplished by pre-computing the near and far side
-coordinates based on the signs of the ray's unit direction. In this way, the
-near and far coordinates of the box are already known. Thus the near and far
-intersections do not require sorting along each box axis and be directly
-computed. To avoid branching and structure indexing in the ray-box intersection
-computation, byte offsets values are pre-set on the ray. These offset values are
-used during intersection tests to gather the correct coordinate values for the
-child boxes of a node in the hierarchy rather checking Boolean values and adding
-branches to test. After computing the near and far side intersections, the
-maximum near-side and minimum far-side hit distances still need to be found, but
-skipping the comparison of values for each axis removes a considerable portion
-of computation from the test.
+%%       return mask, dist
+%% \end{lstlisting}
 
 \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={A non-branching
       ray-node intersection test for a quad tree implementation with pre-computed
@@ -1161,12 +1148,24 @@ of computation from the test.
       return mask, dist
 \end{lstlisting}
 
-It is worth noting that this optimization is not useful for OBBs. The unknown
-orientation of the box axes makes any prediction about which side of the box
-will be intersected first by the ray impossible. In this case the form of the
-ray-box intersection test in Figure \ref{alg:no-branch ray-box pseudo code} must
-be used.
 
+Further optimization is accomplished by pre-computing the near and far side
+coordinates based on the signs of the ray's unit direction. In this way, the
+near and far coordinates of the box are already known. Thus the near and far
+intersections do not require sorting along each box axis and be directly
+computed. To avoid branching and structure indexing in the ray-box intersection
+computation, byte offsets values are pre-set on the ray. These offset values are
+used during intersection tests to gather the correct coordinate values for the
+child boxes of a node in the hierarchy rather checking Boolean values and adding
+branches to test. After computing the near and far side intersections, the
+maximum near-side and minimum far-side hit distances still need to be found, but
+skipping the comparison of values for each axis removes a considerable portion
+of computation from the test. An example of this method is shown in Figure
+\ref{alg:no-branch ray-box optimized}. It is worth noting that this optimization
+is not useful for OBBs. The unknown orientation of the box axes makes any
+prediction about which side of the box will be intersected first by the ray
+impossible. In this case the ray-box intersection must include an additional
+step to sort the near and far side hits before checking for intersection.
 
 \subsection{Signed Distance Fields}
 

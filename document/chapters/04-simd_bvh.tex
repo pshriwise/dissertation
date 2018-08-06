@@ -635,8 +635,10 @@ where the distance between these two vectors at their unit length
 can be described as
 
 \begin{equation}
-    \Delta = \sqrt{(R_{x} - r_{x})^{2} + (R_{y} - r_{y})^{2} + (R_{z} - r_{z})^{2})} + \sqrt{ (R_{u} - r_{u})^{2} + (R_{v} - r_{v})^{2} + (R_{w} -
-    r_{w})^{2} }
+  \begin{split}
+    \Delta = \sqrt{(R_{x} - r_{x})^{2} + (R_{y} - r_{y})^{2} + (R_{z} - r_{z})^{2})} + \\ \sqrt{ (R_{u} - r_{u})^{2} + (R_{v} - r_{v})^{2} + (R_{w} -
+      r_{w})^{2} }
+  \end{split}
 \end{equation}
 
 Because the difference between these vectors in each dimension is representative
@@ -644,7 +646,9 @@ of the truncation of double precision values to single precision, they can be
 set equal to a value $\delta$. By substituting this value, $\Delta$ becomes
 
 \begin{equation}
+  \begin{split}
     \delta = R_{x} - r_{x} = R_{y} - r_{y} = R_{z} - r_{z} = \\ R_{u} - r_{u} = R_{v} - r_{v} = R_{w} -  r_{w}
+  \end{split}
 \end{equation}
 
 \begin{equation}
@@ -655,7 +659,9 @@ Extending this to a ray traveling a parametric distance, $t$, along the
 respective single and double precision ray directions, the value of $\Delta$
 
 \begin{equation}
-    \Delta = \sqrt{(R_{x} - r_{x})^{2} + (R_{y} - r_{y})^{2} + (R_{z} - r_{z})^{2})} + \sqrt{ t^{2}(R_{u} - r_{u})^{2} + t^{2}(R_{v} - r_{v})^{2} + t^{2}(R_{w} - r_{w})^{2} }
+  \begin{split}
+    \Delta = \sqrt{(R_{x} - r_{x})^{2} + (R_{y} - r_{y})^{2} + (R_{z} - r_{z})^{2})} + \\ \sqrt{ t^{2}(R_{u} - r_{u})^{2} + t^{2}(R_{v} - r_{v})^{2} + t^{2}(R_{w} - r_{w})^{2} }
+    \end{split}
 \end{equation}
 
 \begin{equation}

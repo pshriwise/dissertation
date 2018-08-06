@@ -973,14 +973,14 @@ operations to differentiate node types when traversing the tree.
 While CPUs clock speeds are getting faster each generation, memory latency is
 often the limiting factor in the performance of many algorithms (see Figure
 \ref{fig:memory_latency}). To account for this latency, modern CPUs allow
-compilers and code writers to initiate requests for memory access before it's
-needed. This technique, known as memory prefetching, avoids memory latency by
-populating low level memory caches with data before it is required by the
-CPU. 
+compilers and code writers to initiate asynchronous requests for memory access
+before it's needed. This technique, known as memory prefetching, avoids memory
+latency by populating low level memory caches with data before it is required by
+the CPU.
 
 \begin{figure}[H]
 \centering
-\includesvg{../images/mem_latency.png}{width=0.9\textwidth}
+\includegraphics[width=0.9\textwidth]{../images/mem_latency.png}
 \caption[Memory latency comparison over time.]{Trends in CPU vs. memory
   performance over time. The processor line shows the increase in memory
   requests per second on average. The memory line shows the increase in memory
@@ -988,53 +988,68 @@ CPU.
 \label{fig:memory_latency}
 \end{figure}
 
-
-%TIMING%
-
 Memory prefetching is applied automatically by compilers in situations where the
 compiler can clearly determine the next blocks of memory needed by the
 CPU. Several common patterns are used by compilers to predict memory access
-including next-line and stride prefetching. These patterns are
-often applied when looping over large arrays of data. Stride prefetching is used
-when many elements of an array are operated at the same time and the next stride
-of elements is needed in the next iteration. Examples of both next-line and stride
-prefetching can be seen in \ref{fig:prefetching examples}. Modern copmilers are
-becoming increasingly adept at predicting memory access for these cases and will
-apply prefetching as part of resulting instruction sets.
+including \textbf{Next-Line} and \textbf{Next-N-Lines} prefetching. These
+patterns are often applied when looping over large arrays of data. Next-Line
+prefetching gathers information for the next iteration of the loop during the
+current iteration. Next-N-Line prefetching groups the loop iterations together
+to improve the timing between prefetching and computation for the CPU. Timing
+prefetch operations is critical. Memory fetched too early may bump information
+out of the CPU cache still needed by the current iteration's computational
+block, causing additional memory latency to re-gather that data. Memory fetched
+too late defeats the purpose of applying prefetching and can interfere with
+automatic memory access requests from the CPU. Examples of both Next-Line and
+Next-N-Line prefetching can be seen in \ref{fig:prefetch_examples}. Modern
+compilers are becoming increasingly adept at predicting memory access for these
+cases and will apply prefetching as part of resulting instruction sets.
+
+\begin{figure}[H]
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includesvg{../images/next-line_prefetch}{width=\textwidth}
+    \caption{Next-Line Prefetching}
+    \vfill
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includesvg{../images/next-n-line_prefetch}{width=\textwidth}
+    \caption{Next-N-Line Prefetching.}
+  \end{subfigure}
+  \caption[Compiler memory prefetching examples.]{Example of manually implemented
+    memory prefetching for a standard loop performing a vector operation. This
+    type of pattern is often automatically implemented by modern compilers.}
+  \label{fig:prefetch_examples}
+\end{figure}
 
 Memory prefetching can also be applied manually in situations where the user is
 aware of the next memory block to be used by the CPU as well. One example of a
-user-informed prefetching method is pointer-based prefetching. In this method,
+user-informed prefetching method is \textbf{Pointer-Based} prefetching. In this method,
 memory locations pointed to by locally accessed data structures are known to be
 operated on soon by the CPU are prefetched. This method is commonly applied when
 traversing hierarchical data structures or linked lists. An example of
-pointer-based prefetching can be found in \ref{fig:pointer_prefetching}. The
+Pointer-Based prefetching can be found in \ref{fig:pointer_prefetching}. The
 traversal of the BVH in Embree takes advantage of this particular prefetching
 pattern to reduce memory latency. Because of the indirection involved in
 traversal of data structures by pointer and the result-based operations at each
 node in the structure, it is very difficult for compilers to predict memory
 access patterns and apply prefetching automatically. Application of these
-pointer-based methods are nearly always applied manually.
+Pointer-Based methods are nearly always applied manually.
 
 \begin{figure}[H]
 \centering
-\includesvg{../images/prefetch-loop}{width=0.8\textwidth}
-\caption[Manual memory prefetching example.]{Example of manually implemented
-  memory prefetching for a standard loop performing a vector operation.}
-\label{fig:prefetch_examples}
-\end{figure}
-
-\begin{figure}[H]
-\caption[]{}
+\includesvg{../images/pointer_prefetch}{width=0.45\textwidth}
+\caption[Manual memory prefetching example.]{Example of a prefetch pattern using
+  pointers to follow a data structure traversal.}
 \label{fig:pointer_prefetching}
 \end{figure}
 
-Embree manually prefetches node information 
-During traversal of Embree's BVH, nodes at the top of the traversal stack are
-pre-fetched into lower-level CPU registers. This is to reduce time lost in
-memory fetching after passing node information to SIMD operations, which can
-often overshadow the performance improvements resulting in the use of SIMD in
-the first place. 
+Embree applies Pointer-Based prefetching while traversing its BVH. As nodes
+intersected by the ray in question are added to the stack, the bounding box
+information for the node at the top of the stack is prefetched for intersection
+in the next step of the BVH traversal.
 
 \paragraph{Vectorized Ray-Box Intersection Tests}
 

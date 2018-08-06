@@ -991,7 +991,7 @@ the CPU.
 Memory prefetching is applied automatically by compilers in situations where the
 compiler can clearly determine the next blocks of memory needed by the
 CPU. Several common patterns are used by compilers to predict memory access
-including \textbf{Next-Line} and \textbf{Next-N-Lines} prefetching. These
+including \textbf{Next-Line} and \textbf{Next-N-Line} prefetching. These
 patterns are often applied when looping over large arrays of data. Next-Line
 prefetching gathers information for the next iteration of the loop during the
 current iteration. Next-N-Line prefetching groups the loop iterations together
@@ -1051,7 +1051,7 @@ intersected by the ray in question are added to the stack, the bounding box
 information for the node at the top of the stack is prefetched for intersection
 in the next step of the BVH traversal.
 
-\paragraph{Vectorized Ray-Box Intersection Tests}
+\paragraph{Ray-Box Intersection Tests}
 
 In order to take advantage of compiler optimization and SIMD instructions,
 ray-box tests in Embree contain a no branching (if-else statements) version of

@@ -705,14 +705,16 @@ number of HV regions will increase, but their area and valence will be
 significantly reduced.
 
 \begin{table}[H]
-  \begin{tabular}{c}
+  \centering
+  \begin{tabular}{c c c c c c}
     \toprule
-    \textbf{\thead{Model}} \\
+    \textbf{\thead{Model}} & \multicolumn{2}{c}{\textbf{\thead{Triangles (M)}}} & \textbf{\thead{Memory Usage (MB)}} & \textbf{\thead{Timing Ratio \\ (Faceting Tol. / \\ Faceting \& Length Tol.)}} \\
+    &  \thead{Faceting \\ Tolerance} & \thead{Faceting \& Length \\ Tolerance} & & & \\
     \hline
-    FNG \\
-    ATR \\
-    UWNR \\
-    ITER \\
+    FNG  & 1.17  &  1.76  & 291 & 463  & 1.32 \\
+    ATR  & 4.95  & 30.00 & 1034 & 5099 & 1.01 \\
+    UWNR & 3.34  & 10.10 & 639 & 1770 & 0.83 \\
+    ITER & 39.63 & 42.39 & & 5352 & 1.31 \\
     \bottomrule
   \end{tabular}
   \caption[Length tolerance production model study.]{The results of production
@@ -723,15 +725,19 @@ significantly reduced.
 
 Table \ref{tab:length_tol_production_study} shows the results of this study. A
 length tolerance of 10 was applied to all production models with the exception
-of the ITER model where 25 was used. As seen in the BVH refinement study, the
-greatest effect was seen in the FNG and ITER simulations where the run times were
-reduced by $\approx30\%$. In contrast, the UWNR simulation became almost $20\%$
-worse. This is likely caused by the dramatic increase in the number of triangles
-for this model which could be mitigated by increasing the specified length
-tolerance. Is is difficult to know a priori what faceting tolerance is optimal
-when tessellating models, but this study shows that an alternative meshing
-scheme may be another solution to mitigating the effect of HV regions on
-simulation performance.
+of the ITER model where 25 was used. For all models, results using facet
+tolerance only tessellations were not numerically the same as those also
+applying the edge length tolerance as well. The same numerical answer for
+different tessellations is not expected and results for the models were
+statistically similar in all corresponding simulations. As seen in the BVH
+refinement study, the greatest effect was seen in the FNG and ITER simulations
+where the run times were reduced by $\approx30\%$. In contrast, the UWNR
+simulation became almost $20\%$ worse. This is likely caused by the dramatic
+increase in the number of triangles for this model which could be mitigated by
+increasing the specified length tolerance. It is difficult to know a priori what
+faceting tolerance is optimal when tessellating models, but this study shows
+that an alternative meshing scheme may be another solution to mitigating the
+effect of HV regions on simulation performance.
 
 When using BVH refinement to address HV region performance, the acceleration
 data structure is altered to better suit the tessellation. Whereas application

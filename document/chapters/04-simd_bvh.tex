@@ -617,16 +617,18 @@ amount to ensure that this is true. When determining how much the boxes need to
 be enlarged, it is important to understand the difference in the box intersection
 locations caused by this change.
 
-Let the original, double precision, ray be $\vec{R}$ where its direction is
+Let the original, double precision, ray be $\vec{R}$ where its origin and direction are
 
 \begin{equation}
+  \vec{O} = < R_{x}, R_{y}, R_{z} >
   \vec{D} = < R_{u}, R_{v}, R_{w} >
 \end{equation}
 
 
-and the traversal ray, in single precision, be $\vec{r}$ where its direction is
+and the traversal ray, in single precision, be $\vec{r}$ where its origin and direction are
 
 \begin{equation}
+  \vec{o} = < r_{x}, r_{y}, r_{z} >
   \vec{d} = < r_{u}, r_{v}, r_{w} >
 \end{equation}
 

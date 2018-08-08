@@ -886,13 +886,13 @@ with that surface, and avoids the duplication of triangle connectivity that was
 necessary in the EmDAG implementation.
 
 In a similar manner to how leaf nodes are identified during traversal (see
-Section \ref{sec:node_encoding}), he surface root node reference is identified
+Section \ref{sec:node_encoding}), the surface root node reference is identified
 by toggling the least significant bit in the reference's integer value to
 recover the location of the node's location in memory. Because only this first
 bit is altered, the node can be differentiated from leaf nodes containing
 primitives. Information about the current surface being visited and the sense
 information is updated on the traversal ray and used to set any hit information
-on the ray. The node is then pushed onto the stack and the traversal continues
+on the ray. The node is then pushed onto the stack and the traversal continues relatively
 uninterrupted. The depth-first traversal of the hierarchy protects against any
 invalid surface information being set on the ray as the all nodes underneath
 that surface will be visited before moving on to another surface, at which point

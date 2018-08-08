@@ -908,15 +908,14 @@ terms of performance, as demonstrated by the many projects which have
 incorporated Embree as their production ray tracing kernel such as Corona,
 Autodesk, FluidRay, and Brighter3D. As a result of its success in other areas,
 Embree was selected for application in DAGMC to satisfy geometric queries for
-attached physics kernels. The resulting combination of Embree and DAGMC will be
-referred to as EmDAG. Several critial design features of Embree will be reviewed
-here and their importance to efficient BVH traversal discussed.
+attached physics kernels. Several critial design features of Embree will be
+reviewed here and their importance to efficient BVH traversal discussed.
 
 \paragraph{Memory Alignment}
 
 For the CPU architectures used in this work, Embree's quad-tree implementation
 was applied. In order to use this design in a SIMD context, the code constructs
-must be carefully designed for interpretation by the CPU. This defining
+must be carefully designed for interpretation by the CPU. Embree defines
 BVH-related structures such that they occupy aligned memory spaces, meaning that
 they are both compact in memory usage and can be read into CPU registers in
 a predictible manner. All bounding volumes and the underlying Cartesian vector
@@ -933,15 +932,15 @@ the memory address of box information as an integer value. Because nodes are
 byte-aligned, memory addresses will be offset by the same amount as the node
 alignment. For example, if nodes are memory aligned to 16 bytes, the four least
 significant bits in the integer representations will be unused. These bits are
-used to encode information about both leaf nodes and empty nodes (nodes
-required as part of the data structure but don't contain primitive entities). Figure
+used to encode information about both leaf nodes and empty nodes. Empty nodes
+required as part of the data structure but don't contain primitive entities. Figure
 \ref{fig:node_encoding} depicts the bits of a leaf node for reference.
 
 \begin{figure}[H]
   \centering
   \includesvg{../images/node_encoding}{width=1.0\textwidth}
   \caption[Graphic of leaf node encoding.]{Visual representation of leaf
-    encoding using integer-based pointer values in node references. \textcolor{Dandelion}{Yellow}
+    encoding using integer-based pointer values. \textcolor{Dandelion}{Yellow}
     digits represent bits used to store the address of the first primitive
     reference in the tree. The \textcolor{BrickRed}{red} digit indicates the fourth least significant
     digit which is used to indicate that the stored memory address points to a
@@ -970,11 +969,11 @@ operations to differentiate node types when traversing the tree.
 
 \paragraph{Memory Prefetching}
 
-While CPUs clock speeds are getting faster each generation, memory latency is
+While CPU clock speeds are getting faster each generation, memory latency is
 often the limiting factor in the performance of many algorithms (see Figure
 \ref{fig:memory_latency}). To account for this latency, modern CPUs allow
 compilers and code writers to initiate asynchronous requests for memory access
-before it's needed. This technique, known as memory prefetching, avoids memory
+before it's needed for computation. This technique, known as memory prefetching, avoids memory
 latency by populating low level memory caches with data before it is required by
 the CPU.
 
@@ -995,7 +994,7 @@ including \textbf{Next-Line} and \textbf{Next-N-Line} prefetching. These
 patterns are often applied when looping over large arrays of data. Next-Line
 prefetching gathers information for the next iteration of the loop during the
 current iteration. Next-N-Line prefetching groups the loop iterations together
-to improve the timing between prefetching and computation for the CPU. Timing
+to improve the timing between prefetching and computation for the CPU. Proper timing
 prefetch operations is critical. Memory fetched too early may bump information
 out of the CPU cache still needed by the current iteration's computational
 block, causing additional memory latency to re-gather that data. Memory fetched
@@ -1047,15 +1046,15 @@ Pointer-Based methods are nearly always applied manually.
 \end{figure}
 
 Embree applies Pointer-Based prefetching while traversing its BVH. As nodes
-intersected by the ray in question are added to the stack, the bounding box
+intersected by the ray are added to the stack, the bounding box
 information for the node at the top of the stack is prefetched for intersection
 in the next step of the BVH traversal.
 
 \paragraph{Ray-Box Intersection Tests}
 
 In order to take advantage of compiler optimization and SIMD instructions,
-ray-box tests in Embree contain a no branching (if-else statements) version of
-Kay's slab box intersection test \cite{Kay_1986}. Removing branching avoids any
+ray-box tests in Embree contain a no branching (no if-else statements) version of
+Kay's slab box intersection test \cite{Kay_1986}. Removing branching avoids
 additional memory fetching or re-organizing of CPU registers so that SIMD
 operations can be efficiently performed in sequence to determine intersection
 locations with the box along each dimension. Underlying SIMD computation
@@ -1070,9 +1069,9 @@ added to the ray structure including the inverse of the ray direction. These
 values are also duplicated into memory-aligned vector types with sizes equal to
 the n-ary of the BVH, again so that memory doesn't need to be allocated
 on-the-fly during traversal of the data structure. A bit-mask is used to
-indicate which boxes are hit and which are not, along with the distance to each
-box intersection so that the closest boxes can be added at the top of the
-traversal stack.
+indicate which boxes are hit and which are not, and the distance to each box
+intersection is returned so that the closest boxes can be added at the top of
+the traversal stack.
 
 %% \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={A non-branching ray-node intersection test for a quad tree implementation.},
 %%     label={alg:no-branch ray-box pseudo code},captionpos=b]
@@ -1152,12 +1151,12 @@ traversal stack.
 Further optimization is accomplished by pre-computing the near and far side
 coordinates based on the signs of the ray's unit direction. In this way, the
 near and far coordinates of the box are already known. Thus the near and far
-intersections do not require sorting along each box axis and be directly
+intersections do not require sorting along each box axis and cand be directly
 computed. To avoid branching and structure indexing in the ray-box intersection
 computation, byte offsets values are pre-set on the ray. These offset values are
 used during intersection tests to gather the correct coordinate values for the
 child boxes of a node in the hierarchy rather checking Boolean values and adding
-branches to test. After computing the near and far side intersections, the
+branches to the test. After computing the near and far side intersections, the
 maximum near-side and minimum far-side hit distances still need to be found, but
 skipping the comparison of values for each axis removes a considerable portion
 of computation from the test. An example of this method is shown in Figure

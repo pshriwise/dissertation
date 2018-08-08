@@ -15,7 +15,8 @@
 \section{Monte Carlo Geometry Queries}\label{sec:mc-geom-queries}
 
 A Monte Carlo geometry kernel must provide robust support for the geometry
-queries shown in Figures \ref{fig:Point Containment} - \ref{fig:Measure}.
+queries shown in Figures \ref{fig:Point Containment} -
+\ref{fig:Measure}. 
 
 \geomQuery{Point Containment}{plc_query}{0.5}{
 Given a set of volumes and particle location, $\mathbf{x}$, determine if the
@@ -49,6 +50,17 @@ crossing occurs.}
 Given a volume, \boldmath$V$, or surface, \boldmath$S$ in the geometry,
 determine properties of that entity such as the volume or area.
 }
+
+Failure to accurately satisfy geometry queries or calculate geometric values can
+result in biased simulation results. Once such failure mode is lost particles
+during simulation. Lost particles occur when the geometry kernel cannot
+determine the particle's logical position, or which cell/volume contains the
+particle, based on it's numerical position. Lost particles remove statistical
+information from the simulation, and may influence results if particles are not
+uniformly lost throughout phase space. Inaccurate measurement of volume or
+surface area can result in incorrect values derived from simulation results,
+such as surface current density tallies or k-effective values in criticality
+simulations.
 
 \section{Analytic Geometry Representations}\label{sec:analytic_geometry}
 

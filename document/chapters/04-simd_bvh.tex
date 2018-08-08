@@ -827,39 +827,43 @@ for SIMD traversals.
   \label{fig:surface_root_example}
 \end{sidewaysfigure}
 
-BVH nodes in both Embree and the MPBVH are represented by a node reference
-construct which stores a single pointer value as an integer representation. All
-BVH constructs, namely the bounding nodes and primitive references, in the BVH
-are designed to be 16-byte aligned in memory. As a result, the addresses of
-these structures in memory will be consistently offset by 16 units, leaving the
-4 least significant bits of the address unused when stored as integers. By using
-these integer representations of memory addresses as references to tree nodes,
-these bits are used to encode information about leaf nodes in the tree. When the
-integer-pointer to either an interior node or leaf node is needed, the pointer
-value is recovered by masking out these bits to zero and casting the pointer to
-the appropriate object type.
+%% #########
+
+%% BVH nodes in both Embree and the MPBVH are represented by a node reference
+%% construct which stores a single pointer value as an integer representation. All
+%% BVH constructs, namely the bounding nodes and primitive references, in the BVH
+%% are designed to be 16-byte aligned in memory. As a result, the addresses of
+%% these structures in memory will be consistently offset by 16 units, leaving the
+%% 4 least significant bits of the address unused when stored as integers. By using
+%% these integer representations of memory addresses as references to tree nodes,
+%% these bits are used to encode information about leaf nodes in the tree. When the
+%% integer-pointer to either an interior node or leaf node is needed, the pointer
+%% value is recovered by masking out these bits to zero and casting the pointer to
+%% the appropriate object type.
+
+%% %% \begin{figure}[H]
+%% %%   \centering
+%% %%   \includesvg{../images/quad_tree_sets}{width=0.8\textwidth}
+%% %%   \caption{A representation of how surface BVHs are joined into a volume BVH.}
+%% %%   \label{fig:quad_tree_sets}
+%% %% \end{figure}
+
+%% For a leaf node structure the fourth bit is set to one, indicating it is a leaf
+%% node and that any pointer value taken from the node reference should be treated
+%% as a pointer to a primitive reference. The remaining three bits in the integer
+%% are combined to denote the number of primitives in that leaf node. This places a
+%% limit of eight on the number of entities stored in a leaf node. The impact of
+%% this limit will be discussed further in Chapter \ref{ch:high_valence}.
 
 %% \begin{figure}[H]
 %%   \centering
-%%   \includesvg{../images/quad_tree_sets}{width=0.8\textwidth}
-%%   \caption{A representation of how surface BVHs are joined into a volume BVH.}
-%%   \label{fig:quad_tree_sets}
+%%   \includesvg{../images/leaf_encoding}{width=1.0\textwidth}
+%%   \caption[Graphic of leaf node encoding.]{Visual representation of leaf
+%%     encoding using integer-based pointer values in node references.}
+%%   \label{fig:leaf_encoding}
 %% \end{figure}
 
-For a leaf node structure the fourth bit is set to one, indicating it is a leaf
-node and that any pointer value taken from the node reference should be treated
-as a pointer to a primitive reference. The remaining three bits in the integer
-are combined to denote the number of primitives in that leaf node. This places a
-limit of eight on the number of entities stored in a leaf node. The impact of
-this limit will be discussed further in Chapter \ref{ch:high_valence}.
-
-\begin{figure}[H]
-  \centering
-  \includesvg{../images/leaf_encoding}{width=1.0\textwidth}
-  \caption[Graphic of leaf node encoding.]{Visual representation of leaf
-    encoding using integer-based pointer values in node references.}
-  \label{fig:leaf_encoding}
-\end{figure}
+%% #########
 
 To address surface id tracking during traversal, a specialized BVH node is used
 to mark the root of surface trees under volume trees. A BVH is created for each
@@ -881,17 +885,18 @@ used to automatically adjust the returned triangle normals for any intersections
 with that surface, and avoids the duplication of triangle connectivity that was
 necessary in the EmDAG implementation.
 
-The surface root node reference is identified by toggling the least significant
-bit in the reference's integer value to recover the location of the node's
-location in memory. Because only this first bit is altered, the node can be
-differentiated from leaf nodes containing primitives. Information about the
-current surface being visited and the sense information is updated on the
-traversal ray and used to set any hit information on the ray. The node is then
-pushed onto the stack and the traversal continues uninterrupted. The depth-first
-traversal of the hierarchy protects against any invalid surface information
-being set on the ray as the all nodes underneath that surface will be visited
-before moving on to another surface, at which point the traversal ray
-information will be updated.
+In a similar manner to how leaf nodes are identified during traversal (see
+Section \ref{sec:node_encoding}), the surface root node reference is identified
+by toggling the least significant bit in the reference's integer value to
+recover the location of the node's location in memory. Because only this first
+bit is altered, the node can be differentiated from leaf nodes containing
+primitives. Information about the current surface being visited and the sense
+information is updated on the traversal ray and used to set any hit information
+on the ray. The node is then pushed onto the stack and the traversal continues relatively
+uninterrupted. The depth-first traversal of the hierarchy protects against any
+invalid surface information being set on the ray as the all nodes underneath
+that surface will be visited before moving on to another surface, at which point
+the traversal ray information will be updated.
 
 \begin{figure}
   \includesvg{../images/set_leaf_encoding}{width=1.0\textwidth}

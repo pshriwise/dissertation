@@ -7,6 +7,15 @@
   \end{figure}
 }
 
+\newcommand{\vecdatatype}[2]{
+  \null
+  \textbf{#1}
+  \begin{adjustwidth}{1em}{0pt}
+    #2
+  \end{adjustwidth}
+  \null
+}
+
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
 
@@ -739,7 +748,6 @@ capability for ray tracing.
 \subsection{Architecture-Based Acceleration}%%Status: Pending%%
 \label{subsec:arch}
 
-
 This section focuses on the impact of CPU architecture evolution on ray tracing
 data structure design and implementation. More specifically, it emphasizes the
 advantages of using vectorization-oriented implementations or Single Instruction
@@ -752,20 +760,21 @@ multiple operations in parallel on many processors while data parallelism
 describes operation on multiple data sets at the same time on a single
 processor. SIMD is a form of data parallelism in which, as the name indicates,
 the same set of numerical operations are performed on multiple sets of data in
-parallel under a single CPU process. Chip-sets with support for SIMD instructions became very popular in the
-mid-1990s as home PCs became more common and demand for multimedia-related
-performance increased. In response, many CPU manufacturers at the time such as
-Intel, IBM, and Motorola began to release products with SIMD instruction
-sets, the most powerful of which was Intel's Streaming SIMD Extensions
-(SSE). Over time, CPU clock speed became the larger focus of many manufacturers
-as dramatic gains in processor speed took precedence in the field. As processor
-speed increases began to wane, pushing the limit of current cooling technology
-in the early 2000's, a new shift toward multi-core designs occurred. Currently,
-as CPU clock speeds remain somewhat steady in multi-core systems, a focus on
-single-thread performance via SIMD has reemerged. Newer SIMD
-instruction sets such as Intel's Advanced Vector Extensions (AVX or AVX2) have
-doubled the width of operable data, allowing for a theoretical doubling of
-performance in codes relying on SIMD instructions \cite{Hughes_2015}.
+parallel under a single CPU process. Chip-sets with support for SIMD
+instructions became very popular in the mid-1990s as home PCs became more common
+and demand for multimedia-related performance increased. In response, many CPU
+manufacturers at the time such as Intel, IBM, and Motorola began to release
+products with SIMD instruction sets, the most powerful of which was Intel's
+Streaming SIMD Extensions (SSE). Over time, CPU clock speed became the larger
+focus of many manufacturers as dramatic gains in processor speed took precedence
+in the field. As processor speed increases began to wane, pushing the limit of
+current cooling technology in the early 2000's, a new shift toward multi-core
+designs occurred. Currently, as CPU clock speeds remain somewhat steady in
+multi-core systems, a focus on single-thread performance via SIMD has
+reemerged. Newer SIMD instruction sets such as Intel's Advanced Vector
+Extensions (AVX or AVX2) have doubled the width of operable data, allowing for a
+theoretical doubling of performance in codes relying on SIMD instructions
+\cite{Hughes_2015}.
 
 SIMD execution has found use in many different areas including medical imaging,
 financial analysis, database management, computer visualization, and physical
@@ -898,19 +907,289 @@ worth noting that while the KD-Tree is restricted to a binary hierarchy, another
 variation, the bounding interval hierarchy, might be compatible with higher
 branching ratios and thus SIMD traversal of the hierarchy \cite{Watcher_2006}.
 
+\subsubsection{Application in Embree}
+
+Many of these concepts have been applied in a ray tracing kernel called Embree.
+Embree is the result of an effort to produce a performant CPU-based ray tracer
+as a demonstration of the expanding capabilities of modern CPU architectures
+\cite{Wald_2014}. In both construction and traversal of its BVHs, Embree takes
+advantage of many of the latest developments in BVH research and using modern
+chipset architecture capabilities via vectorization at an implementation level.
+The combination of these effects leads to a very powerful ray tracing tool in
+terms of performance, as demonstrated by the many projects which have
+incorporated Embree as their production ray tracing kernel such as Corona,
+Autodesk, FluidRay, and Brighter3D. As a result of its success in other areas,
+Embree was selected for application in DAGMC to satisfy geometric queries for
+attached physics kernels. Several critial design features of Embree will be
+reviewed here and their importance to efficient BVH traversal discussed.
+
+\paragraph{Memory Alignment}
+
+For the CPU architectures used in this work, Embree's quad-tree implementation
+was applied. In order to use this design in a SIMD context, the code constructs
+must be carefully designed for interpretation by the CPU. Embree defines
+BVH-related structures such that they occupy aligned memory spaces, meaning that
+they are both compact in memory usage and can be read into CPU registers in
+a predictible manner. All bounding volumes and the underlying Cartesian vector
+types used to define them are specified as structures aligned to 16 bytes in
+memory. This is important for encoding of node types and leaf sizes, discussed
+in Section \ref{sec:node_encoding}, as well as the ability for these types to be
+operated on as either arrays of floats during BVH construction or as native SIMD
+types during BVH traversal.
+
+\paragraph{Node Type Encoding}\label{sec:node_encoding}
+
+Nodes in Embree's BVH are stored compactly using an encoding scheme which contains
+the memory address of box information as an integer value. Because nodes are
+byte-aligned, memory addresses will be offset by the same amount as the node
+alignment. For example, if nodes are memory aligned to 16 bytes, the four least
+significant bits in the integer representations will be unused. These bits are
+used to encode information about both leaf nodes and empty nodes. Empty nodes
+required as part of the data structure but don't contain primitive entities. Figure
+\ref{fig:node_encoding} depicts the bits of a leaf node for reference.
+
+\begin{figure}[H]
+  \centering
+  \includesvg{../images/node_encoding}{width=1.0\textwidth}
+  \caption[Graphic of leaf node encoding.]{Visual representation of leaf
+    encoding using integer-based pointer values. \textcolor{Dandelion}{Yellow}
+    digits represent bits used to store the address of the first primitive
+    reference in the tree. The \textcolor{BrickRed}{red} digit indicates the fourth least significant
+    digit which is used to indicate that the stored memory address points to a
+    primitive reference rather than another node reference. The final three
+    \textcolor{ForestGreen}{green} digits indicate the number of primitive references in the leaf node.}
+  \label{fig:node_encoding}
+\end{figure}
+
+This representation reduces memory storage of leaf nodes, which can be
+considerable given that the number of leaf nodes in a n-ary tree is
+
+\begin{equation}
+ L = n^{h} 
+\end{equation}
+
+\begin{align*}
+   L - & \textrm{number of leaf nodes in the tree} \\
+   n - & \, \textrm{n-ary  of  the  tree  (branching  ratio)} \\
+   h - &  \textrm{height  of  the  tree  (zero-indexed)} \\
+\end{align*}
+
+meaning a quad tree with a height of ten will contain over one million leaf
+nodes. Avoiding storage of the memory address and leaf node size separately
+reduces memory consumption of the tree and allows the use of fast bit-wise
+operations to differentiate node types when traversing the tree. 
+
+\paragraph{Memory Prefetching}
+
+While CPU clock speeds are getting faster each generation, memory latency is
+often the limiting factor in the performance of many algorithms (see Figure
+\ref{fig:memory_latency}). To account for this latency, modern CPUs allow
+compilers and code writers to initiate asynchronous requests for memory access
+before it's needed for computation. This technique, known as memory prefetching, avoids memory
+latency by populating low level memory caches with data before it is required by
+the CPU.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{../images/mem_latency.png}
+\caption[Memory latency comparison over time.]{Trends in CPU vs. memory
+  performance over time. The processor line shows the increase in memory
+  requests per second on average. The memory line shows the increase in memory
+  accesses per second. \cite{Hennessy_2012}}
+\label{fig:memory_latency}
+\end{figure}
+
+Memory prefetching is applied automatically by compilers in situations where the
+compiler can clearly determine the next blocks of memory needed by the
+CPU. Several common patterns are used by compilers to predict memory access
+including \textbf{Next-Line} and \textbf{Next-N-Line} prefetching. These
+patterns are often applied when looping over large arrays of data. Next-Line
+prefetching gathers information for the next iteration of the loop during the
+current iteration. Next-N-Line prefetching groups the loop iterations together
+to improve the timing between prefetching and computation for the CPU. Proper timing
+prefetch operations is critical. Memory fetched too early may bump information
+out of the CPU cache still needed by the current iteration's computational
+block, causing additional memory latency to re-gather that data. Memory fetched
+too late defeats the purpose of applying prefetching and can interfere with
+automatic memory access requests from the CPU. Examples of both Next-Line and
+Next-N-Line prefetching can be seen in \ref{fig:prefetch_examples}. Modern
+compilers are becoming increasingly adept at predicting memory access for these
+cases and will apply prefetching as part of resulting instruction sets.
+
+\begin{figure}[H]
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includesvg{../images/next-line_prefetch}{width=\textwidth}
+    \caption{Next-Line Prefetching}
+    \vfill
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includesvg{../images/next-n-line_prefetch}{width=\textwidth}
+    \caption{Next-N-Line Prefetching.}
+  \end{subfigure}
+  \caption[Compiler memory prefetching examples.]{Example of manually implemented
+    memory prefetching for a standard loop performing a vector operation. This
+    type of pattern is often automatically implemented by modern compilers.}
+  \label{fig:prefetch_examples}
+\end{figure}
+
+Memory prefetching can also be applied manually in situations where the user is
+aware of the next memory block to be used by the CPU as well. One example of a
+user-informed prefetching method is \textbf{Pointer-Based} prefetching. In this method,
+memory locations pointed to by locally accessed data structures are known to be
+operated on soon by the CPU are prefetched. This method is commonly applied when
+traversing hierarchical data structures or linked lists. An example of
+Pointer-Based prefetching can be found in \ref{fig:pointer_prefetching}. The
+traversal of the BVH in Embree takes advantage of this particular prefetching
+pattern to reduce memory latency. Because of the indirection involved in
+traversal of data structures by pointer and the result-based operations at each
+node in the structure, it is very difficult for compilers to predict memory
+access patterns and apply prefetching automatically. Application of these
+Pointer-Based methods are nearly always applied manually.
+
+\begin{figure}[H]
+\centering
+\includesvg{../images/pointer_prefetch}{width=0.45\textwidth}
+\caption[Manual memory prefetching example.]{Example of a prefetch pattern using
+  pointers to follow a data structure traversal.}
+\label{fig:pointer_prefetching}
+\end{figure}
+
+Embree applies Pointer-Based prefetching while traversing its BVH. As nodes
+intersected by the ray are added to the stack, the bounding box
+information for the node at the top of the stack is prefetched for intersection
+in the next step of the BVH traversal.
+
+\paragraph{Ray-Box Intersection Tests}
+
+In order to take advantage of compiler optimization and SIMD instructions,
+ray-box tests in Embree contain a no branching (no if-else statements) version of
+Kay's slab box intersection test \cite{Kay_1986}. Removing branching avoids
+additional memory fetching or re-organizing of CPU registers so that SIMD
+operations can be efficiently performed in sequence to determine intersection
+locations with the box along each dimension. Underlying SIMD computation
+calculates the intersection of a ray with several boxes at once without memory
+disruption. The distances to intersection along the ray for each box coordinate
+are then compared to find the near and far intersections with axis-aligned
+bounding box planes. If the largest of the near-side intersections is smaller
+than the smallest of the far-side intersections, then the ray strikes the box.
+
+To perform this computation efficiently, some information is pre-computed and
+added to the ray structure including the inverse of the ray direction. These
+values are also duplicated into memory-aligned vector types with sizes equal to
+the n-ary of the BVH, again so that memory doesn't need to be allocated
+on-the-fly during traversal of the data structure. A bit-mask is used to
+indicate which boxes are hit and which are not, and the distance to each box
+intersection is returned so that the closest boxes can be added at the top of
+the traversal stack.
+
+%% \begin{lstlisting}[language=Python,basicstyle=\tiny,caption={A non-branching ray-node intersection test for a quad tree implementation.},
+%%     label={alg:no-branch ray-box pseudo code},captionpos=b]
+
+%%   def ray_node_intersection(ray, node):
+%%       # result - mask (0 - miss, 1 - hit)
+%%       # inverse direction - ray.invdir
+%%       # inverse direction times the ray origin - ray.org_invdir
+%%       # tNear/tFar - parameter value of intersections along ray direction
+  
+%%       # compute tNear for N nodes
+%%       tLowerX = node.lowerX * ray.invdir.x - ray.org.x * ray.invdir.x
+%%       tLowerY = node.lowerY * ray.invdir.y - ray.org.y * ray.invdir.y
+%%       tLowerZ = node.lowerZ * ray.invdir.z - ray.org.z * ray.invdir.z
+
+%%       # compute tFar for N nodes
+%%       tUpperX = node.upperX * ray.invdir.x - ray.org.x * ray.invdir.x
+%%       tUpperY = node.upperY * ray.invdir.y - ray.org.y * ray.invdir.y
+%%       tUpperZ = node.upperZ * ray.invdir.z - ray.org.z * ray.invdir.z
+
+%%       # determine near/far values
+%%       tNearX = min(tLowerX, tUpperX)
+%%       tNearY = min(tLowerY, tUpperY)
+%%       tNearZ = min(tLowerZ, tUpperZ)
+%%       tFarX =  max(tLowerX, tUpperX)
+%%       tFarY =  max(tLowerY, tUpperY)
+%%       tFarZ =  max(tLowerZ, tUpperZ)
+      
+%%       # compute maximum tnear for all boxes
+%%       tNear = max(tNearX, tNearY, tNearZ, ray.tNear) 
+%%       tFar =  min(tFarX,  tFarY,  tFarZ,  ray.tFar )
+
+%%       # compute a mask indicating which boxes are hit
+%%       mask = tNear <= tFar
+
+%%       # set distances to intersection to optimize traversal (nearest nodes first)
+%%       dist = tNear
+
+%%       return mask, dist
+%% \end{lstlisting}
+
+\begin{lstlisting}[language=Python,basicstyle=\tiny,caption={A non-branching
+      ray-node intersection test for a quad tree implementation with pre-computed
+      near and far box coordinate values.},
+    label={alg:no-branch ray-box optimized},captionpos=b]
+
+  def ray_node_intersection(ray, node):
+      # result - mask (0 - miss, 1 - hit)
+      # inverse direction - ray.invdir
+      # inverse direction times the ray origin - ray.org_invdir
+      # tNear/tFar - parameter value of intersections along ray direction
+  
+      # compute tNear for N nodes
+      tNearX = vecN(&node + ray.nearX) * ray.invdir.x - ray.org.x * ray.invdir.x
+      tNearY = vecN(&node + ray.nearY) * ray.invdir.y - ray.org.y * ray.invdir.y
+      tNearZ = vecN(&node + ray.nearZ) * ray.invdir.z - ray.org.z * ray.invdir.z
+
+      # compute tFar for N nodes
+      tFarX = vecN(&node + ray.farX) * ray.invdir.x - ray.org.x * ray.invdir.x
+      tFarY = vecN(&node + ray.farY) * ray.invdir.y - ray.org.y * ray.invdir.y
+      tFarZ = vecN(&node + ray.farZ) * ray.invdir.z - ray.org.z * ray.invdir.z
+
+      # compute maximum tnear for all boxes
+      tNear = max(tNearX, tNearY, tNearZ, ray.tNear) 
+      tFar =  min(tFarX,  tFarY,  tFarZ,  ray.tFar )
+
+      # compute a mask indicating which boxes are hit
+      mask = tNear <= tFar
+
+      # set distances to intersection to optimize traversal (nearest nodes first)
+      dist = tNear
+
+      return mask, dist
+\end{lstlisting}
+
+
+Further optimization is accomplished by pre-computing the near and far side
+coordinates based on the signs of the ray's unit direction. In this way, the
+near and far coordinates of the box are already known. Thus the near and far
+intersections do not require sorting along each box axis and cand be directly
+computed. To avoid branching and structure indexing in the ray-box intersection
+computation, byte offsets values are pre-set on the ray. These offset values are
+used during intersection tests to gather the correct coordinate values for the
+child boxes of a node in the hierarchy rather checking Boolean values and adding
+branches to the test. After computing the near and far side intersections, the
+maximum near-side and minimum far-side hit distances still need to be found, but
+skipping the comparison of values for each axis removes a considerable portion
+of computation from the test. An example of this method is shown in Figure
+\ref{alg:no-branch ray-box optimized}. It is worth noting that this optimization
+is not applicable when using OBBs. The unknown orientation of the box axes makes any
+prediction about which side of the box will be intersected first by the ray
+impossible. In this case the ray-box intersection must include an additional
+step to sort the near and far side hits before checking for intersection.
+
 \subsection{Signed Distance Fields}
 
 Signed Distance Fields (SDFs) are commonly derived from implicit surface
-functions and variations on these functions are known as level-set
-functions \cite{Osher_2003}. Both offer a rich and versatile representation of closed manifolds
-used for modeling, simulation, and rendering. As discussed in Section
+functions and variations on these functions are known as level-set functions
+\cite{Osher_2003}. Both offer a rich and versatile representation of closed
+manifolds used for modeling, simulation, and rendering. As discussed in Section
 \ref{subsec:implicit_surfaces}, Constructive Solid Geometry (CSG)
 representations seen in native Monte Carlo codes are formed from Boolean
 combinations of predefined implicit surfaces at their core. While these
 predefined surfaces do not give the freedom of model creation and manipulation
 found in many CAD systems, important geometric information required for
-visualization and simulation can be readily recovered from implicit
-surfaces.
+visualization and simulation can be readily recovered from implicit surfaces.
 
 \begin{figure}[H]
   \includesvg{../images/preconditioner_datastruct}{width=0.5\textwidth}

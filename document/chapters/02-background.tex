@@ -303,13 +303,14 @@ complicated surface representations. Several recent implementations of direct
 methods are listed below:
 
 \codecallout{SERPENT}{Serpent \cite{Leppanen_2015} provides CAD-based transport
-  using a geometry represented by individual stereolithography (STL) files. It
-  is expected that the volumes in these files do not occupy the same space and
-  that each file contains a single, closed volume of triangles. Geometries can
-  also be defined using both CSG and STL representations in this format. The use
-  of separate files to represent volumes independently in this system makes
-  interchanging parts in a geometry straightforward, but ensuring that these
-  parts do not have gaps or overlaps can be a difficult task for users.}
+  using a geometry represented by individual stereolithography (STL) files or
+  ABAQUS mesh. It is expected that the volumes in these files do not occupy the
+  same space and that each file contains a single, closed volume of
+  triangles. Geometries can also be defined using both CSG and STL
+  representations in this format. The use of separate files to represent volumes
+  independently in this system makes interchanging parts in a geometry
+  straightforward, but ensuring that these parts do not have gaps or overlaps
+  can be a difficult task for users.}
 
 \codecallout{MCNP6}{MCNP6 \cite{Goorley_2016}, developed at Los Alamos National
   Laboratory, has added the native capability to perform transport on a
@@ -322,19 +323,18 @@ methods are listed below:
   approximation are difficult to quantify and depend greatly on the importance
   of the materials involved and mesh element characteristics.}
 
-\codecallout{DAGMC}{ The Direct Accelerated Geometry Monte Carlo (DAGMC) software toolkit enables
-  MCRT directly on CAD geometries \cite{Tautges_2009} using surface
-  tessellations to represent volume boundaries.  DAGMC was developed at the
-  University of Wisconsin - Madison and has been coupled with many Monte Carlo
-  codes (see Table \ref{tab:dagmc_implementations}). DAGMC relies on
-  Cubit\cite{Blacker_1994} (and its commercial counterpart,
+\codecallout{DAGMC}{ The Direct Accelerated Geometry Monte Carlo (DAGMC)
+  software toolkit enables MCRT directly on CAD geometries \cite{Tautges_2004}
+  using surface tessellations to represent volume boundaries.  DAGMC was
+  developed at the University of Wisconsin - Madison and has been coupled with
+  many Monte Carlo codes (see Table \ref{tab:dagmc_implementations}). DAGMC
+  relies on Cubit\cite{Blacker_1994} (and its commercial counterpart,
   Trelis\cite{Trelis_2018}) for model importing, cleaning, and
   tessellation. Surface meshses are stored in the Mesh Oriented dAtaBase (MOAB)
   \cite{Tautges_2009}, developed at Argonne National Laboratory. CUBIT and
   Trelis are used to ensure volumes to not overlap before discretization, and
   preproesccing steps ensure models are topologically watertight before
   transport\cite{Smith_2010}.}
-
 
 Though each of the above methods has its merits, the work of this thesis has
 been implemented in DAGMC. DAGMC has deomonstrated robust transport capability
@@ -343,8 +343,7 @@ applications. It accomplishes this by discretizing CAD surfaces into sets of
 triangles representing surface boundaries. Volumes are then defined by all sets
 of triangles which represent bounding surfaces of a given volume. This surface
 mesh and the geometric relationships between sets of mesh elements, also known
-as Meshsets, are stored in the Mesh Oriented dAtaBase (MOAB)
-\cite{Tautges_2004}. These relationships, which preserve the geometric topology,
+as Meshsets, are stored in MOAB. These relationships, which preserve the geometric topology,
 are stored in a hierarchical structure within MOAB, relating volumes to their
 surfaces, surfaces to curves, and curves to geometric vertices. For the purposes
 of this work, only the relationship between volumes and surfaces are of

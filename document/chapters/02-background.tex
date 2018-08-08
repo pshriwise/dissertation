@@ -18,8 +18,8 @@
 
 \newcommand{\codecallout}[2] {
   \null
-  \textbf{#1}
   \begin{adjustwidth}{1em}{0pt}
+    \textbf{#1:}
     #2
   \end{adjustwidth}
   \null
@@ -273,7 +273,7 @@ makes model manipulation difficult in that a change to the CAD model may result
 more or fewer geometric entities, making tacking of tally mapping difficult from
 CAD to CSG. Several translation approaches have been developed oriented toward
 the Monte Carlo N-Particle (MCNP) input format developed at Los Alamos National
-Laboratory \cite{LANL_MCNP_VOLIII}. A few of these tools are described below:
+Laboratory \cite{LANL_MCNP5_VOLIII}. A few of these tools are described below:
 
 \codecallout{MCAM}{The Monte Carlo Automatic Modeling (MCAM) tool was developed
   at the Chinese Academy of Sciences. It supports both CAD-to-CSG and CSG-to-CAD
@@ -333,7 +333,7 @@ methods are listed below:
   \cite{Tautges_2009}, developed at Argonne National Laboratory. CUBIT and
   Trelis are used to ensure volumes to not overlap before discretization, and
   preproesccing steps ensure models are topologically watertight before
-  transport \cite{Smith_2010}.}
+  transport\cite{Smith_2010}.}
 
 
 Though each of the above methods has its merits, the work of this thesis has

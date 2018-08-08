@@ -276,16 +276,17 @@ the Monte Carlo N-Particle (MCNP) input format developed at Los Alamos National
 Laboratory \cite{LANL_MCNP5_VOLIII}. A few of these tools are described below:
 
 \codecallout{MCAM}{The Monte Carlo Automatic Modeling (MCAM) tool was developed
-  at the Chinese Academy of Sciences. It supports both CAD-to-CSG and CSG-to-CAD
-  conversion, relying on the ACIS . It is capable of fixing gaps and overlaps in
-  models and supports geometry creation. Volumes are decomposed into simplified,
-  convex volumes during CAD-to-CSG translation.}
+  at the Chinese Academy of Sciences \cite{Yu_2013}. It supports both CAD-to-CSG
+  and CSG-to-CAD conversion, relying on the ACIS \cite{ACIS_2018}. It is capable
+  of fixing gaps and overlaps in models and supports geometry creation. Volumes
+  are decomposed into simplified, convex volumes during CAD-to-CSG translation.}
 
 \codecallout{McCad}{McCad was developed at the Karlsruhe Institute of Technology
   in Germany and supports both CAD-to-CSG and CSG-to-CAD model conversion,
-  relying on the Open CASCADE modeling engine to do so. Void spaces in the model
-  are automatically filled in McCad. McCad also decomposes single volumes into
-  multiple volumes with simplified CAG definitions.}
+  relying on the Open CASCADE modeling engine to do so \cite{Grobe_2013,
+    Opencascade_2018}. Void spaces in the model are automatically filled in
+  McCad. McCad also decomposes single volumes into multiple volumes with
+  simplified CAD definitions.}
 
 Though other translation-based methods exist, these tools have the widest
 user base and largest development efforts behind them at the time of this work.
@@ -304,9 +305,9 @@ methods are listed below:
 
 \codecallout{SERPENT}{Serpent \cite{Leppanen_2015} provides CAD-based transport
   using a geometry represented by individual stereolithography (STL) files or
-  ABAQUS mesh. It is expected that the volumes in these files do not occupy the
-  same space and that each file contains a single, closed volume of
-  triangles. Geometries can also be defined using both CSG and STL
+  ABAQUS mesh \cite{ABAQUS_2018}. It is expected that the volumes in these files
+  do not occupy the same space and that each file contains a single, closed
+  volume of triangles. Geometries can also be defined using both CSG and STL
   representations in this format. The use of separate files to represent volumes
   independently in this system makes interchanging parts in a geometry
   straightforward, but ensuring that these parts do not have gaps or overlaps
@@ -388,13 +389,10 @@ the field of ray tracing. In this field, data structures designed to accelerate
 the location of the nearest ray intersection are used to render animations and
 images in real time.
 
-
 % Other tools such as MCAM \cite{Liu_2005} and McCad
 % \cite{Tsigetamirat_2008} allow for interactive visualization and repair of CSG
 % models, but these systems often require simplifications of the true model in
 % translation and limited export formats for various Monte Carlo codes.
-
-
 
 \section{Ray Tracing Acceleration Data Structures}
 

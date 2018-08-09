@@ -288,7 +288,7 @@ its effect on simulation run times during transport.
   \end{tabular}
   \caption[Performance results for high valence region refinement in production models.]{Results of
     run time reduction in several DAGMC production models when applying the BVH
-    refinement.}
+    refinement method.}
   \label{tab:bvhrefine_production_results}
 \end{table}    
 
@@ -656,6 +656,102 @@ ability to mark HV leaf nodes in the MPBVH system.
 %    high valence parameter, $\alpha$, was set to 0.5 for this study.}
 %  \label{tab:hv_simulation_stats}
 %\end{table}
+
+\subsubsection{Alternative Surface Meshing Methods}
+
+In addition to the faceting tolerance discussed in Section \ref{sec:CAD-MCRT},
+other parameters can be applied to the tessellation process in CUBIT/Trelis. One
+such parameter is the length tolerance. The length tolerance places an upper
+limit on the edge length for any triangle in the resulting surface mesh. Passing
+this parameter to the tessellation algorithm along with a faceting tolerance
+tends to create more triangles with an aspect ratio $\approx 1$. It also tends
+to generate more triangles, particularly when the length tolerance specified is
+smaller than the characteristic length of surfaces in the model. Limited edge
+lengths also have the effect of reducing the area of HV regions as seen in
+Figure \ref{fig:fng_ft-lt} where both the faceting tolerance and length
+tolerance were applied to the FNG model. In most cases, the valence of the HV
+regions are reduced as well. This is a by-product of the tessellation
+algorithm's avoidance of high-aspect ratio triangles. Given that the
+performance degradation of ray fire times in the MPBVH scales with both the
+valence and HV area, applying a length tolerance during tessellation may be
+another pathway to improving performance in these models.
+
+\begin{figure}[H]
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[scale=0.2]{fng_facet_tol.png}
+    \caption{Faceting Tolerance Only}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[scale=0.2]{fng_len_tol.png}
+    \caption{Faceting and Length Tolerance}
+  \end{subfigure}
+  \caption[Length tolerance faceting example.]{The effect of applying only the
+    faceting tolerance (a) vs. the application of both a faceting tolerance and
+    length tolerance (b) in the FNG model. HV regions are separated and made
+    smaller when using both tesellation parameters.}
+\end{figure}
+
+The same set of production test models from Table
+\ref{tab:bvhrefine_production_results} were faceted using both faceting and
+length tolerances. The corresponding simulations were then performed using DAGMC
+with the MPBVH kernel with BVH refinement disabled, meaning it will apply AABBs
+only during BVH construction. There are competing factors at play in this
+analysis. Because the models will contain many more triangles, the BVH will
+inherently become deeper, resulting in a higher number of nodes visited per
+traversal. Conversely, the overall number of HV regions will increase, but their
+area and valence will be significantly reduced.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c c}
+    \toprule
+    \textbf{\thead{Model}} & \multicolumn{2}{c}{\textbf{\thead{Triangles (M)}}} & \textbf{\thead{Memory Usage (MB)}} & \textbf{\thead{Timing Ratio \\ (Faceting Tol. / \\ Faceting \& Length Tol.)}} \\
+    &  \thead{Faceting \\ Tolerance} & \thead{Faceting \& Length \\ Tolerance} & & & \\
+    \hline
+    FNG  & 1.17  &  1.76  & 152 & 463  & 1.32 \\
+    ATR  & 4.95  & 30.00 & 593 &  2785 & 0.83 \\
+    UWNR & 3.34  & 10.10 & 376  & 1770 & 1.01 \\
+    ITER & 39.63 & 42.39 & 3841 & 6654 & 1.31 \\
+    \bottomrule
+  \end{tabular}
+  \caption[Length tolerance production model study.]{The results of production
+    model simulations when applying both a faceting tolerance and length
+    tolerance during model tessellation to reduce HV region severity.}
+  \label{tab:length_tol_production_study}
+\end{table}
+
+Table \ref{tab:length_tol_production_study} shows the results of this study. A
+length tolerance of 10 was applied to all production models with the exception
+of the ITER model where 25 was used. For all models, results using facet
+tolerance only tessellations were not numerically the same as those also
+applying the edge length tolerance as well. The same numerical answer for
+different tessellations is not expected and results for the models were
+statistically similar in all corresponding simulations. In agreement with the
+BVH refinement study, the greatest effect on performance was seen in the FNG and
+ITER simulations where the run times were reduced by $\approx30\%$. In contrast,
+the ATR simulation became almost $20\%$ worse. This is likely caused by the
+dramatic increase in the number of triangles for this model which could be
+mitigated by increasing the specified length tolerance. It is difficult to know
+a priori what faceting tolerance is optimal when tessellating models, but this
+study shows that an alternative meshing scheme may be another solution to
+mitigating the effect of HV regions on simulation performance.
+
+When using BVH refinement to address HV region performance, the acceleration
+data structure is altered to better suit the tessellation. Whereas application
+of the length tolerance alters the tessellation to better suit the data
+structure by producing triangles more amenable to use of AABBs and reducing HV
+region severity. Each approach has its merits. BVH refinement requires no
+modification of the input tessellation, but it does require a way to gather more
+information about the mesh structure. Alternate tessellation schemes can produce
+more friendly to the BVH data structure, but may require additional memory - a
+notable constraint in the context of this work (see Section
+\ref{sec:mc_mem}). In the future, local re-tessellation of these regions, either
+as a preprocessing step or during BVH construction, could provide reduced HV
+severity similar to the length tolerance faceting without a dramatic increase in
+memory requirements for simulation.
 
 \section{Summary}
 

@@ -241,7 +241,7 @@ surfaces. The use of representations like splines, Bezier curves, and
 subdivision surfaces allow for accurate representation of these arbitrarily
 complex forms which would be impossible to accurately represent using CSG.
 
-\section{CAD-Based Monte Carlo Radiation Transport}
+\section{CAD-Based Monte Carlo Radiation Transport}\label{sec:CAD-MCRT}
 
 The Direct Accelerated Geometry Monte Carlo (DAGMC) software toolkit enables
 MCRT directly on CAD geometries \cite{Tautges_2009}. DAGMC was developed at the
@@ -253,14 +253,17 @@ Trelis\cite{Trelis_2018}) for model importing, cleaning, and tessellation.
 More specifically, DAGMC provides robust particle tracking for the underlying
 physics kernels of various Monte Carlo codes (see Table
 \ref{tab:dagmc_implementations}. It accomplishes this by discretizing CAD
-surfaces into sets of triangles representing surface boundaries. Volumes are
-then defined by all sets of triangles which represent bounding surfaces of a
-given volume. This surface mesh and the geometric relationships between sets of
-mesh elements, also known as Meshsets, are stored in the Mesh Oriented dAtaBase
-(MOAB) \cite{Tautges_2004}. These relationships, which preserve the geometric
-topology, are stored in a hierarchical structure within MOAB, relating volumes
-to their surfaces, surfaces to curves, and curves to geometric vertices. For the
-purposes of this work, only the relationship between volumes and surfaces are of
+surfaces into sets of triangles representing surface boundaries. A tolerance,
+known as the faceting tolerance, is applied during this process to specify the
+maximum allowed distance from a point on the analytic surface to its
+corresponding point on the triangle representation. Volumes are then defined by
+all sets of triangles which represent bounding surfaces of a given volume. This
+surface mesh and the geometric relationships between sets of mesh elements, also
+known as Meshsets, are stored in the Mesh Oriented dAtaBase (MOAB)
+\cite{Tautges_2004}. These relationships, which preserve the geometric topology,
+are stored in a hierarchical structure within MOAB, relating volumes to their
+surfaces, surfaces to curves, and curves to geometric vertices. For the purposes
+of this work, only the relationship between volumes and surfaces are of
 concern. A depiction of the relationship between Meshsets in DAGMC geometries
 can be seen in Figure \ref{fig:dagmc_geom_example}.
 
@@ -1318,11 +1321,11 @@ data structures are kept to a minimum if possible.
     \toprule
     Model & Tessellation (MB) & Tessellation and MOAB BVH (MB) & Simulation (MB) \\
     \hline
-    FNG   & 92           & 168 & 262  \\
-    ATR   & 294          & 675 & 865  \\
-    UWNR  & 213          & 435 & 1250 \\
-    nTOF  & 56           & 88  & 416  \\
-    ITER  & 2592  & 5947 &  6679\\
+    FNG   & 92           & 213  & 262  \\
+    ATR   & 294          & 765  & 865  \\
+    UWNR  & 213          & 446  & 1250 \\
+    nTOF  & 56           &  88  & 416  \\
+    ITER  & 2592         & 5547 & 6679 \\
     \hline
   \end{tabular}
   \caption[Memory summary of performance benchmark models.]{A summary of the

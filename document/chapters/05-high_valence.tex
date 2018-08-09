@@ -660,18 +660,18 @@ ability to mark HV leaf nodes in the MPBVH system.
 \subsubsection{Alternative Surface Meshing Methods}
 
 In addition to the faceting tolerance discussed in Section \ref{sec:CAD-MCRT},
-other parameters can be applied to the faceting process. One such parameter is
-the length tolerance. The length tolerance places an upper limit on the edge
-length for any triangle in the resulting surface mesh. Passing this parameter to
-the tessellation algorithm along with a faceting tolerance tends to create more
-triangles with an aspect ratio $\approx 1$.  It also tends to generate more
-triangles, particularly when the length tolerance specified is smaller than the
-characteristic length of surfaces in the model.  Limited edge lengths also have
-the effect of reducing the area of HV regions as seen in Figure
-\ref{fig:fng_ft-lt} where both the faceting tolerance and length tolerance were
-applied to the FNG model. In most cases, the valence of the HV regions are
-reduced as well. This is likely a by-product of the tessellation algorithm
-avoiding the generation of high-aspect ratio triangles. Given that the
+other parameters can be applied to the tessellation process in CUBIT/Trelis. One
+such parameter is the length tolerance. The length tolerance places an upper
+limit on the edge length for any triangle in the resulting surface mesh. Passing
+this parameter to the tessellation algorithm along with a faceting tolerance
+tends to create more triangles with an aspect ratio $\approx 1$. It also tends
+to generate more triangles, particularly when the length tolerance specified is
+smaller than the characteristic length of surfaces in the model. Limited edge
+lengths also have the effect of reducing the area of HV regions as seen in
+Figure \ref{fig:fng_ft-lt} where both the faceting tolerance and length
+tolerance were applied to the FNG model. In most cases, the valence of the HV
+regions are reduced as well. This is a by-product of the tessellation
+algorithm's avoidance of high-aspect ratio triangles. Given that the
 performance degradation of ray fire times in the MPBVH scales with both the
 valence and HV area, applying a length tolerance during tessellation may be
 another pathway to improving performance in these models.
@@ -699,10 +699,10 @@ The same set of production test models from Table
 length tolerances. The corresponding simulations were then performed using DAGMC
 with the MPBVH kernel with BVH refinement disabled, meaning it will apply AABBs
 only during BVH construction. There are competing factors at play in this
-analysis.  Because the models will contain many more triangles, the BVH will
-inherently become deeper resulting in longer traversals. Conversely, the overall
-number of HV regions will increase, but their area and valence will be
-significantly reduced.
+analysis. Because the models will contain many more triangles, the BVH will
+inherently become deeper, resulting in a higher number of nodes visited per
+traversal. Conversely, the overall number of HV regions will increase, but their
+area and valence will be significantly reduced.
 
 \begin{table}[H]
   \centering
@@ -729,15 +729,15 @@ of the ITER model where 25 was used. For all models, results using facet
 tolerance only tessellations were not numerically the same as those also
 applying the edge length tolerance as well. The same numerical answer for
 different tessellations is not expected and results for the models were
-statistically similar in all corresponding simulations. As seen in the BVH
-refinement study, the greatest effect was seen in the FNG and ITER simulations
-where the run times were reduced by $\approx30\%$. In contrast, the UWNR
-simulation became almost $20\%$ worse. This is likely caused by the dramatic
-increase in the number of triangles for this model which could be mitigated by
-increasing the specified length tolerance. It is difficult to know a priori what
-faceting tolerance is optimal when tessellating models, but this study shows
-that an alternative meshing scheme may be another solution to mitigating the
-effect of HV regions on simulation performance.
+statistically similar in all corresponding simulations. In agreement with the
+BVH refinement study, the greatest effect on performance was seen in the FNG and
+ITER simulations where the run times were reduced by $\approx30\%$. In contrast,
+the ATR simulation became almost $20\%$ worse. This is likely caused by the
+dramatic increase in the number of triangles for this model which could be
+mitigated by increasing the specified length tolerance. It is difficult to know
+a priori what faceting tolerance is optimal when tessellating models, but this
+study shows that an alternative meshing scheme may be another solution to
+mitigating the effect of HV regions on simulation performance.
 
 When using BVH refinement to address HV region performance, the acceleration
 data structure is altered to better suit the tessellation. Whereas application
@@ -747,7 +747,7 @@ region severity. Each approach has its merits. BVH refinement requires no
 modification of the input tessellation, but it does require a way to gather more
 information about the mesh structure. Alternate tessellation schemes can produce
 more friendly to the BVH data structure, but may require additional memory - a
-somewhat tight constraint in the context of this work (see Section
+notable constraint in the context of this work (see Section
 \ref{sec:mc_mem}). In the future, local re-tessellation of these regions, either
 as a preprocessing step or during BVH construction, could provide reduced HV
 severity similar to the length tolerance faceting without a dramatic increase in

@@ -185,16 +185,35 @@ hierarchy traversal will visit that leaf node and thus all of the triangles
 contained by that leaf node. This artificial increase in the HV regions
 cross-section greatly exacerbates the already poorly created nodes in the tree.
 
+\begin{figure}[H]
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\linewidth]{hv_study_moab_small_v.eps}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\linewidth]{hv_study_moab_adaptive_small_v.eps}
+  \end{subfigure}
+  \caption[Small scale study of the HV characterization using MOAB.]{A small scale version of the
+    HV study in Figure \ref{fig:moab_hv_studies} using valences representative of those
+    seen in DAGMC models using a linear scale.}
+  \label{fig:moab_hv_studies_small_v}
+\end{figure}
+
 Due to the nature of the entity ratio heuristic used to divide nodes in the
-tree, as the HV region becomes smaller more triangle centroids are
-shifted onto one side of the median splitting planes used to divide the nodes
-which contain portions of that region. If enough triangle centroids are on this
-side of the plane, then the cost of the entity ratio evaluation will exceed the
-preset upper limit of the cost (0.95 in MOAB) and the construction process will
-declare that node a leaf node. The settings governing this split process can be
-altered in MOAB, and changing the worst split ratio to 1.0 significantly
-improves the average ray fire time in the HV characterization study,
-as seen in Figure \ref{fig:moab_hv_studies}.
+tree, as the HV region becomes smaller more triangle centroids are shifted onto
+one side of the median splitting planes used to divide the nodes which contain
+portions of that region. If enough triangle centroids are on this side of the
+plane, then the cost of the entity ratio evaluation will exceed the preset upper
+limit of the cost (0.95 in MOAB) and the construction process will declare that
+node a leaf node. The settings governing this split process can be altered in
+MOAB, and changing the worst split ratio to 1.0 significantly improves the
+average ray fire time in the HV characterization study, as seen in Figure
+\ref{fig:moab_hv_studies}. While the values used for this study are helpful in
+understanding the large-scale effects on MOAB's BVH algorithms, a small-scale
+version of this study was also performed using a valence value more
+representative of those seen in typically DAGMC models. The results of this study
+exhibit the same trends as the large scale and provide information on
+what the true performance degradation might be in DAGMC simulations.
 
 As expected, the use of this setting largely removes the degradation in performance
 caused by the HV region by forcing the continued splitting of entities
@@ -508,11 +527,12 @@ and in turn, triangles, visited.
 
 \begin{figure}
   \centering
-  \begin{subfigure}{.5\textwidth}
+  \begin{subfigure}[b]{.5\textwidth}
     \centering
     \includegraphics[scale=0.37]{hv_overlap_simd_bvh.png}
   \end{subfigure}%
-  \begin{subfigure}{.5\textwidth}
+  \hfill
+  \begin{subfigure}[b]{.5\textwidth}
     \centering
     \includegraphics[scale=0.37]{hv_obbs.png}
   \end{subfigure}
@@ -594,13 +614,32 @@ HV using the same detection method described in Section
 will apply oriented bounding boxes to contain entities if the set of triangles
 is determined to be a HV region using the same method discussed in
 Section \ref{subsubsec:hv_detection} for MOAB's OBB tree. The results using the mixed tree with
-OBBs applied in HV regions are shown in Figure \ref{fig:simd_hv_studies}. The
+OBBs applied in HV regions are shown in Figure \ref{fig:simd_hv_studies}. A
+small-scale of this study is also provided in Figure
+\ref{fig:simd_hv_studies_small_v} for valences more commonly seen in DAGMC
+models.
+The
 mixed tree implementation shows some slight degradation in speed with both area
 fraction and valence, but overall timing is significantly better, with the worst
 case timing still beating out the best case for the OBB-only characterization
 test. This indicates that the AABBs are accelerating intersections higher up in
 the tree while the OBBs resolve the HV region with minimal overlap,
 resulting in an overall improvement in the run times for these regions.
+
+\begin{figure}[H]
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\linewidth]{hv_study_simd_small_v.eps}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\linewidth]{hv_study_simd_adaptive_small_v.eps}
+  \end{subfigure}
+  \caption[Small scale study of the HV characterization using the MPBVH.]{A small scale version of the
+    HV study in Figure \ref{fig:simd_hv_studies} using valences representative of those
+    seen in DAGMC models using a linear scale.}
+  \label{fig:simd_hv_studies_small_v}
+\end{figure}
+
 
 To support a tree containing both AABBs and OBBs, additional encoding of
 interior nodes is required so that the appropriate node intersection methods are

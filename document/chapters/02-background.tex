@@ -16,6 +16,16 @@
   \null
 }
 
+\newcommand{\codecallout}[2] {
+  \null
+  \begin{adjustwidth}{1em}{0pt}
+    \textbf{#1:}
+    #2
+  \end{adjustwidth}
+  \null
+}
+
+
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
 
@@ -25,7 +35,7 @@
 
 A Monte Carlo geometry kernel must provide robust support for the geometry
 queries shown in Figures \ref{fig:Point Containment} -
-\ref{fig:Measure}. 
+\ref{fig:Measure}.
 
 \geomQuery{Point Containment}{plc_query}{0.5}{
 Given a set of volumes and particle location, $\mathbf{x}$, determine if the
@@ -97,7 +107,7 @@ modeling using these representations will be discussed in this section.
 An isocontour of this function with the value, $v$, can be described as:
 
 \begin{equation}
-  \Omega(\vec{x}) - v  = 0 
+  \Omega(\vec{x}) - v  = 0
 \end{equation}
 
 For simplicity, the boundary of an implicit surface is conventionally defined as
@@ -209,10 +219,12 @@ Visualization of CSG models is also somewhat limited. Because native formats for
 CSG differ greatly between each Monte Carlo code, each typically provides its
 own geometry visualization tools. These tools are commonly restricted to 2D
 images of the model representing a user-specified slice through the
-geometry. Other tools such as MCAM \cite{Liu_2005} and McCad
-\cite{Tsigetamirat_2008} allow for interactive visualization and repair of CSG
-models, but these systems often require simplifications of the true model in
-translation and limited export formats for various Monte Carlo codes.
+geometry.
+
+% Other tools such as MCAM \cite{Liu_2005} and McCad
+% \cite{Tsigetamirat_2008} allow for interactive visualization and repair of CSG
+% models, but these systems often require simplifications of the true model in
+% translation and limited export formats for various Monte Carlo codes.
 
 \section{CAD Geometry}
 
@@ -243,24 +255,100 @@ complex forms which would be impossible to accurately represent using CSG.
 
 \section{CAD-Based Monte Carlo Radiation Transport}\label{sec:CAD-MCRT}
 
-The Direct Accelerated Geometry Monte Carlo (DAGMC) software toolkit enables
-MCRT directly on CAD geometries \cite{Tautges_2009}. DAGMC was developed at the
-University of Wisconsin - Madison and has been coupled with many Monte Carlo
-codes (see Table \ref{tab:dagmc_implementations}). DAGMC relies on
-Cubit\cite{Blacker_1994} (and its commercial counterpart,
-Trelis\cite{Trelis_2018}) for model importing, cleaning, and tessellation.
+\subsection{Translation-Based Methods}
 
-More specifically, DAGMC provides robust particle tracking for the underlying
-physics kernels of various Monte Carlo codes (see Table
-\ref{tab:dagmc_implementations}. It accomplishes this by discretizing CAD
-surfaces into sets of triangles representing surface boundaries. A tolerance,
-known as the faceting tolerance, is applied during this process to specify the
-maximum allowed distance from a point on the analytic surface to its
-corresponding point on the triangle representation. Volumes are then defined by
-all sets of triangles which represent bounding surfaces of a given volume. This
-surface mesh and the geometric relationships between sets of mesh elements, also
-known as Meshsets, are stored in the Mesh Oriented dAtaBase (MOAB)
-\cite{Tautges_2004}. These relationships, which preserve the geometric topology,
+One approach to CAD-Based MCRT is to leverage the native geometry capabilities
+of Monte Carlo codes by translating CAD geometries into CSG representations. In
+this approach, the fidelity of the geometric representation is limited to the
+geometric primitives available in the supported Monte Carlo code. Most codes
+support only first and second order surfaces, so higher-order surfaces of the
+CAD model must be approximated to accommodate the limited representation of the
+native code. As a result, many of these methods will simplify single volumes
+into smaller, less complex volumes able to be represented in CSG. This can be
+problematic when tally information related to CAD entities is desired - surface
+or volumetric fluxes for a single entity in the CAD model must now be mapped to
+several entities in the CSG representation. The lack of one-to-one correlation
+between CAD and CSG entities makes model manipulation difficult in that a change
+to the CAD model may result more or fewer CSG entities after translation, adding
+difficulty to tracking tally mapping. Several translation approaches have been
+developed oriented toward the Monte Carlo N-Particle (MCNP) input format
+developed at Los Alamos National Laboratory \cite{LANL_MCNP5_VOLIII}. A few of
+these tools are described below:
+
+\codecallout{MCAM}{CAD support for the Super Monte Carlo (SuperMC) code,
+  developed at the Chinese Academy of Sciences, is provided by the Monte Carlo
+  Automatic Modeling (MCAM) tool \cite{Wu_2015, Yu_2013}. It supports both
+  CAD-to-CSG and CSG-to-CAD conversion, relying on the ACIS \cite{ACIS_2018}
+  geometry engine. It is capable of fixing gaps and overlaps in models and
+  supports geometry creation. Volumes are decomposed into simplified, convex
+  volumes during CAD-to-CSG translation.}
+
+\codecallout{McCad}{McCad was developed at the Karlsruhe Institute of Technology
+  in Germany and supports both CAD-to-CSG and CSG-to-CAD model conversion,
+  relying on the Open CASCADE modeling engine to do so \cite{Grobe_2013,
+    Opencascade_2018}. Void spaces in the model are automatically filled in
+  McCad. McCad also decomposes single volumes into multiple volumes with
+  simplified CAD definitions.}
+
+Though other translation-based methods exist, these tools were selected for
+discussion based on usage in analysis and development efforts at the
+time of this work.
+
+\subsection{Direct Transport Methods}
+
+In the direct approach to CAD-Based MCRT, geometric queries are performed
+directly on the CAD geometry. Unlike translation-based approaches, physics codes
+must be modified to direct geometric operations to the CAD-Based
+interfaces. Some direct methods perform queries on analytic CAD representations
+while others use discretized forms, but in either case no simplification of the
+geometry is involved. Direct computation on CAD geometries tends to be slower
+than using native geometry because particle tracking is more computationally
+expensive on complicated surface representations. Several recent implementations
+of direct methods are listed below:
+
+\codecallout{SERPENT}{Serpent \cite{Leppanen_2015} provides CAD-based transport
+  using a geometry represented by individual stereo-lithography (STL) files or a
+  ABAQUS mesh \cite{ABAQUS_2018} generated using CUBIT \cite{Blacker_1994}. It
+  is expected that the volumes in these files do not occupy the same space and
+  that each file contains a single, closed volume of triangles. Geometries can
+  also be defined using both CSG and STL representations in this format
+  \cite{Talamo_2018}. The use of separate files to represent volumes
+  independently in this system makes interchanging parts in a geometry
+  straightforward, but ensuring that these parts do not have gaps or overlaps
+  can be a difficult task for users.}
+
+\codecallout{MCNP6}{MCNP6 \cite{Goorley_2016}, developed at Los Alamos National
+  Laboratory, has added a native capability for transport on a volumetric mesh
+  of unstructured tetrehedra. Thus a conformal mesh can be generated using a CAD
+  model for transport in this mode to achieve good geometry fidelity. Generating
+  a geometrically constrained volumetric mesh is difficult (and sometimes
+  impossible) for arbitrary geometries, however. Non-conformal meshes can also
+  be used where tetrahedra overlapping volume boundaries will contain a
+  homogenized mixture of the materials in the mesh element, but the effects of
+  this approximation are difficult to quantify and depend greatly on the
+  importance of the materials homogenized and mesh element characteristics.}
+
+\codecallout{DAGMC}{ The Direct Accelerated Geometry Monte Carlo (DAGMC)
+  software toolkit enables MCRT directly on CAD geometries \cite{Tautges_2004}
+  using surface tessellations to represent volume boundaries.  DAGMC was
+  developed at the University of Wisconsin - Madison and has been coupled with
+  many Monte Carlo codes including MCNP (see Table
+  \ref{tab:dagmc_implementations}). DAGMC relies on CUBIT (and its commercial
+  counterpart, Trelis\cite{Trelis_2018}) for model importing, cleaning, and
+  tessellation. Surface meshses are stored in the Mesh Oriented dAtaBase (MOAB)
+  \cite{Tautges_2009}, developed at Argonne National Laboratory. CUBIT and
+  Trelis features are used to ensure volumes do not overlap before
+  discretization, and preprocessing steps ensure models are topologically
+  watertight before transport\cite{Smith_2010}.}
+
+Though each of the above methods has its merits, the work of this thesis has
+been implemented in DAGMC. DAGMC has demonstrated robust transport capability
+on models of varying geometric complexity for a number of physics
+applications. As mentioned above, it accomplishes this by discretizing CAD surfaces into sets of
+triangles representing surface boundaries. Volumes are then defined by all sets
+of triangles which represent bounding surfaces of a given volume. This surface
+mesh and the geometric relationships between sets of mesh elements, also known
+as Meshsets, are stored in MOAB. These relationships, which preserve the geometric topology,
 are stored in a hierarchical structure within MOAB, relating volumes to their
 surfaces, surfaces to curves, and curves to geometric vertices. For the purposes
 of this work, only the relationship between volumes and surfaces are of
@@ -304,6 +392,11 @@ trajectory for a set of geometric primitives is a well-researched problem in
 the field of ray tracing. In this field, data structures designed to accelerate
 the location of the nearest ray intersection are used to render animations and
 images in real time.
+
+% Other tools such as MCAM \cite{Liu_2005} and McCad
+% \cite{Tsigetamirat_2008} allow for interactive visualization and repair of CSG
+% models, but these systems often require simplifications of the true model in
+% translation and limited export formats for various Monte Carlo codes.
 
 \section{Ray Tracing Acceleration Data Structures}
 
@@ -351,13 +444,13 @@ $O(\, log(N_{primitives}))$ search.
 
           if is_leaf(node):
               primitives = get_node_primitives(node)
-    
+
               for primitive in primitives:
                   d = primitive_intersect(primitive, ray)
                   if d < dist: dist = d
 
               continue
-      
+
           if node_intersect(node, ray):
               children = get_node_children(node)
 
@@ -420,7 +513,7 @@ cost, respectively.
 \begin{figure}[H]
 \begin{equation}
 \label{eq:ERH}
- C = \frac{|P_{R}-P_{L}|}{(P_{R} + P_{L})} 
+ C = \frac{|P_{R}-P_{L}|}{(P_{R} + P_{L})}
 \end{equation}
   \begin{align*}
     C - & \,final \, cost \, evaluation \\
@@ -968,7 +1061,7 @@ This representation reduces memory storage of leaf nodes, which can be
 considerable given that the number of leaf nodes in a n-ary tree is
 
 \begin{equation}
- L = n^{h} 
+ L = n^{h}
 \end{equation}
 
 \begin{align*}
@@ -980,7 +1073,7 @@ considerable given that the number of leaf nodes in a n-ary tree is
 meaning a quad tree with a height of ten will contain over one million leaf
 nodes. Avoiding storage of the memory address and leaf node size separately
 reduces memory consumption of the tree and allows the use of fast bit-wise
-operations to differentiate node types when traversing the tree. 
+operations to differentiate node types when traversing the tree.
 
 \paragraph{Memory Prefetching}
 
@@ -1096,7 +1189,7 @@ the traversal stack.
 %%       # inverse direction - ray.invdir
 %%       # inverse direction times the ray origin - ray.org_invdir
 %%       # tNear/tFar - parameter value of intersections along ray direction
-  
+
 %%       # compute tNear for N nodes
 %%       tLowerX = node.lowerX * ray.invdir.x - ray.org.x * ray.invdir.x
 %%       tLowerY = node.lowerY * ray.invdir.y - ray.org.y * ray.invdir.y
@@ -1114,9 +1207,9 @@ the traversal stack.
 %%       tFarX =  max(tLowerX, tUpperX)
 %%       tFarY =  max(tLowerY, tUpperY)
 %%       tFarZ =  max(tLowerZ, tUpperZ)
-      
+
 %%       # compute maximum tnear for all boxes
-%%       tNear = max(tNearX, tNearY, tNearZ, ray.tNear) 
+%%       tNear = max(tNearX, tNearY, tNearZ, ray.tNear)
 %%       tFar =  min(tFarX,  tFarY,  tFarZ,  ray.tFar )
 
 %%       # compute a mask indicating which boxes are hit
@@ -1138,7 +1231,7 @@ the traversal stack.
       # inverse direction - ray.invdir
       # inverse direction times the ray origin - ray.org_invdir
       # tNear/tFar - parameter value of intersections along ray direction
-  
+
       # compute tNear for N nodes
       tNearX = vecN(&node + ray.nearX) * ray.invdir.x - ray.org.x * ray.invdir.x
       tNearY = vecN(&node + ray.nearY) * ray.invdir.y - ray.org.y * ray.invdir.y
@@ -1150,7 +1243,7 @@ the traversal stack.
       tFarZ = vecN(&node + ray.farZ) * ray.invdir.z - ray.org.z * ray.invdir.z
 
       # compute maximum tnear for all boxes
-      tNear = max(tNearX, tNearY, tNearZ, ray.tNear) 
+      tNear = max(tNearX, tNearY, tNearZ, ray.tNear)
       tFar =  min(tFarX,  tFarY,  tFarZ,  ray.tFar )
 
       # compute a mask indicating which boxes are hit
@@ -1210,10 +1303,10 @@ visualization and simulation can be readily recovered from implicit surfaces.
 %% where an isocontour of value, $v$, of the implicit surface can be
 %% described as
 %% \begin{equation} \label{eq:implicit_surf_isocontour}
-%%   \Omega(\vec{x}) - v  = 0 
+%%   \Omega(\vec{x}) - v  = 0
 %% \end{equation}
 %% for all points $\vec{x}$ satisfying that equation. For simplicity, the surface
-%% isocontour value is typically defined as $0$. 
+%% isocontour value is typically defined as $0$.
 
 %% By recognizing that the magnitude of $\Omega(\vec{x})$ is in fact a
 %% minimum interface distance function, one can construct a signed

@@ -257,29 +257,30 @@ complex forms which would be impossible to accurately represent using CSG.
 
 \subsection{Translation-Based Methods}
 
-Another approach to CAD-Based MCRT is to leverage the native geometry
-capatilities of Monte Carlo codes by translating CAD geometries into CSG
-representations. In this approach, the fidelity of the geometric representation
-is limited to the geometric primitives available in the supported Monte Carlo
-code. Most codes support only first and second order surfaces, so higher-order
-surfaces of the CAD model must be approximated to accomodate the limited
-representation of the native code. As a result, many of these methods will
-simplify single volumes into smaller, less complex volumes able to be
-represented in CSG. This can be problematic when tally information related to
-CAD entities is desired - surface or volumetric fluxes for a single entity in
-the CAD model must now be mapped over several entities in the CSG
-representation. The lack of one-to-one correlation between CAD and CSG entities
-makes model manipulation difficult in that a change to the CAD model may result
-more or fewer geometric entities, making tacking of tally mapping difficult from
-CAD to CSG. Several translation approaches have been developed oriented toward
-the Monte Carlo N-Particle (MCNP) input format developed at Los Alamos National
-Laboratory \cite{LANL_MCNP5_VOLIII}. A few of these tools are described below:
+One approach to CAD-Based MCRT is to leverage the native geometry capabilities
+of Monte Carlo codes by translating CAD geometries into CSG representations. In
+this approach, the fidelity of the geometric representation is limited to the
+geometric primitives available in the supported Monte Carlo code. Most codes
+support only first and second order surfaces, so higher-order surfaces of the
+CAD model must be approximated to accommodate the limited representation of the
+native code. As a result, many of these methods will simplify single volumes
+into smaller, less complex volumes able to be represented in CSG. This can be
+problematic when tally information related to CAD entities is desired - surface
+or volumetric fluxes for a single entity in the CAD model must now be mapped to
+several entities in the CSG representation. The lack of one-to-one correlation
+between CAD and CSG entities makes model manipulation difficult in that a change
+to the CAD model may result more or fewer CSG entities after translation, adding
+difficulty to tracking tally mapping. Several translation approaches have been
+developed oriented toward the Monte Carlo N-Particle (MCNP) input format
+developed at Los Alamos National Laboratory \cite{LANL_MCNP5_VOLIII}. A few of
+these tools are described below:
 
 \codecallout{MCAM}{The Monte Carlo Automatic Modeling (MCAM) tool was developed
   at the Chinese Academy of Sciences \cite{Yu_2013}. It supports both CAD-to-CSG
-  and CSG-to-CAD conversion, relying on the ACIS \cite{ACIS_2018}. It is capable
-  of fixing gaps and overlaps in models and supports geometry creation. Volumes
-  are decomposed into simplified, convex volumes during CAD-to-CSG translation.}
+  and CSG-to-CAD conversion, relying on the ACIS \cite{ACIS_2018} geometry
+  engine. It is capable of fixing gaps and overlaps in models and supports
+  geometry creation. Volumes are decomposed into simplified, convex volumes
+  during CAD-to-CSG translation.}
 
 \codecallout{McCad}{McCad was developed at the Karlsruhe Institute of Technology
   in Germany and supports both CAD-to-CSG and CSG-to-CAD model conversion,
@@ -288,8 +289,9 @@ Laboratory \cite{LANL_MCNP5_VOLIII}. A few of these tools are described below:
   McCad. McCad also decomposes single volumes into multiple volumes with
   simplified CAD definitions.}
 
-Though other translation-based methods exist, these tools have the widest
-user base and largest development efforts behind them at the time of this work.
+Though other translation-based methods exist, these tools were selected for
+discussion based on usage in analysis and development efforts at the
+time of this work.
 
 \subsection{Direct Transport Methods}
 
@@ -297,50 +299,51 @@ In the direct approach to CAD-Based MCRT, geometric queries are performed
 directly on the CAD geometry. Unlike translation-based approaches, physics codes
 must be modified to direct geometric operations to the CAD-Based
 interfaces. Some direct methods perform queries on analytic CAD representations
-while others use discretized forms, but no simplification of the geometry is
-involved. Direct computation on CAD geometries tends to be slower than using
-native geometry because particle tracking is more computationally expensive on
-complicated surface representations. Several recent implementations of direct
-methods are listed below:
+while others use discretized forms, but in either case no simplification of the
+geometry is involved. Direct computation on CAD geometries tends to be slower
+than using native geometry because particle tracking is more computationally
+expensive on complicated surface representations. Several recent implementations
+of direct methods are listed below:
 
 \codecallout{SERPENT}{Serpent \cite{Leppanen_2015} provides CAD-based transport
-  using a geometry represented by individual stereolithography (STL) files or
-  ABAQUS mesh \cite{ABAQUS_2018}. It is expected that the volumes in these files
-  do not occupy the same space and that each file contains a single, closed
-  volume of triangles. Geometries can also be defined using both CSG and STL
-  representations in this format \cite{Talamo_2018}. The use of separate files
-  to represent volumes independently in this system makes interchanging parts in
-  a geometry straightforward, but ensuring that these parts do not have gaps or
-  overlaps can be a difficult task for users.}
+  using a geometry represented by individual stereo-lithography (STL) files or a
+  ABAQUS mesh \cite{ABAQUS_2018} generated using CUBIT \cite{Blacker_1994}. It
+  is expected that the volumes in these files do not occupy the same space and
+  that each file contains a single, closed volume of triangles. Geometries can
+  also be defined using both CSG and STL representations in this format
+  \cite{Talamo_2018}. The use of separate files to represent volumes
+  independently in this system makes interchanging parts in a geometry
+  straightforward, but ensuring that these parts do not have gaps or overlaps
+  can be a difficult task for users.}
 
 \codecallout{MCNP6}{MCNP6 \cite{Goorley_2016}, developed at Los Alamos National
-  Laboratory, has added the native capability to perform transport on a
-  volumetric mesh of unstructured tetrehedra. Thus a conformal mesh can be
-  generated using a CAD model for transport in this mode. Generating a
-  geometrically constrained volumetric mesh is difficult (and sometimes
+  Laboratory, has added a native capability for transport on a volumetric mesh
+  of unstructured tetrehedra. Thus a conformal mesh can be generated using a CAD
+  model for transport in this mode to achieve good geometry fidelity. Generating
+  a geometrically constrained volumetric mesh is difficult (and sometimes
   impossible) for arbitrary geometries, however. Non-conformal meshes can also
-  be used where tetrahedra overlapping volume boundaries will contain a homogenized
-  mixture of the materials in the mesh element, but the effects of this
-  approximation are difficult to quantify and depend greatly on the importance
-  of the materials involved and mesh element characteristics.}
+  be used where tetrahedra overlapping volume boundaries will contain a
+  homogenized mixture of the materials in the mesh element, but the effects of
+  this approximation are difficult to quantify and depend greatly on the
+  importance of the materials homogenized and mesh element characteristics.}
 
 \codecallout{DAGMC}{ The Direct Accelerated Geometry Monte Carlo (DAGMC)
   software toolkit enables MCRT directly on CAD geometries \cite{Tautges_2004}
   using surface tessellations to represent volume boundaries.  DAGMC was
   developed at the University of Wisconsin - Madison and has been coupled with
-  many Monte Carlo codes (see Table \ref{tab:dagmc_implementations}). DAGMC
-  relies on Cubit\cite{Blacker_1994} (and its commercial counterpart,
-  Trelis\cite{Trelis_2018}) for model importing, cleaning, and
+  many Monte Carlo codes including MCNP (see Table
+  \ref{tab:dagmc_implementations}). DAGMC relies on CUBIT (and its commercial
+  counterpart, Trelis\cite{Trelis_2018}) for model importing, cleaning, and
   tessellation. Surface meshses are stored in the Mesh Oriented dAtaBase (MOAB)
   \cite{Tautges_2009}, developed at Argonne National Laboratory. CUBIT and
-  Trelis are used to ensure volumes to not overlap before discretization, and
-  preproesccing steps ensure models are topologically watertight before
-  transport\cite{Smith_2010}.}
+  Trelis features are used to ensure volumes do not overlap before
+  discretization, and preprocessing steps ensure models are topologically
+  watertight before transport\cite{Smith_2010}.}
 
 Though each of the above methods has its merits, the work of this thesis has
-been implemented in DAGMC. DAGMC has deomonstrated robust transport capability
+been implemented in DAGMC. DAGMC has demonstrated robust transport capability
 on models of varying geometric complexity for a number of physics
-applications. It accomplishes this by discretizing CAD surfaces into sets of
+applications. As mentioned above, it accomplishes this by discretizing CAD surfaces into sets of
 triangles representing surface boundaries. Volumes are then defined by all sets
 of triangles which represent bounding surfaces of a given volume. This surface
 mesh and the geometric relationships between sets of mesh elements, also known

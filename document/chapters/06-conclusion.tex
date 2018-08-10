@@ -6,13 +6,13 @@
 This work provides a set of methods and implementations which significantly
 improves the performance of DAGMC's particle tracking
 capability. Performance improvements varied from factors of 1.1 to
-9.54 for all tests presented, without no change in the results from
-unmodified DAGMC code. 
+9.54 for all tests presented, without change in the results compared to the
+unmodified DAG-MCNP code. 
 
 The SDF implementation in DAGMC showed promising results for contrived test
 cases, but at most provided a 30\% improvement in performance for production
 models. The opportunity space for this data structure is limited, but the model
-used to inform it's application has been varied for the majority of cases,
+used to inform it's application is accurate for the majority of cases,
 though some improvements could be made for locally small average chord length
 values.
 
@@ -20,22 +20,22 @@ The Mixed Precision Bounding Volume Hierarchy (MPBVH) provides a robust method
 for returning higher precision intersections suitable for engineering analysis
 while exploiting CPU SIMD instructions for reduced precision bounding
 entities. The implementation provided by the author demonstrates performance
-comparable to single precision systems used for rendering with a significant
-demonstrated impact on transport performance.
+comparable to entirely single precision systems used for rendering with a
+significant demonstrated impact on transport performance.
 
 The use of a mixed AABB/OBB tree to improve performance for models containing
-severe high valence regions by informing BVH construction using an associated
-mesh database, MOAB, demonstrates the necessity of oriented bounding boxes for
-optimal performance in DAGMC models.
+severe high valence regions was demonstrated. This effort also demonstrated the
+value using of an associated mesh database to inform construction of spatial
+data structures for these performance-degrading mesh features.
 
 \begin{table}[H]
   \small
   \centering
   \begin{tabular}{lc}
     \toprule
-    Model & Ratio to unmodified DAG-MCNP \\
+    \textbf{Model} & \textbf{Ratio to unmodified DAG-MCNP} \\
     \hline
-    \multicolumn{2}{c}{Signed Distance Field} \\
+    \multicolumn{2}{c}{\textbf{Signed Distance Field}} \\
     \hline
     ITER  & 1.16 \\
     nTOF  & 1.41 \\
@@ -43,7 +43,7 @@ optimal performance in DAGMC models.
     SHINE\textsuperscript{*} & 1.35 \\
     SNS   & 1.00 \\
     \hline
-    \multicolumn{2}{c}{Mixed Precision BVH} \\
+    \multicolumn{2}{c}{\textbf{Mixed Precision BVH}} \\
     \hline
     FNG  & 2.09  \\
     ATR  & 4.56  \\
@@ -57,19 +57,18 @@ optimal performance in DAGMC models.
   \label{tab:the_rub}
 \end{table}
 
-The overall impact of this work on CAD-based MCRT-t is
-summarized in Table \ref{tab:the_rub}. Coputational savings of 2x at a minimum
-when applying the MPBVH were observed, with greater benefits of >5x seen in one
-test case. For access to all open source code, raw data, and results presented
-here please refer to FigShare archive \textbf{DOI\_HERE}.
+The overall impact of this work on CAD-based MCRT-t is summarized in Table
+\ref{tab:the_rub}. Coputational savings of 2x at a minimum when applying the
+MPBVH were observed, with greater benefits of >4x seen in some test cases. For
+access to all open source code, raw data, and results presented here please
+refer to FigShare archive \textbf{DOI\_HERE}.
 
 \section{Broader Impacts}\label{sec:other_contrib}
 
-Broader impacts of this work include a performant CPU ray tracer capable of
-use in engineering analysis work. The MPBVH is coupled with MOAB, a mesh
-database currently in use for engineering analysis purposes at Argonne National
-Lab. This tool can be built using standard GNU compilers and is relatively
-lightweight.
+Broader impacts of this work include a performant CPU ray tracer suitable for
+engineering analysis work. The MPBVH is coupled with MOAB, a mesh database
+currently in use for engineering analysis purposes at Argonne National Lab. This
+tool can be built using standard GNU compilers and is relatively lightweight.
 
 Work on adaptive BVH construction around HV regions demonstrates the importance
 of spatial query capabilities which are closely linked to a mesh framework in
@@ -89,13 +88,11 @@ about SDF application. In particular, information on the variation of the
 average chord length could be used to avoid application of the data structure
 where its predicted utilization is over estimated. Spatially varying information
 on the collision density of particles, could also be used to better inform the
-predictive tool for analysis.
+predictive tool for analysis. Another extension of the SDF predictive model
+could be its use to inform algorithms for domain subdivision in codes where
+Woodcock delta tracking is applied \cite{Leppanen_2010} \cite{Yonghao_2011}.
 
-Another extension of the SDF predictive model could be its use to inform
-algorithms for domain subdivision in codes where Woodcock delta tracking is
-applied \cite{Leppanen_2010} \cite{Yonghao_2011}. 
-
-There are many directions work on the MPBVH could take. Slightly more exotic
+There are several directions work on the MPBVH could take. Slightly more exotic
 architectures used in high performance computing clusters provide wider
 registers than the AVX2 instructions used in this work. This creates the
 possibility of creating tree branching ratio of 8 or 16 for even more shallow
@@ -113,6 +110,8 @@ Mesh features similar to the high valence region could be sought out using a
 variety of meshing schemes, geometries, and a program designed to highlight
 regions of models in which ray fire times are much lower than average to
 automatically highlight these areas for characterization and analysis as was
-done for the high valence region. 
+done for the high valence region. Local re-meshing of high valence regions could
+also be explored to allow used of AABB-only hierarchies without performance
+detriment and minimal modifications to input mesh geometries.
 
 

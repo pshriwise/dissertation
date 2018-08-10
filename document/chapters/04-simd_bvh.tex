@@ -620,16 +620,20 @@ locations caused by this change.
 Let the original, double precision, ray be $\vec{R}$ where its origin and direction are
 
 \begin{equation}
-  \vec{O} = < R_{x}, R_{y}, R_{z} >
+  \begin{split}
+  \vec{O} = < R_{x}, R_{y}, R_{z} > \\
   \vec{D} = < R_{u}, R_{v}, R_{w} >
+  \end{split}
 \end{equation}
 
 
 and the traversal ray, in single precision, be $\vec{r}$ where its origin and direction are
 
 \begin{equation}
-  \vec{o} = < r_{x}, r_{y}, r_{z} >
+  \begin{split}
+  \vec{o} = < r_{x}, r_{y}, r_{z} > \\
   \vec{d} = < r_{u}, r_{v}, r_{w} >
+  \end{split}
 \end{equation}
 
 
@@ -1193,7 +1197,7 @@ expected based on the difference in pure ray fire times from Section
     \begin{tabular}{lcccc}
 
       \toprule
-      Test Model & MCNP & DAG-MCNP & EmDAG-MCNP & DAG-MCNP (w/ MPBVH) \\
+      \textbf{Test Model} & \textbf{MCNP} & \textbf{DAG-MCNP} & \textbf{EmDAG-MCNP} & \textbf{\thead{DAG-MCNP \\ (w/ MPBVH)}} \\
       %%\hline
       & \multicolumn{4}{c}{\textbf{run time (min)/ ratio to MCNP}} \\
       \hline

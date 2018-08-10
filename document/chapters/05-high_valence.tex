@@ -731,6 +731,7 @@ another pathway to improving performance in these models.
     faceting tolerance (a) vs. the application of both a faceting tolerance and
     length tolerance (b) in the FNG model. HV regions are separated and made
     smaller when using both tesellation parameters.}
+  \label{fig:fng_ft-lt}
 \end{figure}
 
 The same set of production test models from Table
@@ -743,12 +744,13 @@ inherently become deeper, resulting in a higher number of nodes visited per
 traversal. Conversely, the overall number of HV regions will increase, but their
 area and valence will be significantly reduced.
 
-\begin{table}[H]
+\begin{sidewaystable}[p]
   \centering
+  \makebox[\textwidth][c]{
   \begin{tabular}{c c c c c c}
     \toprule
-    \textbf{\thead{Model}} & \multicolumn{2}{c}{\textbf{\thead{Triangles (M)}}} & \textbf{\thead{Memory Usage (MB)}} & \textbf{\thead{Timing Ratio \\ (Faceting Tol. / \\ Faceting \& Length Tol.)}} \\
-    &  \thead{Faceting \\ Tolerance} & \thead{Faceting \& Length \\ Tolerance} & & & \\
+    \textbf{\thead{Model}} & \multicolumn{2}{c}{\textbf{\thead{Triangles (M)}}} & \multicolumn{2}{c}{\textbf{\thead{Memory Usage (MB)}}} & \textbf{\thead{Timing Ratio \\ (Faceting Tol. / \\ Faceting \& Length Tol.)}} \\
+    &  \thead{Faceting \\ Tolerance} & \thead{Faceting \& \\ Length Tolerance} & \thead{Faceting \\ Tolerance} & \thead{Faceting \& \\ Length Tolerance} & \\
     \hline
     FNG  & 1.17  &  1.76  & 152 & 463  & 1.32 \\
     ATR  & 4.95  & 30.00 & 593 &  2785 & 0.83 \\
@@ -756,11 +758,12 @@ area and valence will be significantly reduced.
     ITER & 39.63 & 42.39 & 3841 & 6654 & 1.31 \\
     \bottomrule
   \end{tabular}
+  }
   \caption[Length tolerance production model study.]{The results of production
     model simulations when applying both a faceting tolerance and length
     tolerance during model tessellation to reduce HV region severity.}
   \label{tab:length_tol_production_study}
-\end{table}
+\end{sidewaystable}
 
 Table \ref{tab:length_tol_production_study} shows the results of this study. A
 length tolerance of 10 was applied to all production models with the exception
